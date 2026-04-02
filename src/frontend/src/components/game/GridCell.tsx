@@ -81,9 +81,12 @@ export function GridCell({
   if (tile === "wall") {
     cellClass = "tile-wall cursor-not-allowed";
   } else if (tile === "goal") {
-    cellClass = "tile-goal neon-glow-lime cursor-default";
+    cellClass = "tile-goal animate-pulse-goal cursor-default";
     content = (
-      <span className="text-xs font-display font-bold text-black/80 select-none">
+      <span
+        className="text-xs font-display font-bold select-none"
+        style={{ color: "oklch(0.20 0.02 255)" }}
+      >
         GOAL
       </span>
     );
@@ -92,7 +95,7 @@ export function GridCell({
     content = (
       <span
         className="text-xs font-display font-bold select-none"
-        style={{ color: "oklch(0.78 0.18 192)" }}
+        style={{ color: "oklch(0.76 0.07 210)" }}
       >
         S
       </span>
@@ -108,8 +111,8 @@ export function GridCell({
         className=""
         style={
           {
-            color: "oklch(0.78 0.18 192)",
-            filter: "drop-shadow(0 0 6px oklch(0.78 0.18 192 / 0.8))",
+            color: "oklch(0.76 0.07 210)",
+            filter: "drop-shadow(0 0 4px oklch(0.76 0.07 210 / 0.6))",
           } as React.CSSProperties
         }
       />
@@ -130,6 +133,7 @@ export function GridCell({
         transition-all duration-150 rounded-sm
         ${cellClass}
       `}
+      style={{ width: "100%", height: "100%" }}
       role={isArrow && isEditing ? "button" : undefined}
       tabIndex={isArrow && isEditing ? 0 : undefined}
       onDragOver={handleDragOver}

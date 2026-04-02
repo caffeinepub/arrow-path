@@ -45,66 +45,36 @@ function App() {
   return (
     <div
       className="min-h-screen bg-streak flex flex-col"
-      style={{
-        background:
-          "radial-gradient(ellipse at 20% 50%, oklch(0.12 0.04 260) 0%, oklch(0.07 0.02 260) 60%, oklch(0.06 0.01 250) 100%)",
-      }}
+      style={{ background: "oklch(0.27 0.025 255)" }}
     >
-      {/* Background streaks */}
-      <div
-        className="fixed inset-0 pointer-events-none overflow-hidden"
-        aria-hidden="true"
-      >
-        <div
-          className="absolute w-px h-full opacity-10"
-          style={{
-            left: "20%",
-            background:
-              "linear-gradient(to bottom, transparent, oklch(0.78 0.18 192), transparent)",
-          }}
-        />
-        <div
-          className="absolute w-px h-full opacity-5"
-          style={{
-            left: "70%",
-            background:
-              "linear-gradient(to bottom, transparent, oklch(0.82 0.22 130), transparent)",
-          }}
-        />
-        <div
-          className="absolute h-px w-full opacity-5"
-          style={{
-            top: "40%",
-            background:
-              "linear-gradient(to right, transparent, oklch(0.78 0.18 192), transparent)",
-          }}
-        />
-      </div>
-
       {/* Header */}
-      <header className="relative z-10 border-b border-border/40 px-4 py-3 sm:py-4">
+      <motion.header
+        animate={{ opacity: isPlaying ? 0.4 : 1 }}
+        transition={{ duration: 0.3 }}
+        className="relative z-10 border-b border-border/40 px-4 py-3 sm:py-4"
+      >
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Logo mark */}
             <div
               className="w-8 h-8 rounded-md flex items-center justify-center"
               style={{
-                background: "oklch(0.78 0.18 192)",
-                boxShadow: "0 0 12px oklch(0.78 0.18 192 / 0.5)",
+                background: "oklch(0.76 0.07 210)",
+                boxShadow: "0 0 10px oklch(0.76 0.07 210 / 0.35)",
               }}
             >
               <svg
                 width="18"
                 height="18"
                 viewBox="0 0 24 24"
-                fill="oklch(0.09 0.02 260)"
+                fill="oklch(0.20 0.02 255)"
                 aria-hidden="true"
               >
                 <path d="M20 12l-8 8v-5H4V9h8V4z" />
               </svg>
             </div>
             <h1 className="text-lg sm:text-xl font-display font-bold uppercase tracking-widest neon-text-cyan">
-              Arrow Path
+              Waymark
             </h1>
           </div>
 
@@ -115,7 +85,7 @@ function App() {
             </span>
             <span
               className="text-xs font-display font-bold"
-              style={{ color: "oklch(0.82 0.22 130)" }}
+              style={{ color: "oklch(0.73 0.1 130)" }}
             >
               {currentLevel.name}
             </span>
@@ -132,14 +102,14 @@ function App() {
                   exit={{ opacity: 0, scale: 0.8 }}
                   className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-display uppercase font-bold"
                   style={{
-                    background: "oklch(0.78 0.18 192 / 0.15)",
-                    color: "oklch(0.78 0.18 192)",
-                    border: "1px solid oklch(0.78 0.18 192 / 0.4)",
+                    background: "oklch(0.76 0.07 210 / 0.12)",
+                    color: "oklch(0.76 0.07 210)",
+                    border: "1px solid oklch(0.76 0.07 210 / 0.35)",
                   }}
                 >
                   <span
                     className="w-1.5 h-1.5 rounded-full animate-pulse"
-                    style={{ background: "oklch(0.78 0.18 192)" }}
+                    style={{ background: "oklch(0.76 0.07 210)" }}
                   />
                   Running
                 </motion.div>
@@ -152,14 +122,14 @@ function App() {
                   exit={{ opacity: 0, scale: 0.8 }}
                   className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-display uppercase font-bold"
                   style={{
-                    background: "oklch(0.65 0.24 25 / 0.15)",
-                    color: "oklch(0.65 0.24 25)",
-                    border: "1px solid oklch(0.65 0.24 25 / 0.4)",
+                    background: "oklch(0.65 0.18 25 / 0.12)",
+                    color: "oklch(0.65 0.18 25)",
+                    border: "1px solid oklch(0.65 0.18 25 / 0.35)",
                   }}
                 >
                   <span
                     className="w-1.5 h-1.5 rounded-full"
-                    style={{ background: "oklch(0.65 0.24 25)" }}
+                    style={{ background: "oklch(0.65 0.18 25)" }}
                   />
                   Failed
                 </motion.div>
@@ -167,7 +137,7 @@ function App() {
             </AnimatePresence>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Main content */}
       <main className="relative z-10 flex-1 px-3 py-4 sm:py-6">
@@ -193,6 +163,7 @@ function App() {
                       ballPos={state.ballPos}
                       gamePhase={state.gamePhase}
                       ballFail={state.ballFail}
+                      levelIndex={state.currentLevelIndex}
                       onDrop={placeArrow}
                       onRemoveArrow={removeArrow}
                     />
@@ -219,8 +190,11 @@ function App() {
             {/* Inventory sidebar */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
+              animate={{ opacity: isPlaying ? 0.4 : 1, x: 0 }}
+              transition={{
+                duration: isPlaying ? 0.3 : 0.4,
+                delay: isPlaying ? 0 : 0.1,
+              }}
               className="w-full lg:w-52 xl:w-56 flex-shrink-0"
             >
               <InventoryPanel
@@ -233,7 +207,11 @@ function App() {
       </main>
 
       {/* Footer controls */}
-      <footer className="relative z-10 border-t border-border/40 px-4 py-3">
+      <motion.footer
+        animate={{ opacity: isPlaying ? 0.4 : 1 }}
+        transition={{ duration: 0.3 }}
+        className="relative z-10 border-t border-border/40 px-4 py-3"
+      >
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
           {/* Left: Level selector + action buttons */}
           <div className="flex flex-wrap items-center gap-3">
@@ -255,12 +233,12 @@ function App() {
               style={
                 isEditing
                   ? {
-                      background: "oklch(0.78 0.18 192)",
-                      color: "oklch(0.09 0.02 260)",
-                      boxShadow: "0 0 16px oklch(0.78 0.18 192 / 0.5)",
+                      background: "oklch(0.76 0.07 210)",
+                      color: "oklch(0.20 0.02 255)",
+                      boxShadow: "0 0 14px oklch(0.76 0.07 210 / 0.4)",
                     }
                   : {
-                      background: "oklch(0.18 0.03 250)",
+                      background: "oklch(0.31 0.025 255)",
                       color: "oklch(0.45 0.02 240)",
                     }
               }
@@ -276,9 +254,9 @@ function App() {
               className="px-5 py-2.5 rounded-lg font-display font-bold text-sm uppercase tracking-wider
                 transition-all duration-200 hover:scale-105 active:scale-95"
               style={{
-                background: "oklch(0.14 0.03 255)",
+                background: "oklch(0.29 0.025 255)",
                 color: "oklch(0.70 0.02 240)",
-                border: "1px solid oklch(0.22 0.04 255 / 0.6)",
+                border: "1px solid oklch(0.38 0.03 255 / 0.6)",
               }}
               data-ocid="game.secondary_button"
             >
@@ -294,7 +272,7 @@ function App() {
               </span>
               <span
                 className="font-display font-bold"
-                style={{ color: "oklch(0.78 0.18 192)" }}
+                style={{ color: "oklch(0.76 0.07 210)" }}
               >
                 {state.moveCount}
               </span>
@@ -305,14 +283,14 @@ function App() {
               </span>
               <span
                 className="font-display font-bold"
-                style={{ color: "oklch(0.82 0.22 130)" }}
+                style={{ color: "oklch(0.73 0.1 130)" }}
               >
                 {state.currentLevelIndex + 1}/{LEVELS.length}
               </span>
             </div>
           </div>
         </div>
-      </footer>
+      </motion.footer>
 
       {/* Win modal */}
       <WinModal

@@ -16,8 +16,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Orbitron", "monospace"],
-        sans: ["Space Grotesk", "system-ui", "sans-serif"],
+        display: ["Montserrat", "sans-serif"],
+        sans: ["Inter", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "monospace"],
       },
       colors: {
@@ -84,8 +84,8 @@ export default {
       },
       boxShadow: {
         xs: "0 1px 2px 0 rgba(0,0,0,0.05)",
-        "neon-cyan": "0 0 12px oklch(var(--neon-cyan) / 0.6), 0 0 24px oklch(var(--neon-cyan) / 0.3)",
-        "neon-lime": "0 0 12px oklch(var(--neon-lime) / 0.7), 0 0 24px oklch(var(--neon-lime) / 0.4)",
+        "neon-cyan": "0 0 10px oklch(var(--neon-cyan) / 0.4), 0 0 20px oklch(var(--neon-cyan) / 0.2)",
+        "neon-lime": "0 0 10px oklch(var(--neon-lime) / 0.5), 0 0 20px oklch(var(--neon-lime) / 0.25)",
       },
       keyframes: {
         "accordion-down": {
@@ -97,8 +97,12 @@ export default {
           to: { height: "0" },
         },
         "pulse-cyan": {
-          "0%, 100%": { boxShadow: "0 0 8px oklch(0.78 0.18 192 / 0.5)" },
-          "50%": { boxShadow: "0 0 20px oklch(0.78 0.18 192 / 0.9), 0 0 40px oklch(0.78 0.18 192 / 0.5)" },
+          "0%, 100%": { boxShadow: "0 0 6px oklch(0.76 0.07 210 / 0.4)" },
+          "50%": { boxShadow: "0 0 14px oklch(0.76 0.07 210 / 0.7), 0 0 28px oklch(0.76 0.07 210 / 0.35)" },
+        },
+        "pulse-goal": {
+          "0%, 100%": { boxShadow: "0 0 8px oklch(0.73 0.1 130 / 0.5), 0 0 16px oklch(0.73 0.1 130 / 0.3)" },
+          "50%": { boxShadow: "0 0 16px oklch(0.73 0.1 130 / 0.8), 0 0 32px oklch(0.73 0.1 130 / 0.5), 0 0 48px oklch(0.73 0.1 130 / 0.25)" },
         },
         "win-pulse": {
           "0%, 100%": { opacity: "1" },
@@ -125,6 +129,7 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "pulse-cyan": "pulse-cyan 2s ease-in-out infinite",
+        "pulse-goal": "pulse-goal 2s ease-in-out infinite",
         "win-pulse": "win-pulse 1s ease-in-out infinite",
         "ball-fail": "ball-fail 0.3s ease-in-out 3",
         "slide-up": "slide-up 0.4s ease-out",

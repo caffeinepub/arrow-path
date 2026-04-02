@@ -22688,15 +22688,22 @@ function GridCell({
   if (tile === "wall") {
     cellClass = "tile-wall cursor-not-allowed";
   } else if (tile === "goal") {
-    cellClass = "tile-goal neon-glow-lime cursor-default";
-    content = /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-display font-bold text-black/80 select-none", children: "GOAL" });
+    cellClass = "tile-goal animate-pulse-goal cursor-default";
+    content = /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "span",
+      {
+        className: "text-xs font-display font-bold select-none",
+        style: { color: "oklch(0.20 0.02 255)" },
+        children: "GOAL"
+      }
+    );
   } else if (tile === "start") {
     cellClass = "tile-start cursor-default";
     content = /* @__PURE__ */ jsxRuntimeExports.jsx(
       "span",
       {
         className: "text-xs font-display font-bold select-none",
-        style: { color: "oklch(0.78 0.18 192)" },
+        style: { color: "oklch(0.76 0.07 210)" },
         children: "S"
       }
     );
@@ -22709,8 +22716,8 @@ function GridCell({
         size: 28,
         className: "",
         style: {
-          color: "oklch(0.78 0.18 192)",
-          filter: "drop-shadow(0 0 6px oklch(0.78 0.18 192 / 0.8))"
+          color: "oklch(0.76 0.07 210)",
+          filter: "drop-shadow(0 0 4px oklch(0.76 0.07 210 / 0.6))"
         }
       }
     );
@@ -22728,6 +22735,7 @@ function GridCell({
         transition-all duration-150 rounded-sm
         ${cellClass}
       `,
+      style: { width: "100%", height: "100%" },
       role: isArrow && isEditing ? "button" : void 0,
       tabIndex: isArrow && isEditing ? 0 : void 0,
       onDragOver: handleDragOver,
@@ -22754,38 +22762,66 @@ for (let r2 = 0; r2 < GRID_SIZE; r2++) {
     CELL_COORDS.push({ row: r2, col: c2, key: `grid-cell-${r2 * GRID_SIZE + c2}` });
   }
 }
+const containerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.015 } }
+};
+const tileVariants = {
+  hidden: { opacity: 0, scale: 0.85 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.2, ease: "easeOut" }
+  }
+};
+const TRAIL_KEYS = ["trail-ghost-1", "trail-ghost-2"];
 function GameGrid({
   grid,
   ballPos,
   gamePhase,
   ballFail,
+  levelIndex,
   onDrop,
   onRemoveArrow
 }) {
   const isEditing = gamePhase === "editing";
+  const [trail, setTrail] = React$2.useState(
+    []
+  );
+  React$2.useEffect(() => {
+    if (ballPos) {
+      setTrail((prev) => [ballPos, ...prev].slice(0, 3));
+    } else {
+      setTrail([]);
+    }
+  }, [ballPos]);
   const ballStyle = ballPos ? {
     top: `calc(${ballPos.row} * var(--cell-size) + var(--cell-size) / 2 - 16px)`,
     left: `calc(${ballPos.col} * var(--cell-size) + var(--cell-size) / 2 - 16px)`,
     transition: "top 0.32s cubic-bezier(0.4, 0, 0.2, 1), left 0.32s cubic-bezier(0.4, 0, 0.2, 1)"
   } : { display: "none" };
+  const trailGhosts = trail.slice(1);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     "div",
     {
       className: "relative w-full flex flex-col items-center",
       "data-ocid": "game.canvas_target",
       children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "div",
+        motion.div,
         {
+          variants: containerVariants,
+          initial: "hidden",
+          animate: "visible",
           className: "relative rounded-lg overflow-hidden border border-border/60",
           style: {
             "--cell-size": `${CELL_SIZE_DESKTOP}px`,
             display: "grid",
             gridTemplateColumns: "repeat(8, var(--cell-size))",
             gridTemplateRows: "repeat(8, var(--cell-size))",
-            boxShadow: "0 0 0 1px oklch(0.22 0.04 255 / 0.4), 0 8px 40px oklch(0 0 0 / 0.6)"
+            boxShadow: "0 0 0 1px oklch(0.38 0.03 255 / 0.4), 0 8px 40px oklch(0 0 0 / 0.5)"
           },
           children: [
-            CELL_COORDS.map(({ row, col, key }) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            CELL_COORDS.map(({ row, col, key }) => /* @__PURE__ */ jsxRuntimeExports.jsx(motion.div, { variants: tileVariants, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
               GridCell,
               {
                 row,
@@ -22794,9 +22830,29 @@ function GameGrid({
                 isEditing,
                 onDrop,
                 onRemove: onRemoveArrow
-              },
-              key
-            )),
+              }
+            ) }, key)),
+            TRAIL_KEYS.map((trailKey, i) => {
+              const pos = trailGhosts[i];
+              if (!pos) return null;
+              return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "absolute rounded-full pointer-events-none z-10",
+                  style: {
+                    top: `calc(${pos.row} * var(--cell-size) + var(--cell-size) / 2 - ${10 - i * 2}px)`,
+                    left: `calc(${pos.col} * var(--cell-size) + var(--cell-size) / 2 - ${10 - i * 2}px)`,
+                    width: `${20 - i * 4}px`,
+                    height: `${20 - i * 4}px`,
+                    opacity: 0.4 - i * 0.15,
+                    filter: `blur(${(i + 1) * 3}px)`,
+                    background: "radial-gradient(circle, rgba(255,255,255,0.9), rgba(255,255,255,0.3))",
+                    transition: "top 0.32s cubic-bezier(0.4,0,0.2,1), left 0.32s cubic-bezier(0.4,0,0.2,1)"
+                  }
+                },
+                trailKey
+              );
+            }),
             ballPos && /* @__PURE__ */ jsxRuntimeExports.jsx(
               "div",
               {
@@ -22806,12 +22862,13 @@ function GameGrid({
             `,
                 style: {
                   ...ballStyle,
-                  background: ballFail ? "radial-gradient(circle at 35% 35%, #ff6b6b, #cc0000)" : "radial-gradient(circle at 35% 35%, #ffffff, #cccccc)"
+                  background: ballFail ? "radial-gradient(circle at 35% 35%, #ff6b6b, #cc0000)" : "radial-gradient(circle at 35% 35%, #ffffff, #e0e0e0)"
                 }
               }
             )
           ]
-        }
+        },
+        `grid-${levelIndex}-${gamePhase === "editing" ? "edit" : "play"}`
       )
     }
   );
@@ -22832,54 +22889,61 @@ function InventoryItemCard({ item, isEditing }) {
     e.dataTransfer.setData("arrow-direction", item.direction);
     e.dataTransfer.effectAllowed = "copy";
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "div",
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    motion.div,
     {
-      className: `
-        relative flex flex-col items-center justify-center gap-1
-        w-16 h-16 sm:w-20 sm:h-20 rounded-md border-2 cursor-grab
-        transition-all duration-200 select-none
-        ${isEmpty ? "opacity-40 cursor-not-allowed border-border/40 bg-muted/20" : "tile-arrow hover:scale-105 active:scale-95 neon-border-cyan"}
-      `,
-      draggable: isEditing && !isEmpty,
-      onDragStart: handleDragStart,
-      title: isEmpty ? `No ${DIRECTION_LABELS[item.direction]} arrows remaining` : `Drag to place ${DIRECTION_LABELS[item.direction]} arrow`,
-      "data-ocid": `inventory.${item.direction}.drag_handle`,
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          ArrowIcon,
-          {
-            direction: item.direction,
-            size: 26,
-            style: {
-              color: isEmpty ? "oklch(0.45 0.02 240)" : "oklch(0.78 0.18 192)",
-              filter: isEmpty ? "none" : "drop-shadow(0 0 4px oklch(0.78 0.18 192 / 0.8))"
-            }
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "span",
-          {
-            className: "text-xs font-display font-bold",
-            style: {
-              color: isEmpty ? "oklch(0.45 0.02 240)" : "oklch(0.78 0.18 192)"
-            },
-            children: DIRECTION_LABELS[item.direction]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "span",
-          {
-            className: `
-          absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center
-          text-xs font-display font-bold
-          ${isEmpty ? "bg-muted/40 text-muted-foreground" : "text-background"}
+      whileHover: !isEmpty ? { y: -4, transition: { duration: 0.15 } } : {},
+      whileTap: !isEmpty ? { scale: 0.96 } : {},
+      children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          className: `
+          relative flex flex-col items-center justify-center gap-1
+          w-16 h-16 sm:w-20 sm:h-20 rounded-md border-2 cursor-grab
+          transition-all duration-200 select-none
+          ${isEmpty ? "opacity-40 cursor-not-allowed border-border/40 bg-muted/20" : "tile-arrow hover:scale-105 active:scale-95 neon-border-cyan"}
         `,
-            style: isEmpty ? {} : { backgroundColor: "oklch(0.78 0.18 192)" },
-            children: item.count
-          }
-        )
-      ]
+          draggable: isEditing && !isEmpty,
+          onDragStart: handleDragStart,
+          title: isEmpty ? `No ${DIRECTION_LABELS[item.direction]} arrows remaining` : `Drag to place ${DIRECTION_LABELS[item.direction]} arrow`,
+          "data-ocid": `inventory.${item.direction}.drag_handle`,
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              ArrowIcon,
+              {
+                direction: item.direction,
+                size: 26,
+                style: {
+                  color: isEmpty ? "oklch(0.45 0.02 240)" : "oklch(0.76 0.07 210)",
+                  filter: isEmpty ? "none" : "drop-shadow(0 0 3px oklch(0.76 0.07 210 / 0.6))"
+                }
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "span",
+              {
+                className: "text-xs font-display font-bold",
+                style: {
+                  color: isEmpty ? "oklch(0.45 0.02 240)" : "oklch(0.76 0.07 210)"
+                },
+                children: DIRECTION_LABELS[item.direction]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "span",
+              {
+                className: `
+            absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center
+            text-xs font-display font-bold
+            ${isEmpty ? "bg-muted/40 text-muted-foreground" : "text-background"}
+          `,
+                style: isEmpty ? {} : { backgroundColor: "oklch(0.76 0.07 210)" },
+                children: item.count
+              }
+            )
+          ]
+        }
+      )
     }
   );
 }
@@ -22897,7 +22961,7 @@ function InventoryPanel({ inventory, isEditing }) {
             "h2",
             {
               className: "text-sm font-display font-bold uppercase tracking-widest",
-              style: { color: "oklch(0.78 0.18 192)" },
+              style: { color: "oklch(0.76 0.07 210)" },
               children: "Inventory"
             }
           ),
@@ -22918,7 +22982,7 @@ function InventoryPanel({ inventory, isEditing }) {
             {
               className: "text-lg font-display font-bold",
               style: {
-                color: totalRemaining > 0 ? "oklch(0.78 0.18 192)" : "oklch(0.55 0.02 240)"
+                color: totalRemaining > 0 ? "oklch(0.76 0.07 210)" : "oklch(0.55 0.02 240)"
               },
               children: totalRemaining
             }
@@ -22945,7 +23009,7 @@ function InventoryPanel({ inventory, isEditing }) {
               "div",
               {
                 className: "w-4 h-4 rounded-sm tile-start",
-                style: { border: "1px solid oklch(0.78 0.18 192 / 0.4)" }
+                style: { border: "1px solid oklch(0.76 0.07 210 / 0.4)" }
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground", children: "Start (S)" })
@@ -23094,13 +23158,13 @@ function LevelSelector({
               ${!isUnlocked ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}
             `,
           style: isCurrent ? {
-            background: "oklch(0.78 0.18 192)",
-            color: "oklch(0.09 0.02 260)",
-            boxShadow: "0 0 12px oklch(0.78 0.18 192 / 0.5)"
+            background: "oklch(0.76 0.07 210)",
+            color: "oklch(0.20 0.02 255)",
+            boxShadow: "0 0 10px oklch(0.76 0.07 210 / 0.45)"
           } : {
-            background: "oklch(0.16 0.03 250)",
+            background: "oklch(0.31 0.025 255)",
             color: "oklch(0.70 0.02 240)",
-            border: "1px solid oklch(0.22 0.04 255 / 0.6)"
+            border: "1px solid oklch(0.38 0.03 255 / 0.6)"
           },
           title: level.name,
           "data-ocid": "level.tab",
@@ -23116,9 +23180,7 @@ function SplashScreen({ onStart }) {
     "div",
     {
       className: "min-h-screen flex flex-col items-center justify-center relative overflow-hidden",
-      style: {
-        background: "radial-gradient(ellipse at 20% 50%, oklch(0.12 0.04 260) 0%, oklch(0.07 0.02 260) 60%, oklch(0.06 0.01 250) 100%)"
-      },
+      style: { background: "oklch(0.27 0.025 255)" },
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
@@ -23129,10 +23191,10 @@ function SplashScreen({ onStart }) {
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "div",
                 {
-                  className: "absolute w-px h-full opacity-10",
+                  className: "absolute w-px h-full opacity-8",
                   style: {
                     left: "20%",
-                    background: "linear-gradient(to bottom, transparent, oklch(0.78 0.18 192), transparent)"
+                    background: "linear-gradient(to bottom, transparent, oklch(0.76 0.07 210 / 0.3), transparent)"
                   }
                 }
               ),
@@ -23141,32 +23203,22 @@ function SplashScreen({ onStart }) {
                 {
                   className: "absolute w-px h-full opacity-5",
                   style: {
-                    left: "70%",
-                    background: "linear-gradient(to bottom, transparent, oklch(0.82 0.22 130), transparent)"
+                    left: "75%",
+                    background: "linear-gradient(to bottom, transparent, oklch(0.73 0.1 130 / 0.25), transparent)"
                   }
                 }
               ),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "div",
                 {
-                  className: "absolute h-px w-full opacity-5",
+                  className: "absolute rounded-full",
                   style: {
-                    top: "40%",
-                    background: "linear-gradient(to right, transparent, oklch(0.78 0.18 192), transparent)"
-                  }
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "div",
-                {
-                  className: "absolute rounded-full opacity-5",
-                  style: {
-                    width: "600px",
-                    height: "600px",
+                    width: "500px",
+                    height: "500px",
                     top: "50%",
                     left: "50%",
                     transform: "translate(-50%, -50%)",
-                    background: "radial-gradient(circle, oklch(0.78 0.18 192 / 0.3) 0%, transparent 70%)"
+                    background: "radial-gradient(circle, oklch(0.76 0.07 210 / 0.06) 0%, transparent 70%)"
                   }
                 }
               )
@@ -23191,7 +23243,7 @@ function SplashScreen({ onStart }) {
                   "aria-label": "Arrow pointing into circle",
                   role: "img",
                   style: {
-                    filter: "drop-shadow(0 0 10px oklch(0.78 0.18 192 / 0.7)) drop-shadow(0 0 24px oklch(0.78 0.18 192 / 0.4))"
+                    filter: "drop-shadow(0 0 8px oklch(0.76 0.07 210 / 0.5)) drop-shadow(0 0 18px oklch(0.76 0.07 210 / 0.25))"
                   },
                   children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -23200,8 +23252,8 @@ function SplashScreen({ onStart }) {
                         cx: "40",
                         cy: "40",
                         r: "30",
-                        stroke: "oklch(0.78 0.18 192)",
-                        strokeWidth: "2.5",
+                        stroke: "oklch(0.76 0.07 210)",
+                        strokeWidth: "2",
                         fill: "none"
                       }
                     ),
@@ -23212,8 +23264,8 @@ function SplashScreen({ onStart }) {
                         y1: "40",
                         x2: "56",
                         y2: "40",
-                        stroke: "oklch(0.78 0.18 192)",
-                        strokeWidth: "2.5",
+                        stroke: "oklch(0.76 0.07 210)",
+                        strokeWidth: "2",
                         strokeLinecap: "round"
                       }
                     ),
@@ -23221,8 +23273,8 @@ function SplashScreen({ onStart }) {
                       "polyline",
                       {
                         points: "48,31 58,40 48,49",
-                        stroke: "oklch(0.78 0.18 192)",
-                        strokeWidth: "2.5",
+                        stroke: "oklch(0.76 0.07 210)",
+                        strokeWidth: "2",
                         strokeLinecap: "round",
                         strokeLinejoin: "round",
                         fill: "none"
@@ -23263,13 +23315,13 @@ function SplashScreen({ onStart }) {
               initial: { opacity: 0, y: 16 },
               animate: { opacity: 1, y: 0 },
               transition: { duration: 0.5, delay: 0.6, ease: "easeOut" },
-              whileHover: { scale: 1.06 },
-              whileTap: { scale: 0.96 },
+              whileHover: { scale: 1.05 },
+              whileTap: { scale: 0.97 },
               className: "mt-2 px-10 py-3.5 rounded-lg font-display font-bold text-sm uppercase tracking-wider transition-shadow duration-200",
               style: {
-                background: "oklch(0.78 0.18 192)",
-                color: "oklch(0.09 0.02 260)",
-                boxShadow: "0 0 18px oklch(0.78 0.18 192 / 0.55), 0 0 36px oklch(0.78 0.18 192 / 0.25)"
+                background: "oklch(0.76 0.07 210)",
+                color: "oklch(0.20 0.02 255)",
+                boxShadow: "0 0 16px oklch(0.76 0.07 210 / 0.4), 0 0 32px oklch(0.76 0.07 210 / 0.15)"
               },
               "data-ocid": "splash.primary_button",
               children: "Play Game"
@@ -23309,7 +23361,7 @@ function WinModal({
     motion.div,
     {
       className: "fixed inset-0 z-50 flex items-center justify-center",
-      style: { background: "oklch(0 0 0 / 0.75)" },
+      style: { background: "oklch(0 0 0 / 0.7)" },
       initial: { opacity: 0 },
       animate: { opacity: 1 },
       exit: { opacity: 0 },
@@ -23319,9 +23371,9 @@ function WinModal({
         {
           className: "relative mx-4 w-full max-w-md rounded-2xl border p-8 text-center overflow-hidden",
           style: {
-            background: "oklch(0.10 0.03 255)",
-            borderColor: "oklch(0.78 0.18 192 / 0.6)",
-            boxShadow: "0 0 40px oklch(0.78 0.18 192 / 0.3), 0 0 80px oklch(0.78 0.18 192 / 0.1)"
+            background: "oklch(0.29 0.025 255)",
+            borderColor: "oklch(0.76 0.07 210 / 0.5)",
+            boxShadow: "0 0 32px oklch(0.76 0.07 210 / 0.2), 0 0 64px oklch(0.76 0.07 210 / 0.08)"
           },
           initial: { scale: 0.8, opacity: 0, y: 20 },
           animate: { scale: 1, opacity: 1, y: 0 },
@@ -23333,7 +23385,7 @@ function WinModal({
               {
                 className: "absolute inset-0 pointer-events-none",
                 style: {
-                  background: "radial-gradient(ellipse at 50% 0%, oklch(0.78 0.18 192 / 0.08) 0%, transparent 70%)"
+                  background: "radial-gradient(ellipse at 50% 0%, oklch(0.76 0.07 210 / 0.05) 0%, transparent 70%)"
                 }
               }
             ),
@@ -23341,10 +23393,10 @@ function WinModal({
               motion.div,
               {
                 className: "text-5xl mb-4",
-                animate: { scale: [1, 1.1, 1] },
+                animate: { scale: [1, 1.08, 1] },
                 transition: {
                   repeat: Number.POSITIVE_INFINITY,
-                  duration: 2,
+                  duration: 2.5,
                   ease: "easeInOut"
                 },
                 children: isLastLevel ? "🏆" : "✨"
@@ -23355,11 +23407,11 @@ function WinModal({
               {
                 className: "text-2xl font-display font-bold uppercase mb-1",
                 style: {
-                  color: "oklch(0.78 0.18 192)",
-                  textShadow: "0 0 20px oklch(0.78 0.18 192 / 0.6), 0 0 40px oklch(0.78 0.18 192 / 0.3)"
+                  color: "oklch(0.76 0.07 210)",
+                  textShadow: "0 0 12px oklch(0.76 0.07 210 / 0.4)"
                 },
-                animate: { opacity: [1, 0.7, 1] },
-                transition: { repeat: Number.POSITIVE_INFINITY, duration: 2 },
+                animate: { opacity: [1, 0.75, 1] },
+                transition: { repeat: Number.POSITIVE_INFINITY, duration: 2.5 },
                 children: isLastLevel ? "You Win!" : "Level Complete!"
               }
             ),
@@ -23368,14 +23420,14 @@ function WinModal({
               "div",
               {
                 className: "my-6 p-4 rounded-lg",
-                style: { background: "oklch(0.14 0.03 250)" },
+                style: { background: "oklch(0.31 0.025 255)" },
                 children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground uppercase tracking-wider font-display mb-1", children: "Steps Taken" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(
                     "p",
                     {
                       className: "text-3xl font-display font-bold",
-                      style: { color: "oklch(0.82 0.22 130)" },
+                      style: { color: "oklch(0.73 0.1 130)" },
                       children: moveCount
                     }
                   )
@@ -23390,8 +23442,8 @@ function WinModal({
                   onClick: onReset,
                   className: "flex-1 py-3 px-4 rounded-lg border font-display font-bold text-sm uppercase tracking-wider\n                  transition-all duration-200 hover:scale-105 active:scale-95",
                   style: {
-                    borderColor: "oklch(0.78 0.18 192 / 0.4)",
-                    color: "oklch(0.78 0.18 192)",
+                    borderColor: "oklch(0.76 0.07 210 / 0.4)",
+                    color: "oklch(0.76 0.07 210)",
                     background: "transparent"
                   },
                   "data-ocid": "win.cancel_button",
@@ -23405,9 +23457,9 @@ function WinModal({
                   onClick: onNextLevel,
                   className: "flex-1 py-3 px-4 rounded-lg font-display font-bold text-sm uppercase tracking-wider\n                    transition-all duration-200 hover:scale-105 active:scale-95",
                   style: {
-                    background: "oklch(0.78 0.18 192)",
-                    color: "oklch(0.09 0.02 260)",
-                    boxShadow: "0 0 16px oklch(0.78 0.18 192 / 0.5)"
+                    background: "oklch(0.76 0.07 210)",
+                    color: "oklch(0.20 0.02 255)",
+                    boxShadow: "0 0 12px oklch(0.76 0.07 210 / 0.4)"
                   },
                   "data-ocid": "win.confirm_button",
                   children: "Next Level \\u2192"
@@ -23419,9 +23471,9 @@ function WinModal({
                   onClick: onReset,
                   className: "flex-1 py-3 px-4 rounded-lg font-display font-bold text-sm uppercase tracking-wider\n                    transition-all duration-200 hover:scale-105 active:scale-95",
                   style: {
-                    background: "oklch(0.78 0.18 192)",
-                    color: "oklch(0.09 0.02 260)",
-                    boxShadow: "0 0 16px oklch(0.78 0.18 192 / 0.5)"
+                    background: "oklch(0.76 0.07 210)",
+                    color: "oklch(0.20 0.02 255)",
+                    boxShadow: "0 0 12px oklch(0.76 0.07 210 / 0.4)"
                   },
                   "data-ocid": "win.confirm_button",
                   children: "Play Again"
@@ -36550,142 +36602,109 @@ function App() {
     "div",
     {
       className: "min-h-screen bg-streak flex flex-col",
-      style: {
-        background: "radial-gradient(ellipse at 20% 50%, oklch(0.12 0.04 260) 0%, oklch(0.07 0.02 260) 60%, oklch(0.06 0.01 250) 100%)"
-      },
+      style: { background: "oklch(0.27 0.025 255)" },
       children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "div",
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          motion.header,
           {
-            className: "fixed inset-0 pointer-events-none overflow-hidden",
-            "aria-hidden": "true",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "div",
-                {
-                  className: "absolute w-px h-full opacity-10",
-                  style: {
-                    left: "20%",
-                    background: "linear-gradient(to bottom, transparent, oklch(0.78 0.18 192), transparent)"
-                  }
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "div",
-                {
-                  className: "absolute w-px h-full opacity-5",
-                  style: {
-                    left: "70%",
-                    background: "linear-gradient(to bottom, transparent, oklch(0.82 0.22 130), transparent)"
-                  }
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "div",
-                {
-                  className: "absolute h-px w-full opacity-5",
-                  style: {
-                    top: "40%",
-                    background: "linear-gradient(to right, transparent, oklch(0.78 0.18 192), transparent)"
-                  }
-                }
-              )
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("header", { className: "relative z-10 border-b border-border/40 px-4 py-3 sm:py-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-5xl mx-auto flex items-center justify-between", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                className: "w-8 h-8 rounded-md flex items-center justify-center",
-                style: {
-                  background: "oklch(0.78 0.18 192)",
-                  boxShadow: "0 0 12px oklch(0.78 0.18 192 / 0.5)"
-                },
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "svg",
+            animate: { opacity: isPlaying ? 0.4 : 1 },
+            transition: { duration: 0.3 },
+            className: "relative z-10 border-b border-border/40 px-4 py-3 sm:py-4",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-5xl mx-auto flex items-center justify-between", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "div",
                   {
-                    width: "18",
-                    height: "18",
-                    viewBox: "0 0 24 24",
-                    fill: "oklch(0.09 0.02 260)",
-                    "aria-hidden": "true",
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M20 12l-8 8v-5H4V9h8V4z" })
+                    className: "w-8 h-8 rounded-md flex items-center justify-center",
+                    style: {
+                      background: "oklch(0.76 0.07 210)",
+                      boxShadow: "0 0 10px oklch(0.76 0.07 210 / 0.35)"
+                    },
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "svg",
+                      {
+                        width: "18",
+                        height: "18",
+                        viewBox: "0 0 24 24",
+                        fill: "oklch(0.20 0.02 255)",
+                        "aria-hidden": "true",
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M20 12l-8 8v-5H4V9h8V4z" })
+                      }
+                    )
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-lg sm:text-xl font-display font-bold uppercase tracking-widest neon-text-cyan", children: "Waymark" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden sm:flex items-center gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground font-display uppercase", children: [
+                  "Level ",
+                  state.currentLevelIndex + 1,
+                  ":"
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "span",
+                  {
+                    className: "text-xs font-display font-bold",
+                    style: { color: "oklch(0.73 0.1 130)" },
+                    children: currentLevel.name
                   }
                 )
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-lg sm:text-xl font-display font-bold uppercase tracking-widest neon-text-cyan", children: "Arrow Path" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden sm:flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground font-display uppercase", children: [
-              "Level ",
-              state.currentLevelIndex + 1,
-              ":"
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "span",
-              {
-                className: "text-xs font-display font-bold",
-                style: { color: "oklch(0.82 0.22 130)" },
-                children: currentLevel.name
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(AnimatePresence, { mode: "wait", children: [
-            isPlaying && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              motion.div,
-              {
-                initial: { opacity: 0, scale: 0.8 },
-                animate: { opacity: 1, scale: 1 },
-                exit: { opacity: 0, scale: 0.8 },
-                className: "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-display uppercase font-bold",
-                style: {
-                  background: "oklch(0.78 0.18 192 / 0.15)",
-                  color: "oklch(0.78 0.18 192)",
-                  border: "1px solid oklch(0.78 0.18 192 / 0.4)"
-                },
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "span",
-                    {
-                      className: "w-1.5 h-1.5 rounded-full animate-pulse",
-                      style: { background: "oklch(0.78 0.18 192)" }
-                    }
-                  ),
-                  "Running"
-                ]
-              },
-              "playing"
-            ),
-            isFailed && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              motion.div,
-              {
-                initial: { opacity: 0, scale: 0.8 },
-                animate: { opacity: 1, scale: 1 },
-                exit: { opacity: 0, scale: 0.8 },
-                className: "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-display uppercase font-bold",
-                style: {
-                  background: "oklch(0.65 0.24 25 / 0.15)",
-                  color: "oklch(0.65 0.24 25)",
-                  border: "1px solid oklch(0.65 0.24 25 / 0.4)"
-                },
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "span",
-                    {
-                      className: "w-1.5 h-1.5 rounded-full",
-                      style: { background: "oklch(0.65 0.24 25)" }
-                    }
-                  ),
-                  "Failed"
-                ]
-              },
-              "failed"
-            )
-          ] }) })
-        ] }) }),
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(AnimatePresence, { mode: "wait", children: [
+                isPlaying && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  motion.div,
+                  {
+                    initial: { opacity: 0, scale: 0.8 },
+                    animate: { opacity: 1, scale: 1 },
+                    exit: { opacity: 0, scale: 0.8 },
+                    className: "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-display uppercase font-bold",
+                    style: {
+                      background: "oklch(0.76 0.07 210 / 0.12)",
+                      color: "oklch(0.76 0.07 210)",
+                      border: "1px solid oklch(0.76 0.07 210 / 0.35)"
+                    },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "span",
+                        {
+                          className: "w-1.5 h-1.5 rounded-full animate-pulse",
+                          style: { background: "oklch(0.76 0.07 210)" }
+                        }
+                      ),
+                      "Running"
+                    ]
+                  },
+                  "playing"
+                ),
+                isFailed && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  motion.div,
+                  {
+                    initial: { opacity: 0, scale: 0.8 },
+                    animate: { opacity: 1, scale: 1 },
+                    exit: { opacity: 0, scale: 0.8 },
+                    className: "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-display uppercase font-bold",
+                    style: {
+                      background: "oklch(0.65 0.18 25 / 0.12)",
+                      color: "oklch(0.65 0.18 25)",
+                      border: "1px solid oklch(0.65 0.18 25 / 0.35)"
+                    },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "span",
+                        {
+                          className: "w-1.5 h-1.5 rounded-full",
+                          style: { background: "oklch(0.65 0.18 25)" }
+                        }
+                      ),
+                      "Failed"
+                    ]
+                  },
+                  "failed"
+                )
+              ] }) })
+            ] })
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsx("main", { className: "relative z-10 flex-1 px-3 py-4 sm:py-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-w-5xl mx-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col lg:flex-row gap-4 lg:gap-6 items-start justify-center", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col items-center gap-4 min-w-0", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -36707,6 +36726,7 @@ function App() {
                         ballPos: state.ballPos,
                         gamePhase: state.gamePhase,
                         ballFail: state.ballFail,
+                        levelIndex: state.currentLevelIndex,
                         onDrop: placeArrow,
                         onRemoveArrow: removeArrow
                       }
@@ -36730,8 +36750,11 @@ function App() {
             motion.div,
             {
               initial: { opacity: 0, x: 20 },
-              animate: { opacity: 1, x: 0 },
-              transition: { duration: 0.4, delay: 0.1 },
+              animate: { opacity: isPlaying ? 0.4 : 1, x: 0 },
+              transition: {
+                duration: isPlaying ? 0.3 : 0.4,
+                delay: isPlaying ? 0 : 0.1
+              },
               className: "w-full lg:w-52 xl:w-56 flex-shrink-0",
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                 InventoryPanel,
@@ -36743,87 +36766,95 @@ function App() {
             }
           )
         ] }) }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("footer", { className: "relative z-10 border-t border-border/40 px-4 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-5xl mx-auto flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              LevelSelector,
-              {
-                currentLevel: state.currentLevelIndex,
-                onSelect: goToLevel,
-                highestReached
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-5 w-px bg-border/40 hidden sm:block" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                type: "button",
-                onClick: play,
-                disabled: !isEditing,
-                className: "px-6 py-2.5 rounded-lg font-display font-bold text-sm uppercase tracking-wider\n                transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:scale-100",
-                style: isEditing ? {
-                  background: "oklch(0.78 0.18 192)",
-                  color: "oklch(0.09 0.02 260)",
-                  boxShadow: "0 0 16px oklch(0.78 0.18 192 / 0.5)"
-                } : {
-                  background: "oklch(0.18 0.03 250)",
-                  color: "oklch(0.45 0.02 240)"
-                },
-                "data-ocid": "game.primary_button",
-                children: "▶ Play"
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                type: "button",
-                onClick: reset,
-                className: "px-5 py-2.5 rounded-lg font-display font-bold text-sm uppercase tracking-wider\n                transition-all duration-200 hover:scale-105 active:scale-95",
-                style: {
-                  background: "oklch(0.14 0.03 255)",
-                  color: "oklch(0.70 0.02 240)",
-                  border: "1px solid oklch(0.22 0.04 255 / 0.6)"
-                },
-                "data-ocid": "game.secondary_button",
-                children: "↺ Reset"
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground font-display uppercase tracking-wider", children: [
-                "Steps",
-                " "
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          motion.footer,
+          {
+            animate: { opacity: isPlaying ? 0.4 : 1 },
+            transition: { duration: 0.3 },
+            className: "relative z-10 border-t border-border/40 px-4 py-3",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-5xl mx-auto flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-3", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  LevelSelector,
+                  {
+                    currentLevel: state.currentLevelIndex,
+                    onSelect: goToLevel,
+                    highestReached
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-5 w-px bg-border/40 hidden sm:block" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: play,
+                    disabled: !isEditing,
+                    className: "px-6 py-2.5 rounded-lg font-display font-bold text-sm uppercase tracking-wider\n                transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:scale-100",
+                    style: isEditing ? {
+                      background: "oklch(0.76 0.07 210)",
+                      color: "oklch(0.20 0.02 255)",
+                      boxShadow: "0 0 14px oklch(0.76 0.07 210 / 0.4)"
+                    } : {
+                      background: "oklch(0.31 0.025 255)",
+                      color: "oklch(0.45 0.02 240)"
+                    },
+                    "data-ocid": "game.primary_button",
+                    children: "▶ Play"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: reset,
+                    className: "px-5 py-2.5 rounded-lg font-display font-bold text-sm uppercase tracking-wider\n                transition-all duration-200 hover:scale-105 active:scale-95",
+                    style: {
+                      background: "oklch(0.29 0.025 255)",
+                      color: "oklch(0.70 0.02 240)",
+                      border: "1px solid oklch(0.38 0.03 255 / 0.6)"
+                    },
+                    "data-ocid": "game.secondary_button",
+                    children: "↺ Reset"
+                  }
+                )
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "span",
-                {
-                  className: "font-display font-bold",
-                  style: { color: "oklch(0.78 0.18 192)" },
-                  children: state.moveCount
-                }
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground font-display uppercase tracking-wider", children: [
-                "Level",
-                " "
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "span",
-                {
-                  className: "font-display font-bold",
-                  style: { color: "oklch(0.82 0.22 130)" },
-                  children: [
-                    state.currentLevelIndex + 1,
-                    "/",
-                    LEVELS.length
-                  ]
-                }
-              )
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground font-display uppercase tracking-wider", children: [
+                    "Steps",
+                    " "
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "span",
+                    {
+                      className: "font-display font-bold",
+                      style: { color: "oklch(0.76 0.07 210)" },
+                      children: state.moveCount
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground font-display uppercase tracking-wider", children: [
+                    "Level",
+                    " "
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "span",
+                    {
+                      className: "font-display font-bold",
+                      style: { color: "oklch(0.73 0.1 130)" },
+                      children: [
+                        state.currentLevelIndex + 1,
+                        "/",
+                        LEVELS.length
+                      ]
+                    }
+                  )
+                ] })
+              ] })
             ] })
-          ] })
-        ] }) }),
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           WinModal,
           {

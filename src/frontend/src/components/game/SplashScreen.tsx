@@ -8,51 +8,41 @@ export function SplashScreen({ onStart }: SplashScreenProps) {
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
-      style={{
-        background:
-          "radial-gradient(ellipse at 20% 50%, oklch(0.12 0.04 260) 0%, oklch(0.07 0.02 260) 60%, oklch(0.06 0.01 250) 100%)",
-      }}
+      style={{ background: "oklch(0.27 0.025 255)" }}
     >
-      {/* Background streaks */}
+      {/* Subtle ambient layers */}
       <div
         className="fixed inset-0 pointer-events-none overflow-hidden"
         aria-hidden="true"
       >
+        {/* Soft vertical light traces */}
         <div
-          className="absolute w-px h-full opacity-10"
+          className="absolute w-px h-full opacity-8"
           style={{
             left: "20%",
             background:
-              "linear-gradient(to bottom, transparent, oklch(0.78 0.18 192), transparent)",
+              "linear-gradient(to bottom, transparent, oklch(0.76 0.07 210 / 0.3), transparent)",
           }}
         />
         <div
           className="absolute w-px h-full opacity-5"
           style={{
-            left: "70%",
+            left: "75%",
             background:
-              "linear-gradient(to bottom, transparent, oklch(0.82 0.22 130), transparent)",
+              "linear-gradient(to bottom, transparent, oklch(0.73 0.1 130 / 0.25), transparent)",
           }}
         />
+        {/* Ambient center glow */}
         <div
-          className="absolute h-px w-full opacity-5"
+          className="absolute rounded-full"
           style={{
-            top: "40%",
-            background:
-              "linear-gradient(to right, transparent, oklch(0.78 0.18 192), transparent)",
-          }}
-        />
-        {/* Extra ambient glow orbs */}
-        <div
-          className="absolute rounded-full opacity-5"
-          style={{
-            width: "600px",
-            height: "600px",
+            width: "500px",
+            height: "500px",
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
             background:
-              "radial-gradient(circle, oklch(0.78 0.18 192 / 0.3) 0%, transparent 70%)",
+              "radial-gradient(circle, oklch(0.76 0.07 210 / 0.06) 0%, transparent 70%)",
           }}
         />
       </div>
@@ -75,7 +65,7 @@ export function SplashScreen({ onStart }: SplashScreenProps) {
             role="img"
             style={{
               filter:
-                "drop-shadow(0 0 10px oklch(0.78 0.18 192 / 0.7)) drop-shadow(0 0 24px oklch(0.78 0.18 192 / 0.4))",
+                "drop-shadow(0 0 8px oklch(0.76 0.07 210 / 0.5)) drop-shadow(0 0 18px oklch(0.76 0.07 210 / 0.25))",
             }}
           >
             {/* Circle outline */}
@@ -83,8 +73,8 @@ export function SplashScreen({ onStart }: SplashScreenProps) {
               cx="40"
               cy="40"
               r="30"
-              stroke="oklch(0.78 0.18 192)"
-              strokeWidth="2.5"
+              stroke="oklch(0.76 0.07 210)"
+              strokeWidth="2"
               fill="none"
             />
             {/* Horizontal arrow shaft coming from left, into the circle */}
@@ -93,15 +83,15 @@ export function SplashScreen({ onStart }: SplashScreenProps) {
               y1="40"
               x2="56"
               y2="40"
-              stroke="oklch(0.78 0.18 192)"
-              strokeWidth="2.5"
+              stroke="oklch(0.76 0.07 210)"
+              strokeWidth="2"
               strokeLinecap="round"
             />
             {/* Arrow head pointing right */}
             <polyline
               points="48,31 58,40 48,49"
-              stroke="oklch(0.78 0.18 192)"
-              strokeWidth="2.5"
+              stroke="oklch(0.76 0.07 210)"
+              strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
               fill="none"
@@ -138,14 +128,14 @@ export function SplashScreen({ onStart }: SplashScreenProps) {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.6, ease: "easeOut" }}
-          whileHover={{ scale: 1.06 }}
-          whileTap={{ scale: 0.96 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.97 }}
           className="mt-2 px-10 py-3.5 rounded-lg font-display font-bold text-sm uppercase tracking-wider transition-shadow duration-200"
           style={{
-            background: "oklch(0.78 0.18 192)",
-            color: "oklch(0.09 0.02 260)",
+            background: "oklch(0.76 0.07 210)",
+            color: "oklch(0.20 0.02 255)",
             boxShadow:
-              "0 0 18px oklch(0.78 0.18 192 / 0.55), 0 0 36px oklch(0.78 0.18 192 / 0.25)",
+              "0 0 16px oklch(0.76 0.07 210 / 0.4), 0 0 32px oklch(0.76 0.07 210 / 0.15)",
           }}
           data-ocid="splash.primary_button"
         >

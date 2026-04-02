@@ -34,14 +34,14 @@ export function LevelSelector({
             style={
               isCurrent
                 ? {
-                    background: "oklch(0.78 0.18 192)",
-                    color: "oklch(0.09 0.02 260)",
-                    boxShadow: "0 0 12px oklch(0.78 0.18 192 / 0.5)",
+                    background: "oklch(0.76 0.07 210)",
+                    color: "oklch(0.20 0.02 255)",
+                    boxShadow: "0 0 10px oklch(0.76 0.07 210 / 0.45)",
                   }
                 : {
-                    background: "oklch(0.16 0.03 250)",
+                    background: "oklch(0.31 0.025 255)",
                     color: "oklch(0.70 0.02 240)",
-                    border: "1px solid oklch(0.22 0.04 255 / 0.6)",
+                    border: "1px solid oklch(0.38 0.03 255 / 0.6)",
                   }
             }
             title={level.name}

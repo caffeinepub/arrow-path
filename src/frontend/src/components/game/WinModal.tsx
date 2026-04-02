@@ -24,7 +24,7 @@ export function WinModal({
       {isVisible && (
         <motion.div
           className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ background: "oklch(0 0 0 / 0.75)" }}
+          style={{ background: "oklch(0 0 0 / 0.7)" }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -33,32 +33,32 @@ export function WinModal({
           <motion.div
             className="relative mx-4 w-full max-w-md rounded-2xl border p-8 text-center overflow-hidden"
             style={{
-              background: "oklch(0.10 0.03 255)",
-              borderColor: "oklch(0.78 0.18 192 / 0.6)",
+              background: "oklch(0.29 0.025 255)",
+              borderColor: "oklch(0.76 0.07 210 / 0.5)",
               boxShadow:
-                "0 0 40px oklch(0.78 0.18 192 / 0.3), 0 0 80px oklch(0.78 0.18 192 / 0.1)",
+                "0 0 32px oklch(0.76 0.07 210 / 0.2), 0 0 64px oklch(0.76 0.07 210 / 0.08)",
             }}
             initial={{ scale: 0.8, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.8, opacity: 0, y: 20 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
           >
-            {/* Background glow effect */}
+            {/* Subtle background gradient */}
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
                 background:
-                  "radial-gradient(ellipse at 50% 0%, oklch(0.78 0.18 192 / 0.08) 0%, transparent 70%)",
+                  "radial-gradient(ellipse at 50% 0%, oklch(0.76 0.07 210 / 0.05) 0%, transparent 70%)",
               }}
             />
 
             {/* Trophy icon */}
             <motion.div
               className="text-5xl mb-4"
-              animate={{ scale: [1, 1.1, 1] }}
+              animate={{ scale: [1, 1.08, 1] }}
               transition={{
                 repeat: Number.POSITIVE_INFINITY,
-                duration: 2,
+                duration: 2.5,
                 ease: "easeInOut",
               }}
             >
@@ -68,12 +68,11 @@ export function WinModal({
             <motion.h2
               className="text-2xl font-display font-bold uppercase mb-1"
               style={{
-                color: "oklch(0.78 0.18 192)",
-                textShadow:
-                  "0 0 20px oklch(0.78 0.18 192 / 0.6), 0 0 40px oklch(0.78 0.18 192 / 0.3)",
+                color: "oklch(0.76 0.07 210)",
+                textShadow: "0 0 12px oklch(0.76 0.07 210 / 0.4)",
               }}
-              animate={{ opacity: [1, 0.7, 1] }}
-              transition={{ repeat: Number.POSITIVE_INFINITY, duration: 2 }}
+              animate={{ opacity: [1, 0.75, 1] }}
+              transition={{ repeat: Number.POSITIVE_INFINITY, duration: 2.5 }}
             >
               {isLastLevel ? "You Win!" : "Level Complete!"}
             </motion.h2>
@@ -84,14 +83,14 @@ export function WinModal({
 
             <div
               className="my-6 p-4 rounded-lg"
-              style={{ background: "oklch(0.14 0.03 250)" }}
+              style={{ background: "oklch(0.31 0.025 255)" }}
             >
               <p className="text-xs text-muted-foreground uppercase tracking-wider font-display mb-1">
                 Steps Taken
               </p>
               <p
                 className="text-3xl font-display font-bold"
-                style={{ color: "oklch(0.82 0.22 130)" }}
+                style={{ color: "oklch(0.73 0.1 130)" }}
               >
                 {moveCount}
               </p>
@@ -104,8 +103,8 @@ export function WinModal({
                 className="flex-1 py-3 px-4 rounded-lg border font-display font-bold text-sm uppercase tracking-wider
                   transition-all duration-200 hover:scale-105 active:scale-95"
                 style={{
-                  borderColor: "oklch(0.78 0.18 192 / 0.4)",
-                  color: "oklch(0.78 0.18 192)",
+                  borderColor: "oklch(0.76 0.07 210 / 0.4)",
+                  color: "oklch(0.76 0.07 210)",
                   background: "transparent",
                 }}
                 data-ocid="win.cancel_button"
@@ -120,9 +119,9 @@ export function WinModal({
                   className="flex-1 py-3 px-4 rounded-lg font-display font-bold text-sm uppercase tracking-wider
                     transition-all duration-200 hover:scale-105 active:scale-95"
                   style={{
-                    background: "oklch(0.78 0.18 192)",
-                    color: "oklch(0.09 0.02 260)",
-                    boxShadow: "0 0 16px oklch(0.78 0.18 192 / 0.5)",
+                    background: "oklch(0.76 0.07 210)",
+                    color: "oklch(0.20 0.02 255)",
+                    boxShadow: "0 0 12px oklch(0.76 0.07 210 / 0.4)",
                   }}
                   data-ocid="win.confirm_button"
                 >
@@ -135,9 +134,9 @@ export function WinModal({
                   className="flex-1 py-3 px-4 rounded-lg font-display font-bold text-sm uppercase tracking-wider
                     transition-all duration-200 hover:scale-105 active:scale-95"
                   style={{
-                    background: "oklch(0.78 0.18 192)",
-                    color: "oklch(0.09 0.02 260)",
-                    boxShadow: "0 0 16px oklch(0.78 0.18 192 / 0.5)",
+                    background: "oklch(0.76 0.07 210)",
+                    color: "oklch(0.20 0.02 255)",
+                    boxShadow: "0 0 12px oklch(0.76 0.07 210 / 0.4)",
                   }}
                   data-ocid="win.confirm_button"
                 >

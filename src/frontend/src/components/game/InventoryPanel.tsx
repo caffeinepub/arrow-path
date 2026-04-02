@@ -1,3 +1,4 @@
+import { motion } from "motion/react";
 import type { ArrowDir, InventoryItem } from "../../types/game";
 import { ArrowIcon } from "./ArrowIcon";
 
@@ -26,59 +27,64 @@ function InventoryItemCard({ item, isEditing }: InventoryItemCardProps) {
   };
 
   return (
-    <div
-      className={`
-        relative flex flex-col items-center justify-center gap-1
-        w-16 h-16 sm:w-20 sm:h-20 rounded-md border-2 cursor-grab
-        transition-all duration-200 select-none
-        ${
-          isEmpty
-            ? "opacity-40 cursor-not-allowed border-border/40 bg-muted/20"
-            : "tile-arrow hover:scale-105 active:scale-95 neon-border-cyan"
-        }
-      `}
-      draggable={isEditing && !isEmpty}
-      onDragStart={handleDragStart}
-      title={
-        isEmpty
-          ? `No ${DIRECTION_LABELS[item.direction]} arrows remaining`
-          : `Drag to place ${DIRECTION_LABELS[item.direction]} arrow`
-      }
-      data-ocid={`inventory.${item.direction}.drag_handle`}
+    <motion.div
+      whileHover={!isEmpty ? { y: -4, transition: { duration: 0.15 } } : {}}
+      whileTap={!isEmpty ? { scale: 0.96 } : {}}
     >
-      <ArrowIcon
-        direction={item.direction}
-        size={26}
-        style={
-          {
-            color: isEmpty ? "oklch(0.45 0.02 240)" : "oklch(0.78 0.18 192)",
-            filter: isEmpty
-              ? "none"
-              : "drop-shadow(0 0 4px oklch(0.78 0.18 192 / 0.8))",
-          } as React.CSSProperties
-        }
-      />
-      <span
-        className="text-xs font-display font-bold"
-        style={{
-          color: isEmpty ? "oklch(0.45 0.02 240)" : "oklch(0.78 0.18 192)",
-        }}
-      >
-        {DIRECTION_LABELS[item.direction]}
-      </span>
-
-      {/* Count badge */}
-      <span
+      <div
         className={`
-          absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center
-          text-xs font-display font-bold
-          ${isEmpty ? "bg-muted/40 text-muted-foreground" : "text-background"}
+          relative flex flex-col items-center justify-center gap-1
+          w-16 h-16 sm:w-20 sm:h-20 rounded-md border-2 cursor-grab
+          transition-all duration-200 select-none
+          ${
+            isEmpty
+              ? "opacity-40 cursor-not-allowed border-border/40 bg-muted/20"
+              : "tile-arrow hover:scale-105 active:scale-95 neon-border-cyan"
+          }
         `}
-        style={isEmpty ? {} : { backgroundColor: "oklch(0.78 0.18 192)" }}
+        draggable={isEditing && !isEmpty}
+        onDragStart={handleDragStart}
+        title={
+          isEmpty
+            ? `No ${DIRECTION_LABELS[item.direction]} arrows remaining`
+            : `Drag to place ${DIRECTION_LABELS[item.direction]} arrow`
+        }
+        data-ocid={`inventory.${item.direction}.drag_handle`}
       >
-        {item.count}
-      </span>
-    </div>
+        <ArrowIcon
+          direction={item.direction}
+          size={26}
+          style={
+            {
+              color: isEmpty ? "oklch(0.45 0.02 240)" : "oklch(0.76 0.07 210)",
+              filter: isEmpty
+                ? "none"
+                : "drop-shadow(0 0 3px oklch(0.76 0.07 210 / 0.6))",
+            } as React.CSSProperties
+          }
+        />
+        <span
+          className="text-xs font-display font-bold"
+          style={{
+            color: isEmpty ? "oklch(0.45 0.02 240)" : "oklch(0.76 0.07 210)",
+          }}
+        >
+          {DIRECTION_LABELS[item.direction]}
+        </span>
+
+        {/* Count badge */}
+        <span
+          className={`
+            absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center
+            text-xs font-display font-bold
+            ${isEmpty ? "bg-muted/40 text-muted-foreground" : "text-background"}
+          `}
+          style={isEmpty ? {} : { backgroundColor: "oklch(0.76 0.07 210)" }}
+        >
+          {item.count}
+        </span>
+      </div>
+    </motion.div>
   );
 }
 
@@ -100,7 +106,7 @@ export function InventoryPanel({ inventory, isEditing }: InventoryPanelProps) {
       <div>
         <h2
           className="text-sm font-display font-bold uppercase tracking-widest"
-          style={{ color: "oklch(0.78 0.18 192)" }}
+          style={{ color: "oklch(0.76 0.07 210)" }}
         >
           Inventory
         </h2>
@@ -131,7 +137,7 @@ export function InventoryPanel({ inventory, isEditing }: InventoryPanelProps) {
             style={{
               color:
                 totalRemaining > 0
-                  ? "oklch(0.78 0.18 192)"
+                  ? "oklch(0.76 0.07 210)"
                   : "oklch(0.55 0.02 240)",
             }}
           >
@@ -159,7 +165,7 @@ export function InventoryPanel({ inventory, isEditing }: InventoryPanelProps) {
         <div className="flex items-center gap-2">
           <div
             className="w-4 h-4 rounded-sm tile-start"
-            style={{ border: "1px solid oklch(0.78 0.18 192 / 0.4)" }}
+            style={{ border: "1px solid oklch(0.76 0.07 210 / 0.4)" }}
           />
           <span className="text-xs text-muted-foreground">Start (S)</span>
         </div>
