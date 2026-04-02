@@ -1,7 +1,9 @@
 import { AnimatePresence, motion } from "motion/react";
+import React from "react";
 import { GameGrid } from "./components/game/GameGrid";
 import { InventoryPanel } from "./components/game/InventoryPanel";
 import { LevelSelector } from "./components/game/LevelSelector";
+import { SplashScreen } from "./components/game/SplashScreen";
 import { WinModal } from "./components/game/WinModal";
 import { LEVELS } from "./data/levels";
 import { useGameState } from "./hooks/useGameState";
@@ -11,6 +13,8 @@ import {
 } from "./hooks/useQueries";
 
 function App() {
+  const [showSplash, setShowSplash] = React.useState(true);
+
   const { mutate: markCompleted } = useMarkLevelCompleted();
   const { data: highestLevel } = useHighestLevelReached();
 
@@ -33,6 +37,10 @@ function App() {
       reset();
     }
   };
+
+  if (showSplash) {
+    return <SplashScreen onStart={() => setShowSplash(false)} />;
+  }
 
   return (
     <div

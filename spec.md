@@ -1,34 +1,26 @@
-# Arrow Path
+# Arrow Path (Waymark Splash Screen)
 
 ## Current State
-New project. No existing application files.
+The app is a functional 2D arrow-path puzzle game with a dark neon arcade theme. It loads directly into the game without any splash/intro screen. The header shows the title 'Arrow Path' and a logo mark.
 
 ## Requested Changes (Diff)
 
 ### Add
-- A fully playable 2D grid-based puzzle game called "Arrow Path"
-- 8x8 game grid with tile types: Empty, Wall, Start, Goal, Arrow (Up/Down/Left/Right)
-- Multiple built-in levels (at least 5) each with predefined Wall positions, Start/Goal tiles, and a limited arrow inventory
-- Drag-and-drop mechanic to place arrow tiles from inventory onto empty grid cells
-- Ball animation that moves cell-by-cell from Start following arrow directions
-- Win condition: ball reaches Goal tile -> show success overlay with "Next Level" button
-- Fail condition: ball hits wall or grid edge -> reset ball to Start
-- Play/Reset buttons below the grid
-- Arrow Inventory sidebar on the right showing available arrows with quantity badges
-- Backend to persist level progress (current level, high scores)
+- A `SplashScreen` component (`src/frontend/src/components/game/SplashScreen.tsx`) that displays:
+  - A minimalist icon: a single arrow pointing into a circle (SVG, inline, matching neon-cyan theme)
+  - The game title 'Waymark' in bold, sans-serif font (using the existing `font-display` / Orbitron class)
+  - A subtitle 'Find the Path' in a smaller, lighter style
+  - A 'Play' or 'Start' button that dismisses the splash and shows the main game
+  - Subtle entrance animation using `motion/react`
+- A `showSplash` state in `App.tsx` (initially `true`) that renders `SplashScreen` when true, and the full game UI when false
 
 ### Modify
-- Nothing (new project)
+- `App.tsx`: Wrap existing game JSX with a conditional; render `SplashScreen` when `showSplash === true`, game UI when false
 
 ### Remove
-- Nothing (new project)
+- Nothing removed
 
 ## Implementation Plan
-1. Backend: Store current level index and best completion scores per level for a user session
-2. Frontend: Build grid rendering component with tile type visualization
-3. Frontend: Implement drag-and-drop from inventory panel to grid cells
-4. Frontend: Ball movement simulation loop with direction-change logic on arrow tiles
-5. Frontend: Level data (hardcoded array of levels with grid layouts, inventories)
-6. Frontend: Win/lose state management, success overlay, next-level flow
-7. Frontend: Play and Reset button wiring
-8. Frontend: Responsive layout - grid center, inventory right sidebar
+1. Create `SplashScreen.tsx` with the icon, title, subtitle, and start button; animate in with `motion/react`
+2. Add `showSplash` state to `App.tsx`, rendering `SplashScreen` on first load and the game once dismissed
+3. Validate (lint, typecheck, build)

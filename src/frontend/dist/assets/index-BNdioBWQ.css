@@ -682,6 +682,10 @@ body{
   bottom: 0px;
 }
 
+.bottom-4{
+  bottom: 1rem;
+}
+
 .left-0{
   left: 0px;
 }
@@ -1468,6 +1472,10 @@ body{
   gap: 1.5rem;
 }
 
+.gap-8{
+  gap: 2rem;
+}
+
 .gap-y-0\.5{
   row-gap: 0.125rem;
 }
@@ -1765,6 +1773,11 @@ body{
   padding-right: 0.375rem;
 }
 
+.px-10{
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+}
+
 .px-2{
   padding-left: 0.5rem;
   padding-right: 0.5rem;
@@ -1823,6 +1836,11 @@ body{
 .py-3{
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
+}
+
+.py-3\.5{
+  padding-top: 0.875rem;
+  padding-bottom: 0.875rem;
 }
 
 .py-4{
@@ -1907,6 +1925,10 @@ body{
   font-family: JetBrains Mono, monospace;
 }
 
+.font-sans{
+  font-family: Space Grotesk, system-ui, sans-serif;
+}
+
 .text-2xl{
   font-size: 1.5rem;
   line-height: 2rem;
@@ -1944,6 +1966,10 @@ body{
 .text-xs{
   font-size: 0.75rem;
   line-height: 1rem;
+}
+
+.font-black{
+  font-weight: 900;
 }
 
 .font-bold{
@@ -2029,6 +2055,10 @@ body{
   color: oklch(var(--muted-foreground) / var(--tw-text-opacity, 1));
 }
 
+.text-muted-foreground\/50{
+  color: oklch(var(--muted-foreground) / 0.5);
+}
+
 .text-popover-foreground{
   color: oklch(var(--popover-foreground));
 }
@@ -2048,6 +2078,14 @@ body{
 
 .text-sidebar-foreground{
   color: oklch(var(--sidebar-foreground));
+}
+
+.underline{
+  text-decoration-line: underline;
+}
+
+.underline-offset-2{
+  text-underline-offset: 2px;
 }
 
 .underline-offset-4{
