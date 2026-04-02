@@ -18,8 +18,8 @@ function cloneGrid(grid: TileType[][]): TileType[][] {
 }
 
 function findStart(grid: TileType[][]): BallPos | null {
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
+  for (let r = 0; r < grid.length; r++) {
+    for (let c = 0; c < grid[0].length; c++) {
       if (grid[r][c] === "start") return { row: r, col: c };
     }
   }
@@ -135,9 +135,9 @@ export function useGameState(
     // Out of bounds → fail
     if (
       nextPos.row < 0 ||
-      nextPos.row >= 8 ||
+      nextPos.row >= gridRef.current.length ||
       nextPos.col < 0 ||
-      nextPos.col >= 8
+      nextPos.col >= (gridRef.current[0]?.length ?? 8)
     ) {
       stopInterval();
       gamePhaseRef.current = "failed";

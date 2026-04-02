@@ -23101,6 +23101,561 @@ setTile(level5Grid, 4, 3, "wall");
 setTile(level5Grid, 5, 5, "wall");
 setTile(level5Grid, 6, 1, "wall");
 setTile(level5Grid, 6, 4, "wall");
+const level6Grid = makeGrid();
+setTile(level6Grid, 0, 1, "start");
+setTile(level6Grid, 7, 6, "goal");
+setTile(level6Grid, 1, 1, "wall");
+setTile(level6Grid, 3, 3, "wall");
+setTile(level6Grid, 3, 4, "wall");
+setTile(level6Grid, 5, 6, "wall");
+const level7Grid = makeGrid();
+setTile(level7Grid, 0, 0, "start");
+setTile(level7Grid, 7, 4, "goal");
+setTile(level7Grid, 0, 4, "wall");
+setTile(level7Grid, 2, 2, "wall");
+setTile(level7Grid, 4, 4, "wall");
+setTile(level7Grid, 6, 2, "wall");
+const level8Grid = makeGrid();
+setTile(level8Grid, 3, 0, "start");
+setTile(level8Grid, 3, 7, "goal");
+setTile(level8Grid, 1, 3, "wall");
+setTile(level8Grid, 2, 3, "wall");
+setTile(level8Grid, 4, 3, "wall");
+setTile(level8Grid, 5, 3, "wall");
+const level9Grid = makeGrid();
+setTile(level9Grid, 7, 0, "start");
+setTile(level9Grid, 0, 7, "goal");
+setTile(level9Grid, 5, 2, "wall");
+setTile(level9Grid, 5, 3, "wall");
+setTile(level9Grid, 2, 4, "wall");
+setTile(level9Grid, 2, 5, "wall");
+const level10Grid = makeGrid();
+setTile(level10Grid, 0, 0, "start");
+setTile(level10Grid, 0, 7, "goal");
+setTile(level10Grid, 0, 3, "wall");
+setTile(level10Grid, 0, 4, "wall");
+setTile(level10Grid, 3, 0, "wall");
+setTile(level10Grid, 3, 7, "wall");
+setTile(level10Grid, 6, 3, "wall");
+const level11Grid = makeGrid();
+setTile(level11Grid, 0, 0, "start");
+setTile(level11Grid, 4, 4, "goal");
+setTile(level11Grid, 0, 3, "wall");
+setTile(level11Grid, 1, 3, "wall");
+setTile(level11Grid, 2, 5, "wall");
+setTile(level11Grid, 3, 1, "wall");
+setTile(level11Grid, 3, 5, "wall");
+setTile(level11Grid, 5, 2, "wall");
+const level12Grid = makeGrid();
+setTile(level12Grid, 0, 4, "start");
+setTile(level12Grid, 7, 4, "goal");
+setTile(level12Grid, 2, 2, "wall");
+setTile(level12Grid, 2, 3, "wall");
+setTile(level12Grid, 2, 5, "wall");
+setTile(level12Grid, 2, 6, "wall");
+setTile(level12Grid, 5, 1, "wall");
+setTile(level12Grid, 5, 6, "wall");
+const level13Grid = makeGrid();
+setTile(level13Grid, 1, 0, "start");
+setTile(level13Grid, 6, 7, "goal");
+setTile(level13Grid, 1, 4, "wall");
+setTile(level13Grid, 2, 4, "wall");
+setTile(level13Grid, 4, 3, "wall");
+setTile(level13Grid, 5, 3, "wall");
+setTile(level13Grid, 3, 6, "wall");
+setTile(level13Grid, 6, 1, "wall");
+const level14Grid = makeGrid();
+setTile(level14Grid, 0, 0, "start");
+setTile(level14Grid, 7, 7, "goal");
+setTile(level14Grid, 2, 1, "wall");
+setTile(level14Grid, 2, 2, "wall");
+setTile(level14Grid, 2, 3, "wall");
+setTile(level14Grid, 4, 4, "wall");
+setTile(level14Grid, 4, 5, "wall");
+setTile(level14Grid, 4, 6, "wall");
+setTile(level14Grid, 6, 2, "wall");
+const level15Grid = makeGrid();
+setTile(level15Grid, 4, 0, "start");
+setTile(level15Grid, 4, 7, "goal");
+setTile(level15Grid, 1, 2, "wall");
+setTile(level15Grid, 2, 2, "wall");
+setTile(level15Grid, 6, 4, "wall");
+setTile(level15Grid, 7, 4, "wall");
+setTile(level15Grid, 3, 6, "wall");
+setTile(level15Grid, 5, 2, "wall");
+setTile(level15Grid, 5, 3, "wall");
+const level16Grid = makeGrid();
+setTile(level16Grid, 0, 7, "start");
+setTile(level16Grid, 7, 0, "goal");
+setTile(level16Grid, 0, 4, "wall");
+setTile(level16Grid, 1, 4, "wall");
+setTile(level16Grid, 3, 3, "wall");
+setTile(level16Grid, 4, 3, "wall");
+setTile(level16Grid, 6, 5, "wall");
+setTile(level16Grid, 7, 5, "wall");
+const level17Grid = makeGrid();
+setTile(level17Grid, 0, 0, "start");
+setTile(level17Grid, 7, 7, "goal");
+setTile(level17Grid, 1, 2, "wall");
+setTile(level17Grid, 2, 4, "wall");
+setTile(level17Grid, 3, 6, "wall");
+setTile(level17Grid, 4, 1, "wall");
+setTile(level17Grid, 5, 3, "wall");
+setTile(level17Grid, 6, 5, "wall");
+const level18Grid = makeGrid();
+setTile(level18Grid, 0, 3, "start");
+setTile(level18Grid, 7, 4, "goal");
+setTile(level18Grid, 1, 1, "wall");
+setTile(level18Grid, 1, 6, "wall");
+setTile(level18Grid, 3, 3, "wall");
+setTile(level18Grid, 3, 4, "wall");
+setTile(level18Grid, 5, 1, "wall");
+setTile(level18Grid, 5, 6, "wall");
+setTile(level18Grid, 6, 3, "wall");
+const level19Grid = makeGrid();
+setTile(level19Grid, 0, 0, "start");
+setTile(level19Grid, 7, 7, "goal");
+setTile(level19Grid, 1, 3, "wall");
+setTile(level19Grid, 2, 5, "wall");
+setTile(level19Grid, 3, 1, "wall");
+setTile(level19Grid, 3, 7, "wall");
+setTile(level19Grid, 5, 0, "wall");
+setTile(level19Grid, 5, 4, "wall");
+setTile(level19Grid, 6, 6, "wall");
+const level20Grid = makeGrid();
+setTile(level20Grid, 0, 1, "start");
+setTile(level20Grid, 7, 6, "goal");
+setTile(level20Grid, 1, 0, "wall");
+setTile(level20Grid, 1, 2, "wall");
+setTile(level20Grid, 3, 3, "wall");
+setTile(level20Grid, 3, 5, "wall");
+setTile(level20Grid, 5, 2, "wall");
+setTile(level20Grid, 5, 4, "wall");
+setTile(level20Grid, 7, 3, "wall");
+setTile(level20Grid, 7, 5, "wall");
+const level21Grid = makeGrid();
+setTile(level21Grid, 0, 0, "start");
+setTile(level21Grid, 7, 7, "goal");
+setTile(level21Grid, 2, 0, "wall");
+setTile(level21Grid, 2, 1, "wall");
+setTile(level21Grid, 2, 2, "wall");
+setTile(level21Grid, 2, 3, "wall");
+setTile(level21Grid, 5, 4, "wall");
+setTile(level21Grid, 5, 5, "wall");
+setTile(level21Grid, 5, 6, "wall");
+setTile(level21Grid, 5, 7, "wall");
+setTile(level21Grid, 3, 6, "wall");
+const level22Grid = makeGrid();
+setTile(level22Grid, 3, 0, "start");
+setTile(level22Grid, 3, 7, "goal");
+setTile(level22Grid, 0, 2, "wall");
+setTile(level22Grid, 0, 5, "wall");
+setTile(level22Grid, 2, 4, "wall");
+setTile(level22Grid, 4, 2, "wall");
+setTile(level22Grid, 4, 5, "wall");
+setTile(level22Grid, 6, 3, "wall");
+setTile(level22Grid, 7, 1, "wall");
+setTile(level22Grid, 7, 6, "wall");
+const level23Grid = makeGrid();
+setTile(level23Grid, 0, 3, "start");
+setTile(level23Grid, 7, 3, "goal");
+setTile(level23Grid, 2, 1, "wall");
+setTile(level23Grid, 2, 5, "wall");
+setTile(level23Grid, 3, 1, "wall");
+setTile(level23Grid, 3, 5, "wall");
+setTile(level23Grid, 4, 2, "wall");
+setTile(level23Grid, 4, 4, "wall");
+setTile(level23Grid, 5, 0, "wall");
+setTile(level23Grid, 5, 6, "wall");
+setTile(level23Grid, 6, 2, "wall");
+const level24Grid = makeGrid();
+setTile(level24Grid, 0, 0, "start");
+setTile(level24Grid, 7, 7, "goal");
+setTile(level24Grid, 1, 2, "wall");
+setTile(level24Grid, 1, 4, "wall");
+setTile(level24Grid, 1, 6, "wall");
+setTile(level24Grid, 3, 1, "wall");
+setTile(level24Grid, 3, 5, "wall");
+setTile(level24Grid, 5, 2, "wall");
+setTile(level24Grid, 5, 4, "wall");
+setTile(level24Grid, 6, 6, "wall");
+setTile(level24Grid, 7, 2, "wall");
+const level25Grid = makeGrid();
+setTile(level25Grid, 7, 0, "start");
+setTile(level25Grid, 0, 7, "goal");
+setTile(level25Grid, 6, 2, "wall");
+setTile(level25Grid, 5, 4, "wall");
+setTile(level25Grid, 4, 2, "wall");
+setTile(level25Grid, 4, 6, "wall");
+setTile(level25Grid, 3, 4, "wall");
+setTile(level25Grid, 2, 2, "wall");
+setTile(level25Grid, 2, 6, "wall");
+setTile(level25Grid, 1, 4, "wall");
+setTile(level25Grid, 0, 2, "wall");
+const level26Grid = makeGrid();
+setTile(level26Grid, 0, 0, "start");
+setTile(level26Grid, 7, 7, "goal");
+setTile(level26Grid, 0, 4, "wall");
+setTile(level26Grid, 1, 2, "wall");
+setTile(level26Grid, 1, 4, "wall");
+setTile(level26Grid, 2, 2, "wall");
+setTile(level26Grid, 3, 4, "wall");
+setTile(level26Grid, 3, 6, "wall");
+setTile(level26Grid, 4, 1, "wall");
+setTile(level26Grid, 4, 4, "wall");
+setTile(level26Grid, 5, 6, "wall");
+setTile(level26Grid, 6, 3, "wall");
+const level27Grid = makeGrid();
+setTile(level27Grid, 0, 1, "start");
+setTile(level27Grid, 7, 6, "goal");
+setTile(level27Grid, 2, 2, "wall");
+setTile(level27Grid, 2, 3, "wall");
+setTile(level27Grid, 2, 4, "wall");
+setTile(level27Grid, 3, 2, "wall");
+setTile(level27Grid, 3, 4, "wall");
+setTile(level27Grid, 4, 2, "wall");
+setTile(level27Grid, 4, 4, "wall");
+setTile(level27Grid, 5, 2, "wall");
+setTile(level27Grid, 5, 3, "wall");
+setTile(level27Grid, 5, 4, "wall");
+const level28Grid = makeGrid();
+setTile(level28Grid, 0, 0, "start");
+setTile(level28Grid, 7, 7, "goal");
+setTile(level28Grid, 1, 3, "wall");
+setTile(level28Grid, 2, 3, "wall");
+setTile(level28Grid, 3, 3, "wall");
+setTile(level28Grid, 4, 4, "wall");
+setTile(level28Grid, 5, 4, "wall");
+setTile(level28Grid, 6, 4, "wall");
+setTile(level28Grid, 2, 6, "wall");
+setTile(level28Grid, 5, 1, "wall");
+const level29Grid = makeGrid();
+setTile(level29Grid, 0, 4, "start");
+setTile(level29Grid, 7, 3, "goal");
+setTile(level29Grid, 1, 2, "wall");
+setTile(level29Grid, 1, 6, "wall");
+setTile(level29Grid, 3, 0, "wall");
+setTile(level29Grid, 3, 4, "wall");
+setTile(level29Grid, 3, 7, "wall");
+setTile(level29Grid, 5, 2, "wall");
+setTile(level29Grid, 5, 5, "wall");
+setTile(level29Grid, 6, 0, "wall");
+setTile(level29Grid, 6, 7, "wall");
+const level30Grid = makeGrid();
+setTile(level30Grid, 0, 0, "start");
+setTile(level30Grid, 0, 7, "goal");
+setTile(level30Grid, 0, 2, "wall");
+setTile(level30Grid, 0, 3, "wall");
+setTile(level30Grid, 0, 4, "wall");
+setTile(level30Grid, 0, 5, "wall");
+setTile(level30Grid, 3, 1, "wall");
+setTile(level30Grid, 3, 6, "wall");
+setTile(level30Grid, 5, 3, "wall");
+setTile(level30Grid, 5, 4, "wall");
+setTile(level30Grid, 7, 2, "wall");
+setTile(level30Grid, 7, 5, "wall");
+const level31Grid = makeGrid();
+setTile(level31Grid, 0, 0, "start");
+setTile(level31Grid, 7, 7, "goal");
+setTile(level31Grid, 1, 5, "wall");
+setTile(level31Grid, 1, 6, "wall");
+setTile(level31Grid, 1, 7, "wall");
+setTile(level31Grid, 3, 0, "wall");
+setTile(level31Grid, 3, 1, "wall");
+setTile(level31Grid, 3, 2, "wall");
+setTile(level31Grid, 5, 4, "wall");
+setTile(level31Grid, 5, 5, "wall");
+setTile(level31Grid, 6, 2, "wall");
+setTile(level31Grid, 7, 2, "wall");
+setTile(level31Grid, 4, 6, "wall");
+const level32Grid = makeGrid();
+setTile(level32Grid, 4, 0, "start");
+setTile(level32Grid, 4, 7, "goal");
+setTile(level32Grid, 2, 1, "wall");
+setTile(level32Grid, 3, 1, "wall");
+setTile(level32Grid, 5, 1, "wall");
+setTile(level32Grid, 6, 1, "wall");
+setTile(level32Grid, 2, 6, "wall");
+setTile(level32Grid, 3, 6, "wall");
+setTile(level32Grid, 5, 6, "wall");
+setTile(level32Grid, 6, 6, "wall");
+setTile(level32Grid, 4, 3, "wall");
+setTile(level32Grid, 4, 4, "wall");
+const level33Grid = makeGrid();
+setTile(level33Grid, 0, 0, "start");
+setTile(level33Grid, 3, 3, "goal");
+setTile(level33Grid, 0, 5, "wall");
+setTile(level33Grid, 1, 5, "wall");
+setTile(level33Grid, 2, 5, "wall");
+setTile(level33Grid, 3, 5, "wall");
+setTile(level33Grid, 5, 1, "wall");
+setTile(level33Grid, 5, 2, "wall");
+setTile(level33Grid, 5, 3, "wall");
+setTile(level33Grid, 5, 4, "wall");
+setTile(level33Grid, 2, 2, "wall");
+setTile(level33Grid, 7, 7, "wall");
+const level34Grid = makeGrid();
+setTile(level34Grid, 0, 0, "start");
+setTile(level34Grid, 7, 7, "goal");
+setTile(level34Grid, 3, 0, "wall");
+setTile(level34Grid, 3, 1, "wall");
+setTile(level34Grid, 3, 2, "wall");
+setTile(level34Grid, 3, 3, "wall");
+setTile(level34Grid, 3, 5, "wall");
+setTile(level34Grid, 3, 6, "wall");
+setTile(level34Grid, 3, 7, "wall");
+setTile(level34Grid, 5, 1, "wall");
+setTile(level34Grid, 5, 6, "wall");
+setTile(level34Grid, 1, 5, "wall");
+const level35Grid = makeGrid();
+setTile(level35Grid, 0, 3, "start");
+setTile(level35Grid, 7, 4, "goal");
+setTile(level35Grid, 2, 0, "wall");
+setTile(level35Grid, 2, 1, "wall");
+setTile(level35Grid, 2, 2, "wall");
+setTile(level35Grid, 2, 5, "wall");
+setTile(level35Grid, 2, 6, "wall");
+setTile(level35Grid, 2, 7, "wall");
+setTile(level35Grid, 5, 0, "wall");
+setTile(level35Grid, 5, 1, "wall");
+setTile(level35Grid, 5, 2, "wall");
+setTile(level35Grid, 5, 5, "wall");
+setTile(level35Grid, 5, 6, "wall");
+setTile(level35Grid, 5, 7, "wall");
+const level36Grid = makeGrid();
+setTile(level36Grid, 0, 0, "start");
+setTile(level36Grid, 7, 7, "goal");
+setTile(level36Grid, 1, 1, "wall");
+setTile(level36Grid, 1, 2, "wall");
+setTile(level36Grid, 2, 1, "wall");
+setTile(level36Grid, 4, 4, "wall");
+setTile(level36Grid, 4, 5, "wall");
+setTile(level36Grid, 5, 4, "wall");
+setTile(level36Grid, 3, 6, "wall");
+setTile(level36Grid, 6, 2, "wall");
+setTile(level36Grid, 7, 3, "wall");
+setTile(level36Grid, 0, 5, "wall");
+const level37Grid = makeGrid();
+setTile(level37Grid, 0, 0, "start");
+setTile(level37Grid, 7, 7, "goal");
+setTile(level37Grid, 1, 0, "wall");
+setTile(level37Grid, 1, 1, "wall");
+setTile(level37Grid, 3, 2, "wall");
+setTile(level37Grid, 3, 3, "wall");
+setTile(level37Grid, 5, 4, "wall");
+setTile(level37Grid, 5, 5, "wall");
+setTile(level37Grid, 2, 5, "wall");
+setTile(level37Grid, 4, 3, "wall");
+setTile(level37Grid, 6, 6, "wall");
+setTile(level37Grid, 0, 3, "wall");
+setTile(level37Grid, 7, 4, "wall");
+const level38Grid = makeGrid();
+setTile(level38Grid, 0, 0, "start");
+setTile(level38Grid, 7, 7, "goal");
+setTile(level38Grid, 0, 6, "wall");
+setTile(level38Grid, 1, 6, "wall");
+setTile(level38Grid, 2, 4, "wall");
+setTile(level38Grid, 2, 5, "wall");
+setTile(level38Grid, 4, 2, "wall");
+setTile(level38Grid, 4, 3, "wall");
+setTile(level38Grid, 6, 1, "wall");
+setTile(level38Grid, 7, 1, "wall");
+setTile(level38Grid, 3, 7, "wall");
+setTile(level38Grid, 5, 0, "wall");
+const level39Grid = makeGrid();
+setTile(level39Grid, 0, 0, "start");
+setTile(level39Grid, 7, 7, "goal");
+setTile(level39Grid, 1, 2, "wall");
+setTile(level39Grid, 1, 3, "wall");
+setTile(level39Grid, 1, 4, "wall");
+setTile(level39Grid, 1, 5, "wall");
+setTile(level39Grid, 3, 2, "wall");
+setTile(level39Grid, 3, 3, "wall");
+setTile(level39Grid, 3, 4, "wall");
+setTile(level39Grid, 3, 5, "wall");
+setTile(level39Grid, 5, 2, "wall");
+setTile(level39Grid, 5, 3, "wall");
+setTile(level39Grid, 5, 4, "wall");
+setTile(level39Grid, 5, 5, "wall");
+const level40Grid = makeGrid();
+setTile(level40Grid, 0, 0, "start");
+setTile(level40Grid, 7, 7, "goal");
+setTile(level40Grid, 0, 2, "wall");
+setTile(level40Grid, 0, 3, "wall");
+setTile(level40Grid, 0, 4, "wall");
+setTile(level40Grid, 2, 6, "wall");
+setTile(level40Grid, 2, 7, "wall");
+setTile(level40Grid, 4, 0, "wall");
+setTile(level40Grid, 4, 1, "wall");
+setTile(level40Grid, 5, 5, "wall");
+setTile(level40Grid, 6, 3, "wall");
+setTile(level40Grid, 7, 1, "wall");
+setTile(level40Grid, 7, 2, "wall");
+setTile(level40Grid, 1, 4, "wall");
+const level41Grid = makeGrid();
+setTile(level41Grid, 0, 0, "start");
+setTile(level41Grid, 7, 7, "goal");
+setTile(level41Grid, 0, 3, "wall");
+setTile(level41Grid, 0, 4, "wall");
+setTile(level41Grid, 0, 5, "wall");
+setTile(level41Grid, 2, 2, "wall");
+setTile(level41Grid, 2, 6, "wall");
+setTile(level41Grid, 2, 7, "wall");
+setTile(level41Grid, 4, 0, "wall");
+setTile(level41Grid, 4, 1, "wall");
+setTile(level41Grid, 4, 5, "wall");
+setTile(level41Grid, 6, 3, "wall");
+setTile(level41Grid, 6, 4, "wall");
+setTile(level41Grid, 7, 0, "wall");
+setTile(level41Grid, 7, 1, "wall");
+const level42Grid = makeGrid();
+setTile(level42Grid, 0, 0, "start");
+setTile(level42Grid, 0, 7, "goal");
+setTile(level42Grid, 1, 1, "wall");
+setTile(level42Grid, 1, 2, "wall");
+setTile(level42Grid, 1, 3, "wall");
+setTile(level42Grid, 1, 5, "wall");
+setTile(level42Grid, 1, 6, "wall");
+setTile(level42Grid, 3, 2, "wall");
+setTile(level42Grid, 3, 5, "wall");
+setTile(level42Grid, 5, 2, "wall");
+setTile(level42Grid, 5, 5, "wall");
+setTile(level42Grid, 7, 1, "wall");
+setTile(level42Grid, 7, 3, "wall");
+setTile(level42Grid, 7, 4, "wall");
+setTile(level42Grid, 7, 6, "wall");
+const level43Grid = makeGrid();
+setTile(level43Grid, 7, 0, "start");
+setTile(level43Grid, 0, 7, "goal");
+setTile(level43Grid, 6, 2, "wall");
+setTile(level43Grid, 5, 2, "wall");
+setTile(level43Grid, 5, 4, "wall");
+setTile(level43Grid, 4, 4, "wall");
+setTile(level43Grid, 4, 6, "wall");
+setTile(level43Grid, 3, 6, "wall");
+setTile(level43Grid, 3, 1, "wall");
+setTile(level43Grid, 2, 3, "wall");
+setTile(level43Grid, 1, 5, "wall");
+setTile(level43Grid, 6, 5, "wall");
+setTile(level43Grid, 2, 1, "wall");
+setTile(level43Grid, 0, 3, "wall");
+const level44Grid = makeGrid();
+setTile(level44Grid, 0, 0, "start");
+setTile(level44Grid, 7, 7, "goal");
+setTile(level44Grid, 1, 3, "wall");
+setTile(level44Grid, 1, 4, "wall");
+setTile(level44Grid, 2, 6, "wall");
+setTile(level44Grid, 3, 1, "wall");
+setTile(level44Grid, 3, 5, "wall");
+setTile(level44Grid, 4, 3, "wall");
+setTile(level44Grid, 5, 1, "wall");
+setTile(level44Grid, 5, 6, "wall");
+setTile(level44Grid, 6, 3, "wall");
+setTile(level44Grid, 6, 4, "wall");
+setTile(level44Grid, 0, 5, "wall");
+setTile(level44Grid, 7, 2, "wall");
+setTile(level44Grid, 2, 1, "wall");
+setTile(level44Grid, 4, 6, "wall");
+const level45Grid = makeGrid();
+setTile(level45Grid, 0, 0, "start");
+setTile(level45Grid, 7, 7, "goal");
+setTile(level45Grid, 0, 4, "wall");
+setTile(level45Grid, 1, 2, "wall");
+setTile(level45Grid, 1, 6, "wall");
+setTile(level45Grid, 3, 0, "wall");
+setTile(level45Grid, 3, 4, "wall");
+setTile(level45Grid, 4, 4, "wall");
+setTile(level45Grid, 4, 7, "wall");
+setTile(level45Grid, 5, 2, "wall");
+setTile(level45Grid, 6, 5, "wall");
+setTile(level45Grid, 7, 3, "wall");
+setTile(level45Grid, 2, 4, "wall");
+setTile(level45Grid, 6, 1, "wall");
+const level46Grid = makeGrid();
+setTile(level46Grid, 0, 0, "start");
+setTile(level46Grid, 7, 7, "goal");
+setTile(level46Grid, 1, 1, "wall");
+setTile(level46Grid, 1, 3, "wall");
+setTile(level46Grid, 1, 5, "wall");
+setTile(level46Grid, 1, 7, "wall");
+setTile(level46Grid, 3, 0, "wall");
+setTile(level46Grid, 3, 2, "wall");
+setTile(level46Grid, 3, 4, "wall");
+setTile(level46Grid, 3, 6, "wall");
+setTile(level46Grid, 5, 1, "wall");
+setTile(level46Grid, 5, 3, "wall");
+setTile(level46Grid, 5, 5, "wall");
+setTile(level46Grid, 5, 7, "wall");
+setTile(level46Grid, 7, 0, "wall");
+setTile(level46Grid, 7, 2, "wall");
+const level47Grid = makeGrid();
+setTile(level47Grid, 0, 0, "start");
+setTile(level47Grid, 7, 7, "goal");
+setTile(level47Grid, 0, 5, "wall");
+setTile(level47Grid, 0, 6, "wall");
+setTile(level47Grid, 0, 7, "wall");
+setTile(level47Grid, 2, 2, "wall");
+setTile(level47Grid, 2, 5, "wall");
+setTile(level47Grid, 4, 2, "wall");
+setTile(level47Grid, 4, 5, "wall");
+setTile(level47Grid, 6, 0, "wall");
+setTile(level47Grid, 6, 1, "wall");
+setTile(level47Grid, 6, 2, "wall");
+setTile(level47Grid, 7, 4, "wall");
+setTile(level47Grid, 7, 5, "wall");
+setTile(level47Grid, 3, 7, "wall");
+setTile(level47Grid, 5, 0, "wall");
+const level48Grid = makeGrid();
+setTile(level48Grid, 7, 0, "start");
+setTile(level48Grid, 0, 7, "goal");
+setTile(level48Grid, 7, 2, "wall");
+setTile(level48Grid, 7, 3, "wall");
+setTile(level48Grid, 6, 5, "wall");
+setTile(level48Grid, 6, 6, "wall");
+setTile(level48Grid, 5, 1, "wall");
+setTile(level48Grid, 5, 4, "wall");
+setTile(level48Grid, 4, 6, "wall");
+setTile(level48Grid, 3, 2, "wall");
+setTile(level48Grid, 3, 5, "wall");
+setTile(level48Grid, 2, 0, "wall");
+setTile(level48Grid, 2, 4, "wall");
+setTile(level48Grid, 1, 2, "wall");
+setTile(level48Grid, 0, 5, "wall");
+setTile(level48Grid, 4, 3, "wall");
+const level49Grid = makeGrid();
+setTile(level49Grid, 0, 0, "start");
+setTile(level49Grid, 7, 7, "goal");
+setTile(level49Grid, 0, 3, "wall");
+setTile(level49Grid, 0, 4, "wall");
+setTile(level49Grid, 1, 6, "wall");
+setTile(level49Grid, 2, 1, "wall");
+setTile(level49Grid, 2, 4, "wall");
+setTile(level49Grid, 3, 6, "wall");
+setTile(level49Grid, 4, 1, "wall");
+setTile(level49Grid, 4, 4, "wall");
+setTile(level49Grid, 5, 2, "wall");
+setTile(level49Grid, 5, 6, "wall");
+setTile(level49Grid, 6, 4, "wall");
+setTile(level49Grid, 7, 1, "wall");
+setTile(level49Grid, 7, 2, "wall");
+setTile(level49Grid, 3, 2, "wall");
+const level50Grid = makeGrid();
+setTile(level50Grid, 0, 0, "start");
+setTile(level50Grid, 7, 7, "goal");
+setTile(level50Grid, 0, 2, "wall");
+setTile(level50Grid, 0, 3, "wall");
+setTile(level50Grid, 0, 4, "wall");
+setTile(level50Grid, 0, 5, "wall");
+setTile(level50Grid, 2, 0, "wall");
+setTile(level50Grid, 2, 1, "wall");
+setTile(level50Grid, 2, 6, "wall");
+setTile(level50Grid, 2, 7, "wall");
+setTile(level50Grid, 4, 2, "wall");
+setTile(level50Grid, 4, 5, "wall");
+setTile(level50Grid, 6, 0, "wall");
+setTile(level50Grid, 6, 1, "wall");
+setTile(level50Grid, 6, 6, "wall");
+setTile(level50Grid, 6, 7, "wall");
 const LEVELS = [
   {
     id: "level-1",
@@ -23156,6 +23711,465 @@ const LEVELS = [
       { direction: "left", count: 1 },
       { direction: "up", count: 1 }
     ]
+  },
+  {
+    id: "level-6",
+    name: "Side Step",
+    grid: level6Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-7",
+    name: "Zig Zag",
+    grid: level7Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-8",
+    name: "The Gap",
+    grid: level8Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "down", count: 2 },
+      { direction: "up", count: 1 }
+    ]
+  },
+  {
+    id: "level-9",
+    name: "Corner Shot",
+    grid: level9Grid,
+    startDir: "up",
+    inventory: [
+      { direction: "up", count: 2 },
+      { direction: "right", count: 2 }
+    ]
+  },
+  {
+    id: "level-10",
+    name: "Double Bend",
+    grid: level10Grid,
+    startDir: "down",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 1 }
+    ]
+  },
+  {
+    id: "level-11",
+    name: "The Spiral",
+    grid: level11Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-12",
+    name: "Cross Roads",
+    grid: level12Grid,
+    startDir: "down",
+    inventory: [
+      { direction: "down", count: 2 },
+      { direction: "left", count: 1 },
+      { direction: "right", count: 1 }
+    ]
+  },
+  {
+    id: "level-13",
+    name: "Switchback",
+    grid: level13Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-14",
+    name: "Narrow Pass",
+    grid: level14Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-15",
+    name: "Bounce House",
+    grid: level15Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 1 },
+      { direction: "up", count: 1 }
+    ]
+  },
+  {
+    id: "level-16",
+    name: "The Hook",
+    grid: level16Grid,
+    startDir: "down",
+    inventory: [
+      { direction: "down", count: 2 },
+      { direction: "left", count: 2 }
+    ]
+  },
+  {
+    id: "level-17",
+    name: "Staircase",
+    grid: level17Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-18",
+    name: "Mirror Run",
+    grid: level18Grid,
+    startDir: "down",
+    inventory: [
+      { direction: "down", count: 2 },
+      { direction: "right", count: 1 },
+      { direction: "left", count: 1 }
+    ]
+  },
+  {
+    id: "level-19",
+    name: "The Gauntlet",
+    grid: level19Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-20",
+    name: "Slalom",
+    grid: level20Grid,
+    startDir: "down",
+    inventory: [
+      { direction: "down", count: 2 },
+      { direction: "right", count: 2 }
+    ]
+  },
+  {
+    id: "level-21",
+    name: "Barricade",
+    grid: level21Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-22",
+    name: "Pinball",
+    grid: level22Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 1 },
+      { direction: "up", count: 1 }
+    ]
+  },
+  {
+    id: "level-23",
+    name: "The T-Junction",
+    grid: level23Grid,
+    startDir: "down",
+    inventory: [
+      { direction: "down", count: 2 },
+      { direction: "right", count: 1 },
+      { direction: "left", count: 1 }
+    ]
+  },
+  {
+    id: "level-24",
+    name: "Labyrinth I",
+    grid: level24Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-25",
+    name: "Obstacle Course",
+    grid: level25Grid,
+    startDir: "up",
+    inventory: [
+      { direction: "up", count: 2 },
+      { direction: "right", count: 2 }
+    ]
+  },
+  {
+    id: "level-26",
+    name: "The Maze",
+    grid: level26Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-27",
+    name: "Fortress",
+    grid: level27Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-28",
+    name: "Alley",
+    grid: level28Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-29",
+    name: "Checkpoint",
+    grid: level29Grid,
+    startDir: "down",
+    inventory: [
+      { direction: "down", count: 2 },
+      { direction: "right", count: 1 },
+      { direction: "left", count: 1 }
+    ]
+  },
+  {
+    id: "level-30",
+    name: "The Bend II",
+    grid: level30Grid,
+    startDir: "down",
+    inventory: [
+      { direction: "down", count: 2 },
+      { direction: "right", count: 2 }
+    ]
+  },
+  {
+    id: "level-31",
+    name: "Dead Ends",
+    grid: level31Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-32",
+    name: "The Pincer",
+    grid: level32Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "down", count: 2 },
+      { direction: "up", count: 1 },
+      { direction: "right", count: 1 }
+    ]
+  },
+  {
+    id: "level-33",
+    name: "Spiral II",
+    grid: level33Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-34",
+    name: "Bottleneck",
+    grid: level34Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-35",
+    name: "Bridge",
+    grid: level35Grid,
+    startDir: "down",
+    inventory: [
+      { direction: "down", count: 2 },
+      { direction: "right", count: 1 },
+      { direction: "left", count: 1 }
+    ]
+  },
+  {
+    id: "level-36",
+    name: "The Void",
+    grid: level36Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-37",
+    name: "Zigzag II",
+    grid: level37Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-38",
+    name: "Crossfire",
+    grid: level38Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-39",
+    name: "The Snake",
+    grid: level39Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-40",
+    name: "Finale I",
+    grid: level40Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-41",
+    name: "Master Path",
+    grid: level41Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-42",
+    name: "The Corridor",
+    grid: level42Grid,
+    startDir: "down",
+    inventory: [
+      { direction: "down", count: 2 },
+      { direction: "right", count: 2 }
+    ]
+  },
+  {
+    id: "level-43",
+    name: "Labyrinth II",
+    grid: level43Grid,
+    startDir: "up",
+    inventory: [
+      { direction: "up", count: 2 },
+      { direction: "right", count: 2 }
+    ]
+  },
+  {
+    id: "level-44",
+    name: "The Grid",
+    grid: level44Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-45",
+    name: "Pressure Test",
+    grid: level45Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-46",
+    name: "Deep Maze",
+    grid: level46Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-47",
+    name: "Final Approach",
+    grid: level47Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-48",
+    name: "The Summit",
+    grid: level48Grid,
+    startDir: "up",
+    inventory: [
+      { direction: "up", count: 2 },
+      { direction: "right", count: 2 }
+    ]
+  },
+  {
+    id: "level-49",
+    name: "Grand Design",
+    grid: level49Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 }
+    ]
+  },
+  {
+    id: "level-50",
+    name: "Waymark",
+    grid: level50Grid,
+    startDir: "right",
+    inventory: [
+      { direction: "right", count: 2 },
+      { direction: "down", count: 2 },
+      { direction: "up", count: 1 }
+    ]
   }
 ];
 function LevelSelector({
@@ -23163,38 +24177,185 @@ function LevelSelector({
   onSelect,
   highestReached = 0
 }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground uppercase tracking-wider font-display mr-1 hidden sm:block", children: "Level:" }),
-    LEVELS.map((level, idx) => {
-      const isUnlocked = idx <= highestReached || idx === 0;
-      const isCurrent = idx === currentLevel;
-      return /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          type: "button",
-          onClick: () => isUnlocked ? onSelect(idx) : void 0,
-          className: `
-              w-8 h-8 rounded-md text-sm font-display font-bold
-              transition-all duration-200
-              ${isCurrent ? "scale-110" : "hover:scale-105"}
-              ${!isUnlocked ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}
-            `,
-          style: isCurrent ? {
-            background: "oklch(0.76 0.07 210)",
-            color: "oklch(0.20 0.02 255)",
-            boxShadow: "0 0 10px oklch(0.76 0.07 210 / 0.45)"
-          } : {
-            background: "oklch(0.31 0.025 255)",
-            color: "oklch(0.70 0.02 240)",
-            border: "1px solid oklch(0.38 0.03 255 / 0.6)"
-          },
-          title: level.name,
-          "data-ocid": "level.tab",
-          children: idx + 1
+  var _a3;
+  const [open, setOpen] = reactExports.useState(false);
+  const containerRef = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    if (!open) return;
+    function handleClick(e) {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+  const currentLevelName = ((_a3 = LEVELS[currentLevel]) == null ? void 0 : _a3.name) ?? "";
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { ref: containerRef, className: "relative", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        type: "button",
+        onClick: () => setOpen((v2) => !v2),
+        "data-ocid": "level.toggle",
+        className: "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-display font-semibold transition-all duration-200 hover:scale-105",
+        style: {
+          background: "oklch(0.31 0.025 255)",
+          color: "oklch(0.76 0.07 210)",
+          border: "1px solid oklch(0.38 0.03 255 / 0.7)",
+          boxShadow: open ? "0 0 12px oklch(0.76 0.07 210 / 0.25)" : void 0
         },
-        level.id
-      );
-    })
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "oklch(0.70 0.02 240)" }, className: "text-xs", children: "LVL" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+            currentLevel + 1,
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "oklch(0.50 0.02 240)" }, children: "/50" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "span",
+            {
+              className: "text-xs hidden sm:inline truncate max-w-[80px]",
+              style: { color: "oklch(0.60 0.04 210)" },
+              children: currentLevelName
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "svg",
+            {
+              width: "10",
+              height: "6",
+              viewBox: "0 0 10 6",
+              "aria-label": open ? "Collapse level selector" : "Expand level selector",
+              role: "img",
+              className: "transition-transform duration-200",
+              style: {
+                transform: open ? "rotate(180deg)" : "rotate(0deg)",
+                color: "oklch(0.55 0.04 210)"
+              },
+              fill: "currentColor",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M0 0l5 6 5-6H0z" })
+            }
+          )
+        ]
+      }
+    ),
+    open && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        "data-ocid": "level.panel",
+        className: "absolute z-50 bottom-full mb-2 left-1/2 -translate-x-1/2 rounded-xl p-3",
+        style: {
+          background: "oklch(0.18 0.02 255)",
+          border: "1px solid oklch(0.32 0.03 255 / 0.8)",
+          boxShadow: "0 -8px 32px oklch(0.10 0.02 255 / 0.8), 0 0 0 1px oklch(0.76 0.07 210 / 0.08)",
+          width: "clamp(200px, 80vw, 280px)"
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "text-xs font-display font-semibold uppercase tracking-widest mb-2.5 text-center",
+              style: { color: "oklch(0.55 0.05 210)" },
+              children: "Select Level"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "h-1 rounded-full mb-3 overflow-hidden",
+              style: { background: "oklch(0.28 0.025 255)" },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "h-full rounded-full transition-all duration-500",
+                  style: {
+                    width: `${(highestReached + 1) / LEVELS.length * 100}%`,
+                    background: "linear-gradient(90deg, oklch(0.76 0.07 210), oklch(0.73 0.10 130))"
+                  }
+                }
+              )
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "overflow-y-auto pr-0.5",
+              style: { maxHeight: "192px" },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "grid gap-1",
+                  style: { gridTemplateColumns: "repeat(5, 1fr)" },
+                  children: LEVELS.map((level, idx) => {
+                    const isUnlocked = idx <= highestReached || idx === 0;
+                    const isCurrent = idx === currentLevel;
+                    const isCompleted = idx < currentLevel || idx <= highestReached && idx !== currentLevel;
+                    let bg = "oklch(0.25 0.02 255)";
+                    let color2 = "oklch(0.45 0.02 240)";
+                    let shadow;
+                    let border = "1px solid oklch(0.32 0.025 255 / 0.5)";
+                    if (isCurrent) {
+                      bg = "oklch(0.76 0.07 210)";
+                      color2 = "oklch(0.18 0.02 255)";
+                      shadow = "0 0 8px oklch(0.76 0.07 210 / 0.5)";
+                      border = "none";
+                    } else if (isCompleted) {
+                      bg = "oklch(0.28 0.06 130)";
+                      color2 = "oklch(0.73 0.10 130)";
+                      border = "1px solid oklch(0.40 0.08 130 / 0.4)";
+                    } else if (!isUnlocked) {
+                      bg = "oklch(0.22 0.015 255)";
+                      color2 = "oklch(0.35 0.015 240)";
+                      border = "1px solid oklch(0.26 0.015 255 / 0.3)";
+                    }
+                    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: () => {
+                          if (!isUnlocked) return;
+                          onSelect(idx);
+                          setOpen(false);
+                        },
+                        title: isUnlocked ? level.name : "🔒 Complete previous level to unlock",
+                        className: "relative flex items-center justify-center rounded-md text-xs font-display font-bold transition-all duration-150",
+                        style: {
+                          width: "100%",
+                          aspectRatio: "1",
+                          background: bg,
+                          color: color2,
+                          boxShadow: shadow,
+                          border,
+                          cursor: isUnlocked ? "pointer" : "not-allowed",
+                          opacity: !isUnlocked ? 0.4 : 1,
+                          transform: isCurrent ? "scale(1.08)" : void 0
+                        },
+                        "data-ocid": `level.item.${idx + 1}`,
+                        children: !isUnlocked ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "9px" }, children: "🔒" }) : idx + 1
+                      },
+                      level.id
+                    );
+                  })
+                }
+              )
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              className: "mt-2.5 text-center text-xs",
+              style: { color: "oklch(0.40 0.02 240)" },
+              children: [
+                highestReached + 1,
+                " / ",
+                LEVELS.length,
+                " unlocked"
+              ]
+            }
+          )
+        ]
+      }
+    )
   ] });
 }
 function SplashScreen({ onStart }) {
@@ -23514,8 +24675,8 @@ function cloneGrid(grid) {
   return grid.map((row) => [...row]);
 }
 function findStart(grid) {
-  for (let r2 = 0; r2 < 8; r2++) {
-    for (let c2 = 0; c2 < 8; c2++) {
+  for (let r2 = 0; r2 < grid.length; r2++) {
+    for (let c2 = 0; c2 < grid[0].length; c2++) {
       if (grid[r2][c2] === "start") return { row: r2, col: c2 };
     }
   }
@@ -23572,6 +24733,7 @@ function useGameState(onLevelComplete) {
     return () => stopInterval();
   }, [stopInterval]);
   const tickBall = reactExports.useCallback(() => {
+    var _a3;
     const pos = ballPosRef.current;
     const dir = ballDirRef.current;
     const grid = gridRef.current;
@@ -23608,7 +24770,7 @@ function useGameState(onLevelComplete) {
     };
     const [dr, dc] = deltas[dir];
     const nextPos = { row: pos.row + dr, col: pos.col + dc };
-    if (nextPos.row < 0 || nextPos.row >= 8 || nextPos.col < 0 || nextPos.col >= 8) {
+    if (nextPos.row < 0 || nextPos.row >= gridRef.current.length || nextPos.col < 0 || nextPos.col >= (((_a3 = gridRef.current[0]) == null ? void 0 : _a3.length) ?? 8)) {
       stopInterval();
       gamePhaseRef.current = "failed";
       setState((prev) => ({ ...prev, gamePhase: "failed", ballFail: true }));
