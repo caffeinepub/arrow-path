@@ -22640,48 +22640,34 @@ function GridCell({
   col,
   tile,
   isEditing,
-  onDrop,
+  selectedArrow,
+  onPlace,
   onRemove
 }) {
-  const [isDragOver, setIsDragOver] = reactExports.useState(false);
+  const [isHovered, setIsHovered] = reactExports.useState(false);
   const isArrow = tile.startsWith("arrow_");
   const arrowDir = isArrow ? tile.replace("arrow_", "") : null;
-  const isDroppable = isEditing && (tile === "empty" || tile === "start" || isArrow);
-  const handleDragOver = (e) => {
-    if (!isDroppable) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "copy";
-    setIsDragOver(true);
-  };
-  const handleDragLeave = () => setIsDragOver(false);
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    if (!isDroppable) return;
-    const direction = e.dataTransfer.getData("arrow-direction");
-    if (direction) onDrop(row, col, direction);
-  };
-  const handleContextMenu = (e) => {
-    if (!isEditing || !isArrow) return;
-    e.preventDefault();
-    onRemove(row, col);
-  };
+  const isPlaceable = isEditing && selectedArrow !== null && (tile === "empty" || tile === "start" || isArrow);
   const handleClick = () => {
-    if (!isEditing || !isArrow) return;
-    onRemove(row, col);
-  };
-  const handleKeyDown = (e) => {
-    if (!isEditing || !isArrow) return;
-    if (e.key === "Enter" || e.key === " " || e.key === "Backspace" || e.key === "Delete") {
-      e.preventDefault();
+    if (!isEditing) return;
+    if (selectedArrow !== null && (tile === "empty" || tile === "start" || isArrow)) {
+      onPlace(row, col);
+      return;
+    }
+    if (isArrow) {
       onRemove(row, col);
     }
   };
-  const handleDragStart = (e) => {
-    if (!isEditing || !isArrow || !arrowDir) return;
-    e.dataTransfer.setData("arrow-direction", arrowDir);
-    e.dataTransfer.setData("from-grid", `${row},${col}`);
-    e.dataTransfer.effectAllowed = "move";
+  const handleKeyDown = (e) => {
+    if (!isEditing) return;
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleClick();
+    }
+    if ((e.key === "Backspace" || e.key === "Delete") && isArrow) {
+      e.preventDefault();
+      onRemove(row, col);
+    }
   };
   let cellClass = "";
   let content = null;
@@ -22698,7 +22684,7 @@ function GridCell({
       }
     );
   } else if (tile === "start") {
-    cellClass = "tile-start cursor-default";
+    cellClass = `tile-start ${isPlaceable ? "cursor-pointer" : "cursor-default"}`;
     content = /* @__PURE__ */ jsxRuntimeExports.jsx(
       "span",
       {
@@ -22708,7 +22694,7 @@ function GridCell({
       }
     );
   } else if (isArrow && arrowDir) {
-    cellClass = `tile-arrow-placed cursor-pointer select-none ${isEditing ? "hover:opacity-80" : ""}`;
+    cellClass = `tile-arrow-placed select-none ${isEditing ? "cursor-pointer hover:opacity-80" : ""}`;
     content = /* @__PURE__ */ jsxRuntimeExports.jsx(
       ArrowIcon,
       {
@@ -22722,35 +22708,40 @@ function GridCell({
       }
     );
   } else {
-    cellClass = "tile-empty cursor-default";
+    cellClass = `tile-empty ${isPlaceable ? "cursor-pointer" : "cursor-default"}`;
   }
-  if (isDragOver && isDroppable) {
-    cellClass += " drop-target-hover";
-  }
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+  const showPlaceHover = isPlaceable && isHovered;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
       className: `
         relative border flex items-center justify-center
         transition-all duration-150 rounded-sm
         ${cellClass}
+        ${showPlaceHover ? "drop-target-hover" : ""}
       `,
       style: { width: "100%", height: "100%" },
-      role: isArrow && isEditing ? "button" : void 0,
-      tabIndex: isArrow && isEditing ? 0 : void 0,
-      onDragOver: handleDragOver,
-      onDragLeave: handleDragLeave,
-      onDrop: handleDrop,
-      onContextMenu: handleContextMenu,
+      role: isEditing ? "button" : void 0,
+      tabIndex: isEditing ? 0 : void 0,
       onClick: handleClick,
       onKeyDown: handleKeyDown,
-      draggable: isEditing && isArrow,
-      onDragStart: handleDragStart,
-      title: isArrow && isEditing ? "Click or press Enter/Delete to remove" : void 0,
-      "aria-label": isArrow && arrowDir ? `${arrowDir} arrow at row ${row + 1}, col ${col + 1}` : void 0,
+      onMouseEnter: () => setIsHovered(true),
+      onMouseLeave: () => setIsHovered(false),
+      title: isEditing ? isArrow ? selectedArrow ? `Replace arrow at (${row + 1}, ${col + 1})` : "Tap to remove arrow" : isPlaceable ? `Place ${selectedArrow} arrow here` : void 0 : void 0,
+      "aria-label": isArrow && arrowDir ? `${arrowDir} arrow at row ${row + 1}, col ${col + 1}` : `Cell row ${row + 1}, col ${col + 1}`,
       "data-row": row,
       "data-col": col,
-      children: content
+      children: [
+        content,
+        isPlaceable && isHovered && selectedArrow && !isArrow && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 flex items-center justify-center pointer-events-none opacity-40", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          ArrowIcon,
+          {
+            direction: selectedArrow,
+            size: 28,
+            style: { color: "oklch(0.76 0.07 210)" }
+          }
+        ) })
+      ]
     }
   );
 }
@@ -22781,7 +22772,8 @@ function GameGrid({
   gamePhase,
   ballFail,
   levelIndex,
-  onDrop,
+  selectedArrow,
+  onPlace,
   onRemoveArrow
 }) {
   const isEditing = gamePhase === "editing";
@@ -22828,7 +22820,8 @@ function GameGrid({
                 col,
                 tile: grid[row][col],
                 isEditing,
-                onDrop,
+                selectedArrow,
+                onPlace,
                 onRemove: onRemoveArrow
               }
             ) }, key)),
@@ -22879,34 +22872,44 @@ const DIRECTION_LABELS = {
   left: "Left",
   right: "Right"
 };
-function InventoryItemCard({ item, isEditing }) {
+function InventoryItemCard({
+  item,
+  isEditing,
+  isSelected,
+  onSelect
+}) {
   const isEmpty = item.count === 0;
-  const handleDragStart = (e) => {
-    if (!isEditing || isEmpty) {
-      e.preventDefault();
-      return;
-    }
-    e.dataTransfer.setData("arrow-direction", item.direction);
-    e.dataTransfer.effectAllowed = "copy";
+  const canSelect = isEditing && !isEmpty;
+  const handleClick = () => {
+    if (!canSelect) return;
+    onSelect(item.direction);
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     motion.div,
     {
-      whileHover: !isEmpty ? { y: -4, transition: { duration: 0.15 } } : {},
-      whileTap: !isEmpty ? { scale: 0.96 } : {},
+      whileHover: canSelect ? { y: -4, transition: { duration: 0.15 } } : {},
+      whileTap: canSelect ? { scale: 0.96 } : {},
       children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "div",
+        "button",
         {
+          type: "button",
+          onClick: handleClick,
+          disabled: !canSelect,
+          "aria-pressed": isSelected,
+          "aria-label": `Select ${DIRECTION_LABELS[item.direction]} arrow`,
           className: `
           relative flex flex-col items-center justify-center gap-1
-          w-16 h-16 sm:w-20 sm:h-20 rounded-md border-2 cursor-grab
+          w-16 h-16 sm:w-20 sm:h-20 rounded-md border-2
           transition-all duration-200 select-none
-          ${isEmpty ? "opacity-40 cursor-not-allowed border-border/40 bg-muted/20" : "tile-arrow hover:scale-105 active:scale-95 neon-border-cyan"}
+          ${isEmpty ? "opacity-40 cursor-not-allowed border-border/40 bg-muted/20" : isSelected ? "cursor-pointer scale-105" : "tile-arrow cursor-pointer hover:scale-105 active:scale-95 neon-border-cyan"}
         `,
-          draggable: isEditing && !isEmpty,
-          onDragStart: handleDragStart,
-          title: isEmpty ? `No ${DIRECTION_LABELS[item.direction]} arrows remaining` : `Drag to place ${DIRECTION_LABELS[item.direction]} arrow`,
-          "data-ocid": `inventory.${item.direction}.drag_handle`,
+          style: isSelected && !isEmpty ? {
+            background: "oklch(0.76 0.07 210 / 0.25)",
+            borderColor: "oklch(0.76 0.07 210)",
+            boxShadow: "0 0 0 3px oklch(0.76 0.07 210 / 0.4), 0 0 16px oklch(0.76 0.07 210 / 0.3)"
+          } : {},
+          title: isEmpty ? `No ${DIRECTION_LABELS[item.direction]} arrows remaining` : isSelected ? `${DIRECTION_LABELS[item.direction]} selected — tap a grid cell to place` : `Tap to select ${DIRECTION_LABELS[item.direction]} arrow`,
+          "data-ocid": `inventory.${item.direction}.select_btn`,
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               ArrowIcon,
@@ -22914,8 +22917,8 @@ function InventoryItemCard({ item, isEditing }) {
                 direction: item.direction,
                 size: 26,
                 style: {
-                  color: isEmpty ? "oklch(0.45 0.02 240)" : "oklch(0.76 0.07 210)",
-                  filter: isEmpty ? "none" : "drop-shadow(0 0 3px oklch(0.76 0.07 210 / 0.6))"
+                  color: isEmpty ? "oklch(0.45 0.02 240)" : isSelected ? "oklch(0.88 0.09 210)" : "oklch(0.76 0.07 210)",
+                  filter: isEmpty || !isSelected ? isEmpty ? "none" : "drop-shadow(0 0 3px oklch(0.76 0.07 210 / 0.6))" : "drop-shadow(0 0 6px oklch(0.76 0.07 210 / 0.9))"
                 }
               }
             ),
@@ -22924,7 +22927,7 @@ function InventoryItemCard({ item, isEditing }) {
               {
                 className: "text-xs font-display font-bold",
                 style: {
-                  color: isEmpty ? "oklch(0.45 0.02 240)" : "oklch(0.76 0.07 210)"
+                  color: isEmpty ? "oklch(0.45 0.02 240)" : isSelected ? "oklch(0.88 0.09 210)" : "oklch(0.76 0.07 210)"
                 },
                 children: DIRECTION_LABELS[item.direction]
               }
@@ -22940,6 +22943,15 @@ function InventoryItemCard({ item, isEditing }) {
                 style: isEmpty ? {} : { backgroundColor: "oklch(0.76 0.07 210)" },
                 children: item.count
               }
+            ),
+            isSelected && !isEmpty && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "span",
+              {
+                className: "absolute inset-0 rounded-md animate-pulse pointer-events-none",
+                style: {
+                  boxShadow: "inset 0 0 0 2px oklch(0.76 0.07 210 / 0.5)"
+                }
+              }
             )
           ]
         }
@@ -22947,8 +22959,16 @@ function InventoryItemCard({ item, isEditing }) {
     }
   );
 }
-function InventoryPanel({ inventory, isEditing }) {
+function InventoryPanel({
+  inventory,
+  isEditing,
+  selectedArrow,
+  onSelectArrow
+}) {
   const totalRemaining = inventory.reduce((sum, item) => sum + item.count, 0);
+  const handleSelect = (dir) => {
+    onSelectArrow(selectedArrow === dir ? null : dir);
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
@@ -22965,13 +22985,15 @@ function InventoryPanel({ inventory, isEditing }) {
               children: "Inventory"
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-0.5", children: isEditing ? "Drag arrows onto the grid" : "Run in progress..." })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground mt-0.5", children: isEditing ? selectedArrow ? `${selectedArrow.charAt(0).toUpperCase() + selectedArrow.slice(1)} selected — tap grid cell` : "Tap an arrow, then tap the grid" : "Run in progress..." })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-3", children: inventory.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           InventoryItemCard,
           {
             item,
-            isEditing
+            isEditing,
+            isSelected: selectedArrow === item.direction,
+            onSelect: handleSelect
           },
           item.direction
         )) }),
@@ -23018,7 +23040,7 @@ function InventoryPanel({ inventory, isEditing }) {
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-4 h-4 rounded-sm tile-goal" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground", children: "Goal" })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-2 mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground italic", children: "Right-click arrow to remove" }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-2 mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground italic", children: "Tap placed arrow to remove" }) })
         ] })
       ]
     }
@@ -23530,8 +23552,16 @@ function useGameState(onLevelComplete) {
   const [state, setState] = reactExports.useState(() => buildInitialState(0));
   const intervalRef = reactExports.useRef(null);
   const stepsRef = reactExports.useRef(0);
-  const stateRef = reactExports.useRef(state);
-  stateRef.current = state;
+  const ballPosRef = reactExports.useRef(state.ballPos);
+  const ballDirRef = reactExports.useRef(state.ballDir);
+  const gridRef = reactExports.useRef(state.grid);
+  const levelIndexRef = reactExports.useRef(state.currentLevelIndex);
+  const gamePhaseRef = reactExports.useRef(state.gamePhase);
+  ballPosRef.current = state.ballPos;
+  ballDirRef.current = state.ballDir;
+  gridRef.current = state.grid;
+  levelIndexRef.current = state.currentLevelIndex;
+  gamePhaseRef.current = state.gamePhase;
   const stopInterval = reactExports.useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -23541,7 +23571,35 @@ function useGameState(onLevelComplete) {
   reactExports.useEffect(() => {
     return () => stopInterval();
   }, [stopInterval]);
-  const getNextPos = reactExports.useCallback((pos, dir) => {
+  const tickBall = reactExports.useCallback(() => {
+    const pos = ballPosRef.current;
+    const dir = ballDirRef.current;
+    const grid = gridRef.current;
+    const phase = gamePhaseRef.current;
+    const levelIndex = levelIndexRef.current;
+    if (phase !== "playing" || !pos || !dir) return;
+    stepsRef.current += 1;
+    if (stepsRef.current > MAX_STEPS) {
+      stopInterval();
+      gamePhaseRef.current = "failed";
+      setState((prev) => ({ ...prev, gamePhase: "failed", ballFail: true }));
+      setTimeout(() => {
+        const level = LEVELS[levelIndexRef.current];
+        const freshGrid = gridRef.current;
+        const startPos = findStart(freshGrid);
+        ballPosRef.current = startPos;
+        ballDirRef.current = level.startDir;
+        gamePhaseRef.current = "editing";
+        setState((prev) => ({
+          ...prev,
+          ballFail: false,
+          gamePhase: "editing",
+          ballPos: startPos,
+          ballDir: level.startDir
+        }));
+      }, 1e3);
+      return;
+    }
     const deltas = {
       up: [-1, 0],
       down: [1, 0],
@@ -23549,59 +23607,52 @@ function useGameState(onLevelComplete) {
       right: [0, 1]
     };
     const [dr, dc] = deltas[dir];
-    return { row: pos.row + dr, col: pos.col + dc };
-  }, []);
-  const tickBall = reactExports.useCallback(() => {
-    const current = stateRef.current;
-    if (current.gamePhase !== "playing" || !current.ballPos || !current.ballDir)
-      return;
-    stepsRef.current += 1;
-    if (stepsRef.current > MAX_STEPS) {
-      stopInterval();
-      setState((prev) => ({ ...prev, gamePhase: "failed", ballFail: true }));
-      setTimeout(() => {
-        setState((prev) => ({
-          ...prev,
-          ballFail: false,
-          gamePhase: "editing",
-          ballPos: findStart(prev.grid),
-          ballDir: LEVELS[prev.currentLevelIndex].startDir
-        }));
-      }, 1e3);
-      return;
-    }
-    const nextPos = getNextPos(current.ballPos, current.ballDir);
+    const nextPos = { row: pos.row + dr, col: pos.col + dc };
     if (nextPos.row < 0 || nextPos.row >= 8 || nextPos.col < 0 || nextPos.col >= 8) {
       stopInterval();
+      gamePhaseRef.current = "failed";
       setState((prev) => ({ ...prev, gamePhase: "failed", ballFail: true }));
       setTimeout(() => {
+        const level = LEVELS[levelIndexRef.current];
+        const startPos = findStart(gridRef.current);
+        ballPosRef.current = startPos;
+        ballDirRef.current = level.startDir;
+        gamePhaseRef.current = "editing";
         setState((prev) => ({
           ...prev,
           ballFail: false,
           gamePhase: "editing",
-          ballPos: findStart(prev.grid),
-          ballDir: LEVELS[prev.currentLevelIndex].startDir
+          ballPos: startPos,
+          ballDir: level.startDir
         }));
       }, 1e3);
       return;
     }
-    const nextTile = current.grid[nextPos.row][nextPos.col];
+    const nextTile = grid[nextPos.row][nextPos.col];
     if (nextTile === "wall") {
       stopInterval();
+      gamePhaseRef.current = "failed";
       setState((prev) => ({ ...prev, gamePhase: "failed", ballFail: true }));
       setTimeout(() => {
+        const level = LEVELS[levelIndexRef.current];
+        const startPos = findStart(gridRef.current);
+        ballPosRef.current = startPos;
+        ballDirRef.current = level.startDir;
+        gamePhaseRef.current = "editing";
         setState((prev) => ({
           ...prev,
           ballFail: false,
           gamePhase: "editing",
-          ballPos: findStart(prev.grid),
-          ballDir: LEVELS[prev.currentLevelIndex].startDir
+          ballPos: startPos,
+          ballDir: level.startDir
         }));
       }, 1e3);
       return;
     }
     if (nextTile === "goal") {
       stopInterval();
+      gamePhaseRef.current = "won";
+      ballPosRef.current = nextPos;
       setState((prev) => ({
         ...prev,
         ballPos: nextPos,
@@ -23609,26 +23660,28 @@ function useGameState(onLevelComplete) {
         moveCount: prev.moveCount + 1
       }));
       if (onLevelComplete) {
-        const levelId = LEVELS[current.currentLevelIndex].id;
-        onLevelComplete(levelId, current.moveCount + 1);
+        onLevelComplete(LEVELS[levelIndex].id, stepsRef.current);
       }
       return;
     }
-    let newDir = current.ballDir;
+    let newDir = dir;
     if (nextTile === "arrow_up") newDir = "up";
     else if (nextTile === "arrow_down") newDir = "down";
     else if (nextTile === "arrow_left") newDir = "left";
     else if (nextTile === "arrow_right") newDir = "right";
+    ballPosRef.current = nextPos;
+    ballDirRef.current = newDir;
     setState((prev) => ({
       ...prev,
       ballPos: nextPos,
       ballDir: newDir,
       moveCount: prev.moveCount + 1
     }));
-  }, [getNextPos, stopInterval, onLevelComplete]);
+  }, [stopInterval, onLevelComplete]);
   const play = reactExports.useCallback(() => {
-    if (stateRef.current.gamePhase !== "editing") return;
+    if (gamePhaseRef.current !== "editing") return;
     stepsRef.current = 0;
+    gamePhaseRef.current = "playing";
     setState((prev) => ({ ...prev, gamePhase: "playing", moveCount: 0 }));
     intervalRef.current = setInterval(tickBall, MOVE_INTERVAL_MS);
   }, [tickBall]);
@@ -23638,6 +23691,10 @@ function useGameState(onLevelComplete) {
       const level = LEVELS[prev.currentLevelIndex];
       const grid = cloneGrid(level.grid);
       const startPos = findStart(grid);
+      ballPosRef.current = startPos;
+      ballDirRef.current = level.startDir;
+      gridRef.current = grid;
+      gamePhaseRef.current = "editing";
       return {
         ...prev,
         grid,
@@ -23655,13 +23712,25 @@ function useGameState(onLevelComplete) {
     stopInterval();
     setState((prev) => {
       const nextIdx = Math.min(prev.currentLevelIndex + 1, LEVELS.length - 1);
-      return buildInitialState(nextIdx);
+      const newState = buildInitialState(nextIdx);
+      ballPosRef.current = newState.ballPos;
+      ballDirRef.current = newState.ballDir;
+      gridRef.current = newState.grid;
+      levelIndexRef.current = nextIdx;
+      gamePhaseRef.current = "editing";
+      return newState;
     });
   }, [stopInterval]);
   const goToLevel = reactExports.useCallback(
     (idx) => {
       stopInterval();
-      setState(buildInitialState(idx));
+      const newState = buildInitialState(idx);
+      ballPosRef.current = newState.ballPos;
+      ballDirRef.current = newState.ballDir;
+      gridRef.current = newState.grid;
+      levelIndexRef.current = idx;
+      gamePhaseRef.current = "editing";
+      setState(newState);
     },
     [stopInterval]
   );
@@ -23689,6 +23758,7 @@ function useGameState(onLevelComplete) {
         inventoryItem.count -= 1;
         newPlacedArrows.set(key, direction);
         newGrid[row][col] = `arrow_${direction}`;
+        gridRef.current = newGrid;
         return {
           ...prev,
           grid: newGrid,
@@ -23715,6 +23785,7 @@ function useGameState(onLevelComplete) {
       const level = LEVELS[prev.currentLevelIndex];
       const newGrid = cloneGrid(prev.grid);
       newGrid[row][col] = level.grid[row][col];
+      gridRef.current = newGrid;
       return {
         ...prev,
         grid: newGrid,
@@ -36577,6 +36648,9 @@ function useMarkLevelCompleted() {
 }
 function App() {
   const [showSplash, setShowSplash] = React$2.useState(true);
+  const [selectedArrow, setSelectedArrow] = React$2.useState(
+    null
+  );
   const { mutate: markCompleted } = useMarkLevelCompleted();
   const { data: highestLevel } = useHighestLevelReached();
   const { state, play, reset, nextLevel, goToLevel, placeArrow, removeArrow } = useGameState((levelId, moveCount) => {
@@ -36588,12 +36662,34 @@ function App() {
   const isFailed = state.gamePhase === "failed";
   const currentLevel = LEVELS[state.currentLevelIndex];
   const highestReached = highestLevel !== void 0 ? Number(highestLevel) : 0;
+  React$2.useEffect(() => {
+    if (!isEditing) setSelectedArrow(null);
+  }, [isEditing]);
+  const handleSelectArrow = (dir) => {
+    setSelectedArrow(dir);
+  };
+  const handlePlaceOnGrid = (row, col) => {
+    if (!selectedArrow) return;
+    placeArrow(row, col, selectedArrow);
+    const item = state.inventory.find((i) => i.direction === selectedArrow);
+    if (!item || item.count <= 1) {
+      setSelectedArrow(null);
+    }
+  };
   const handleNextLevel = () => {
     if (state.currentLevelIndex < LEVELS.length - 1) {
       nextLevel();
     } else {
       reset();
     }
+  };
+  const handleReset = () => {
+    setSelectedArrow(null);
+    reset();
+  };
+  const handleGoToLevel = (idx) => {
+    setSelectedArrow(null);
+    goToLevel(idx);
   };
   if (showSplash) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(SplashScreen, { onStart: () => setShowSplash(false) });
@@ -36727,7 +36823,8 @@ function App() {
                         gamePhase: state.gamePhase,
                         ballFail: state.ballFail,
                         levelIndex: state.currentLevelIndex,
-                        onDrop: placeArrow,
+                        selectedArrow: isEditing ? selectedArrow : null,
+                        onPlace: handlePlaceOnGrid,
                         onRemoveArrow: removeArrow
                       }
                     )
@@ -36742,7 +36839,7 @@ function App() {
                 animate: { opacity: 1 },
                 exit: { opacity: 0 },
                 className: "text-xs text-muted-foreground text-center font-display hidden sm:block",
-                children: "Drag arrows from inventory → grid · Right-click placed arrow to remove"
+                children: selectedArrow ? `${selectedArrow.charAt(0).toUpperCase() + selectedArrow.slice(1)} selected — tap any grid cell to place` : "Tap an arrow in the inventory, then tap a grid cell to place it"
               }
             ) })
           ] }),
@@ -36760,7 +36857,9 @@ function App() {
                 InventoryPanel,
                 {
                   inventory: state.inventory,
-                  isEditing
+                  isEditing,
+                  selectedArrow,
+                  onSelectArrow: handleSelectArrow
                 }
               )
             }
@@ -36778,7 +36877,7 @@ function App() {
                   LevelSelector,
                   {
                     currentLevel: state.currentLevelIndex,
-                    onSelect: goToLevel,
+                    onSelect: handleGoToLevel,
                     highestReached
                   }
                 ),
@@ -36806,7 +36905,7 @@ function App() {
                   "button",
                   {
                     type: "button",
-                    onClick: reset,
+                    onClick: handleReset,
                     className: "px-5 py-2.5 rounded-lg font-display font-bold text-sm uppercase tracking-wider\n                transition-all duration-200 hover:scale-105 active:scale-95",
                     style: {
                       background: "oklch(0.29 0.025 255)",
@@ -36862,7 +36961,7 @@ function App() {
             levelIndex: state.currentLevelIndex,
             moveCount: state.moveCount,
             onNextLevel: handleNextLevel,
-            onReset: reset
+            onReset: handleReset
           }
         )
       ]

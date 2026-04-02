@@ -7,7 +7,8 @@ interface GridCellProps {
   col: number;
   tile: TileType;
   isEditing: boolean;
-  onDrop: (row: number, col: number, direction: ArrowDir) => void;
+  selectedArrow: ArrowDir | null;
+  onPlace: (row: number, col: number) => void;
   onRemove: (row: number, col: number) => void;
 }
 
@@ -16,63 +17,45 @@ export function GridCell({
   col,
   tile,
   isEditing,
-  onDrop,
+  selectedArrow,
+  onPlace,
   onRemove,
 }: GridCellProps) {
-  const [isDragOver, setIsDragOver] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const isArrow = tile.startsWith("arrow_");
   const arrowDir = isArrow ? (tile.replace("arrow_", "") as ArrowDir) : null;
-  const isDroppable =
-    isEditing && (tile === "empty" || tile === "start" || isArrow);
-
-  const handleDragOver = (e: React.DragEvent) => {
-    if (!isDroppable) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "copy";
-    setIsDragOver(true);
-  };
-
-  const handleDragLeave = () => setIsDragOver(false);
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    if (!isDroppable) return;
-    const direction = e.dataTransfer.getData("arrow-direction") as ArrowDir;
-    if (direction) onDrop(row, col, direction);
-  };
-
-  const handleContextMenu = (e: React.MouseEvent) => {
-    if (!isEditing || !isArrow) return;
-    e.preventDefault();
-    onRemove(row, col);
-  };
+  const isPlaceable =
+    isEditing &&
+    selectedArrow !== null &&
+    (tile === "empty" || tile === "start" || isArrow);
 
   const handleClick = () => {
-    if (!isEditing || !isArrow) return;
-    onRemove(row, col);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!isEditing || !isArrow) return;
+    if (!isEditing) return;
+    // If there's a selected arrow, place it here
     if (
-      e.key === "Enter" ||
-      e.key === " " ||
-      e.key === "Backspace" ||
-      e.key === "Delete"
+      selectedArrow !== null &&
+      (tile === "empty" || tile === "start" || isArrow)
     ) {
-      e.preventDefault();
+      onPlace(row, col);
+      return;
+    }
+    // If no arrow selected and this cell has a placed arrow, remove it
+    if (isArrow) {
       onRemove(row, col);
     }
   };
 
-  // Also: drag placed arrow FROM grid back to inventory
-  const handleDragStart = (e: React.DragEvent) => {
-    if (!isEditing || !isArrow || !arrowDir) return;
-    e.dataTransfer.setData("arrow-direction", arrowDir);
-    e.dataTransfer.setData("from-grid", `${row},${col}`);
-    e.dataTransfer.effectAllowed = "move";
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!isEditing) return;
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleClick();
+    }
+    if ((e.key === "Backspace" || e.key === "Delete") && isArrow) {
+      e.preventDefault();
+      onRemove(row, col);
+    }
   };
 
   let cellClass = "";
@@ -91,7 +74,9 @@ export function GridCell({
       </span>
     );
   } else if (tile === "start") {
-    cellClass = "tile-start cursor-default";
+    cellClass = `tile-start ${
+      isPlaceable ? "cursor-pointer" : "cursor-default"
+    }`;
     content = (
       <span
         className="text-xs font-display font-bold select-none"
@@ -101,8 +86,8 @@ export function GridCell({
       </span>
     );
   } else if (isArrow && arrowDir) {
-    cellClass = `tile-arrow-placed cursor-pointer select-none ${
-      isEditing ? "hover:opacity-80" : ""
+    cellClass = `tile-arrow-placed select-none ${
+      isEditing ? "cursor-pointer hover:opacity-80" : ""
     }`;
     content = (
       <ArrowIcon
@@ -119,12 +104,13 @@ export function GridCell({
     );
   } else {
     // empty
-    cellClass = "tile-empty cursor-default";
+    cellClass = `tile-empty ${
+      isPlaceable ? "cursor-pointer" : "cursor-default"
+    }`;
   }
 
-  if (isDragOver && isDroppable) {
-    cellClass += " drop-target-hover";
-  }
+  // Highlight placeable cells when an arrow is selected
+  const showPlaceHover = isPlaceable && isHovered;
 
   return (
     <div
@@ -132,32 +118,45 @@ export function GridCell({
         relative border flex items-center justify-center
         transition-all duration-150 rounded-sm
         ${cellClass}
+        ${showPlaceHover ? "drop-target-hover" : ""}
       `}
       style={{ width: "100%", height: "100%" }}
-      role={isArrow && isEditing ? "button" : undefined}
-      tabIndex={isArrow && isEditing ? 0 : undefined}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
-      onContextMenu={handleContextMenu}
+      role={isEditing ? "button" : undefined}
+      tabIndex={isEditing ? 0 : undefined}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
-      draggable={isEditing && isArrow}
-      onDragStart={handleDragStart}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       title={
-        isArrow && isEditing
-          ? "Click or press Enter/Delete to remove"
+        isEditing
+          ? isArrow
+            ? selectedArrow
+              ? `Replace arrow at (${row + 1}, ${col + 1})`
+              : "Tap to remove arrow"
+            : isPlaceable
+              ? `Place ${selectedArrow} arrow here`
+              : undefined
           : undefined
       }
       aria-label={
         isArrow && arrowDir
           ? `${arrowDir} arrow at row ${row + 1}, col ${col + 1}`
-          : undefined
+          : `Cell row ${row + 1}, col ${col + 1}`
       }
       data-row={row}
       data-col={col}
     >
       {content}
+      {/* Ghost preview when hovering a placeable cell with arrow selected */}
+      {isPlaceable && isHovered && selectedArrow && !isArrow && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
+          <ArrowIcon
+            direction={selectedArrow}
+            size={28}
+            style={{ color: "oklch(0.76 0.07 210)" } as React.CSSProperties}
+          />
+        </div>
+      )}
     </div>
   );
 }

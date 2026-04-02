@@ -11,9 +11,13 @@ import {
   useHighestLevelReached,
   useMarkLevelCompleted,
 } from "./hooks/useQueries";
+import type { ArrowDir } from "./types/game";
 
 function App() {
   const [showSplash, setShowSplash] = React.useState(true);
+  const [selectedArrow, setSelectedArrow] = React.useState<ArrowDir | null>(
+    null,
+  );
 
   const { mutate: markCompleted } = useMarkLevelCompleted();
   const { data: highestLevel } = useHighestLevelReached();
@@ -30,12 +34,43 @@ function App() {
   const currentLevel = LEVELS[state.currentLevelIndex];
   const highestReached = highestLevel !== undefined ? Number(highestLevel) : 0;
 
+  // Clear selected arrow when leaving editing phase
+  React.useEffect(() => {
+    if (!isEditing) setSelectedArrow(null);
+  }, [isEditing]);
+
+  const handleSelectArrow = (dir: ArrowDir | null) => {
+    setSelectedArrow(dir);
+  };
+
+  const handlePlaceOnGrid = (row: number, col: number) => {
+    if (!selectedArrow) return;
+    placeArrow(row, col, selectedArrow);
+    // Check if inventory still has this arrow after placing
+    const item = state.inventory.find((i) => i.direction === selectedArrow);
+    if (!item || item.count <= 1) {
+      // Used the last one — deselect
+      setSelectedArrow(null);
+    }
+    // Otherwise keep selected so user can keep placing same arrow type
+  };
+
   const handleNextLevel = () => {
     if (state.currentLevelIndex < LEVELS.length - 1) {
       nextLevel();
     } else {
       reset();
     }
+  };
+
+  const handleReset = () => {
+    setSelectedArrow(null);
+    reset();
+  };
+
+  const handleGoToLevel = (idx: number) => {
+    setSelectedArrow(null);
+    goToLevel(idx);
   };
 
   if (showSplash) {
@@ -164,7 +199,8 @@ function App() {
                       gamePhase={state.gamePhase}
                       ballFail={state.ballFail}
                       levelIndex={state.currentLevelIndex}
-                      onDrop={placeArrow}
+                      selectedArrow={isEditing ? selectedArrow : null}
+                      onPlace={handlePlaceOnGrid}
                       onRemoveArrow={removeArrow}
                     />
                   </div>
@@ -180,8 +216,9 @@ function App() {
                     exit={{ opacity: 0 }}
                     className="text-xs text-muted-foreground text-center font-display hidden sm:block"
                   >
-                    Drag arrows from inventory → grid · Right-click placed arrow
-                    to remove
+                    {selectedArrow
+                      ? `${selectedArrow.charAt(0).toUpperCase() + selectedArrow.slice(1)} selected — tap any grid cell to place`
+                      : "Tap an arrow in the inventory, then tap a grid cell to place it"}
                   </motion.p>
                 )}
               </AnimatePresence>
@@ -200,6 +237,8 @@ function App() {
               <InventoryPanel
                 inventory={state.inventory}
                 isEditing={isEditing}
+                selectedArrow={selectedArrow}
+                onSelectArrow={handleSelectArrow}
               />
             </motion.div>
           </div>
@@ -217,7 +256,7 @@ function App() {
           <div className="flex flex-wrap items-center gap-3">
             <LevelSelector
               currentLevel={state.currentLevelIndex}
-              onSelect={goToLevel}
+              onSelect={handleGoToLevel}
               highestReached={highestReached}
             />
 
@@ -250,7 +289,7 @@ function App() {
             {/* Reset button */}
             <button
               type="button"
-              onClick={reset}
+              onClick={handleReset}
               className="px-5 py-2.5 rounded-lg font-display font-bold text-sm uppercase tracking-wider
                 transition-all duration-200 hover:scale-105 active:scale-95"
               style={{
@@ -298,7 +337,7 @@ function App() {
         levelIndex={state.currentLevelIndex}
         moveCount={state.moveCount}
         onNextLevel={handleNextLevel}
-        onReset={reset}
+        onReset={handleReset}
       />
     </div>
   );

@@ -9,7 +9,8 @@ interface GameGridProps {
   gamePhase: GamePhase;
   ballFail: boolean;
   levelIndex: number;
-  onDrop: (row: number, col: number, direction: ArrowDir) => void;
+  selectedArrow: ArrowDir | null;
+  onPlace: (row: number, col: number) => void;
   onRemoveArrow: (row: number, col: number) => void;
 }
 
@@ -47,7 +48,8 @@ export function GameGrid({
   gamePhase,
   ballFail,
   levelIndex,
-  onDrop,
+  selectedArrow,
+  onPlace,
   onRemoveArrow,
 }: GameGridProps) {
   const isEditing = gamePhase === "editing";
@@ -106,7 +108,8 @@ export function GameGrid({
               col={col}
               tile={grid[row][col]}
               isEditing={isEditing}
-              onDrop={onDrop}
+              selectedArrow={selectedArrow}
+              onPlace={onPlace}
               onRemove={onRemoveArrow}
             />
           </motion.div>

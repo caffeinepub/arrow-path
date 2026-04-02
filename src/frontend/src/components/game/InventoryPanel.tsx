@@ -12,61 +12,93 @@ const DIRECTION_LABELS: Record<ArrowDir, string> = {
 interface InventoryItemCardProps {
   item: InventoryItem;
   isEditing: boolean;
+  isSelected: boolean;
+  onSelect: (dir: ArrowDir) => void;
 }
 
-function InventoryItemCard({ item, isEditing }: InventoryItemCardProps) {
+function InventoryItemCard({
+  item,
+  isEditing,
+  isSelected,
+  onSelect,
+}: InventoryItemCardProps) {
   const isEmpty = item.count === 0;
+  const canSelect = isEditing && !isEmpty;
 
-  const handleDragStart = (e: React.DragEvent) => {
-    if (!isEditing || isEmpty) {
-      e.preventDefault();
-      return;
-    }
-    e.dataTransfer.setData("arrow-direction", item.direction);
-    e.dataTransfer.effectAllowed = "copy";
+  const handleClick = () => {
+    if (!canSelect) return;
+    onSelect(item.direction);
   };
 
   return (
     <motion.div
-      whileHover={!isEmpty ? { y: -4, transition: { duration: 0.15 } } : {}}
-      whileTap={!isEmpty ? { scale: 0.96 } : {}}
+      whileHover={canSelect ? { y: -4, transition: { duration: 0.15 } } : {}}
+      whileTap={canSelect ? { scale: 0.96 } : {}}
     >
-      <div
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={!canSelect}
+        aria-pressed={isSelected}
+        aria-label={`Select ${DIRECTION_LABELS[item.direction]} arrow`}
         className={`
           relative flex flex-col items-center justify-center gap-1
-          w-16 h-16 sm:w-20 sm:h-20 rounded-md border-2 cursor-grab
+          w-16 h-16 sm:w-20 sm:h-20 rounded-md border-2
           transition-all duration-200 select-none
           ${
             isEmpty
               ? "opacity-40 cursor-not-allowed border-border/40 bg-muted/20"
-              : "tile-arrow hover:scale-105 active:scale-95 neon-border-cyan"
+              : isSelected
+                ? "cursor-pointer scale-105"
+                : "tile-arrow cursor-pointer hover:scale-105 active:scale-95 neon-border-cyan"
           }
         `}
-        draggable={isEditing && !isEmpty}
-        onDragStart={handleDragStart}
+        style={
+          isSelected && !isEmpty
+            ? {
+                background: "oklch(0.76 0.07 210 / 0.25)",
+                borderColor: "oklch(0.76 0.07 210)",
+                boxShadow:
+                  "0 0 0 3px oklch(0.76 0.07 210 / 0.4), 0 0 16px oklch(0.76 0.07 210 / 0.3)",
+              }
+            : {}
+        }
         title={
           isEmpty
             ? `No ${DIRECTION_LABELS[item.direction]} arrows remaining`
-            : `Drag to place ${DIRECTION_LABELS[item.direction]} arrow`
+            : isSelected
+              ? `${DIRECTION_LABELS[item.direction]} selected — tap a grid cell to place`
+              : `Tap to select ${DIRECTION_LABELS[item.direction]} arrow`
         }
-        data-ocid={`inventory.${item.direction}.drag_handle`}
+        data-ocid={`inventory.${item.direction}.select_btn`}
       >
         <ArrowIcon
           direction={item.direction}
           size={26}
           style={
             {
-              color: isEmpty ? "oklch(0.45 0.02 240)" : "oklch(0.76 0.07 210)",
-              filter: isEmpty
-                ? "none"
-                : "drop-shadow(0 0 3px oklch(0.76 0.07 210 / 0.6))",
+              color: isEmpty
+                ? "oklch(0.45 0.02 240)"
+                : isSelected
+                  ? "oklch(0.88 0.09 210)"
+                  : "oklch(0.76 0.07 210)",
+              filter:
+                isEmpty || !isSelected
+                  ? isEmpty
+                    ? "none"
+                    : "drop-shadow(0 0 3px oklch(0.76 0.07 210 / 0.6))"
+                  : "drop-shadow(0 0 6px oklch(0.76 0.07 210 / 0.9))",
             } as React.CSSProperties
           }
         />
         <span
           className="text-xs font-display font-bold"
           style={{
-            color: isEmpty ? "oklch(0.45 0.02 240)" : "oklch(0.76 0.07 210)",
+            color: isEmpty
+              ? "oklch(0.45 0.02 240)"
+              : isSelected
+                ? "oklch(0.88 0.09 210)"
+                : "oklch(0.76 0.07 210)",
           }}
         >
           {DIRECTION_LABELS[item.direction]}
@@ -83,7 +115,17 @@ function InventoryItemCard({ item, isEditing }: InventoryItemCardProps) {
         >
           {item.count}
         </span>
-      </div>
+
+        {/* Selected indicator ring pulse */}
+        {isSelected && !isEmpty && (
+          <span
+            className="absolute inset-0 rounded-md animate-pulse pointer-events-none"
+            style={{
+              boxShadow: "inset 0 0 0 2px oklch(0.76 0.07 210 / 0.5)",
+            }}
+          />
+        )}
+      </button>
     </motion.div>
   );
 }
@@ -91,10 +133,22 @@ function InventoryItemCard({ item, isEditing }: InventoryItemCardProps) {
 interface InventoryPanelProps {
   inventory: InventoryItem[];
   isEditing: boolean;
+  selectedArrow: ArrowDir | null;
+  onSelectArrow: (dir: ArrowDir | null) => void;
 }
 
-export function InventoryPanel({ inventory, isEditing }: InventoryPanelProps) {
+export function InventoryPanel({
+  inventory,
+  isEditing,
+  selectedArrow,
+  onSelectArrow,
+}: InventoryPanelProps) {
   const totalRemaining = inventory.reduce((sum, item) => sum + item.count, 0);
+
+  const handleSelect = (dir: ArrowDir) => {
+    // Toggle off if same arrow tapped again
+    onSelectArrow(selectedArrow === dir ? null : dir);
+  };
 
   return (
     <div
@@ -111,7 +165,11 @@ export function InventoryPanel({ inventory, isEditing }: InventoryPanelProps) {
           Inventory
         </h2>
         <p className="text-xs text-muted-foreground mt-0.5">
-          {isEditing ? "Drag arrows onto the grid" : "Run in progress..."}
+          {isEditing
+            ? selectedArrow
+              ? `${selectedArrow.charAt(0).toUpperCase() + selectedArrow.slice(1)} selected — tap grid cell`
+              : "Tap an arrow, then tap the grid"
+            : "Run in progress..."}
         </p>
       </div>
 
@@ -122,6 +180,8 @@ export function InventoryPanel({ inventory, isEditing }: InventoryPanelProps) {
             key={item.direction}
             item={item}
             isEditing={isEditing}
+            isSelected={selectedArrow === item.direction}
+            onSelect={handleSelect}
           />
         ))}
       </div>
@@ -175,7 +235,7 @@ export function InventoryPanel({ inventory, isEditing }: InventoryPanelProps) {
         </div>
         <div className="flex items-center gap-2 mt-1">
           <span className="text-xs text-muted-foreground italic">
-            Right-click arrow to remove
+            Tap placed arrow to remove
           </span>
         </div>
       </div>

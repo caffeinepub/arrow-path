@@ -61,8 +61,21 @@ export function useGameState(
   const [state, setState] = useState<GameState>(() => buildInitialState(0));
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const stepsRef = useRef(0);
-  const stateRef = useRef(state);
-  stateRef.current = state;
+
+  // Authoritative refs for ball simulation — updated synchronously
+  // so the interval always reads the latest values without waiting for React re-renders
+  const ballPosRef = useRef<BallPos | null>(state.ballPos);
+  const ballDirRef = useRef<Direction | null>(state.ballDir);
+  const gridRef = useRef<TileType[][]>(state.grid);
+  const levelIndexRef = useRef<number>(state.currentLevelIndex);
+  const gamePhaseRef = useRef<GamePhase>(state.gamePhase);
+
+  // Keep refs in sync with state on every render
+  ballPosRef.current = state.ballPos;
+  ballDirRef.current = state.ballDir;
+  gridRef.current = state.grid;
+  levelIndexRef.current = state.currentLevelIndex;
+  gamePhaseRef.current = state.gamePhase;
 
   const stopInterval = useCallback(() => {
     if (intervalRef.current) {
@@ -76,7 +89,40 @@ export function useGameState(
     return () => stopInterval();
   }, [stopInterval]);
 
-  const getNextPos = useCallback((pos: BallPos, dir: Direction): BallPos => {
+  const tickBall = useCallback(() => {
+    // Read directly from refs — always current, no stale closure issues
+    const pos = ballPosRef.current;
+    const dir = ballDirRef.current;
+    const grid = gridRef.current;
+    const phase = gamePhaseRef.current;
+    const levelIndex = levelIndexRef.current;
+
+    if (phase !== "playing" || !pos || !dir) return;
+
+    stepsRef.current += 1;
+    if (stepsRef.current > MAX_STEPS) {
+      stopInterval();
+      gamePhaseRef.current = "failed";
+      setState((prev) => ({ ...prev, gamePhase: "failed", ballFail: true }));
+      setTimeout(() => {
+        const level = LEVELS[levelIndexRef.current];
+        const freshGrid = gridRef.current;
+        const startPos = findStart(freshGrid);
+        ballPosRef.current = startPos;
+        ballDirRef.current = level.startDir;
+        gamePhaseRef.current = "editing";
+        setState((prev) => ({
+          ...prev,
+          ballFail: false,
+          gamePhase: "editing",
+          ballPos: startPos,
+          ballDir: level.startDir,
+        }));
+      }, 1000);
+      return;
+    }
+
+    // Compute next position
     const deltas: Record<Direction, [number, number]> = {
       up: [-1, 0],
       down: [1, 0],
@@ -84,34 +130,9 @@ export function useGameState(
       right: [0, 1],
     };
     const [dr, dc] = deltas[dir];
-    return { row: pos.row + dr, col: pos.col + dc };
-  }, []);
+    const nextPos: BallPos = { row: pos.row + dr, col: pos.col + dc };
 
-  const tickBall = useCallback(() => {
-    const current = stateRef.current;
-    if (current.gamePhase !== "playing" || !current.ballPos || !current.ballDir)
-      return;
-
-    stepsRef.current += 1;
-    if (stepsRef.current > MAX_STEPS) {
-      // Infinite loop protection - treat as fail
-      stopInterval();
-      setState((prev) => ({ ...prev, gamePhase: "failed", ballFail: true }));
-      setTimeout(() => {
-        setState((prev) => ({
-          ...prev,
-          ballFail: false,
-          gamePhase: "editing",
-          ballPos: findStart(prev.grid),
-          ballDir: LEVELS[prev.currentLevelIndex].startDir,
-        }));
-      }, 1000);
-      return;
-    }
-
-    const nextPos = getNextPos(current.ballPos, current.ballDir);
-
-    // Out of bounds
+    // Out of bounds → fail
     if (
       nextPos.row < 0 ||
       nextPos.row >= 8 ||
@@ -119,39 +140,54 @@ export function useGameState(
       nextPos.col >= 8
     ) {
       stopInterval();
+      gamePhaseRef.current = "failed";
       setState((prev) => ({ ...prev, gamePhase: "failed", ballFail: true }));
       setTimeout(() => {
+        const level = LEVELS[levelIndexRef.current];
+        const startPos = findStart(gridRef.current);
+        ballPosRef.current = startPos;
+        ballDirRef.current = level.startDir;
+        gamePhaseRef.current = "editing";
         setState((prev) => ({
           ...prev,
           ballFail: false,
           gamePhase: "editing",
-          ballPos: findStart(prev.grid),
-          ballDir: LEVELS[prev.currentLevelIndex].startDir,
+          ballPos: startPos,
+          ballDir: level.startDir,
         }));
       }, 1000);
       return;
     }
 
-    const nextTile = current.grid[nextPos.row][nextPos.col];
+    const nextTile = grid[nextPos.row][nextPos.col];
 
+    // Wall → fail
     if (nextTile === "wall") {
-      // Hit a wall - fail
       stopInterval();
+      gamePhaseRef.current = "failed";
       setState((prev) => ({ ...prev, gamePhase: "failed", ballFail: true }));
       setTimeout(() => {
+        const level = LEVELS[levelIndexRef.current];
+        const startPos = findStart(gridRef.current);
+        ballPosRef.current = startPos;
+        ballDirRef.current = level.startDir;
+        gamePhaseRef.current = "editing";
         setState((prev) => ({
           ...prev,
           ballFail: false,
           gamePhase: "editing",
-          ballPos: findStart(prev.grid),
-          ballDir: LEVELS[prev.currentLevelIndex].startDir,
+          ballPos: startPos,
+          ballDir: level.startDir,
         }));
       }, 1000);
       return;
     }
 
+    // Goal → win
     if (nextTile === "goal") {
       stopInterval();
+      gamePhaseRef.current = "won";
+      ballPosRef.current = nextPos;
       setState((prev) => ({
         ...prev,
         ballPos: nextPos,
@@ -159,18 +195,21 @@ export function useGameState(
         moveCount: prev.moveCount + 1,
       }));
       if (onLevelComplete) {
-        const levelId = LEVELS[current.currentLevelIndex].id;
-        onLevelComplete(levelId, current.moveCount + 1);
+        onLevelComplete(LEVELS[levelIndex].id, stepsRef.current);
       }
       return;
     }
 
-    // Determine new direction based on tile
-    let newDir = current.ballDir;
+    // Determine new direction — check the tile the ball is ENTERING
+    let newDir: Direction = dir;
     if (nextTile === "arrow_up") newDir = "up";
     else if (nextTile === "arrow_down") newDir = "down";
     else if (nextTile === "arrow_left") newDir = "left";
     else if (nextTile === "arrow_right") newDir = "right";
+
+    // Update refs IMMEDIATELY so the next tick reads the new position+direction
+    ballPosRef.current = nextPos;
+    ballDirRef.current = newDir;
 
     setState((prev) => ({
       ...prev,
@@ -178,11 +217,12 @@ export function useGameState(
       ballDir: newDir,
       moveCount: prev.moveCount + 1,
     }));
-  }, [getNextPos, stopInterval, onLevelComplete]);
+  }, [stopInterval, onLevelComplete]);
 
   const play = useCallback(() => {
-    if (stateRef.current.gamePhase !== "editing") return;
+    if (gamePhaseRef.current !== "editing") return;
     stepsRef.current = 0;
+    gamePhaseRef.current = "playing";
     setState((prev) => ({ ...prev, gamePhase: "playing", moveCount: 0 }));
     intervalRef.current = setInterval(tickBall, MOVE_INTERVAL_MS);
   }, [tickBall]);
@@ -193,6 +233,11 @@ export function useGameState(
       const level = LEVELS[prev.currentLevelIndex];
       const grid = cloneGrid(level.grid);
       const startPos = findStart(grid);
+      // Update refs immediately
+      ballPosRef.current = startPos;
+      ballDirRef.current = level.startDir;
+      gridRef.current = grid;
+      gamePhaseRef.current = "editing";
       return {
         ...prev,
         grid,
@@ -211,14 +256,26 @@ export function useGameState(
     stopInterval();
     setState((prev) => {
       const nextIdx = Math.min(prev.currentLevelIndex + 1, LEVELS.length - 1);
-      return buildInitialState(nextIdx);
+      const newState = buildInitialState(nextIdx);
+      ballPosRef.current = newState.ballPos;
+      ballDirRef.current = newState.ballDir;
+      gridRef.current = newState.grid;
+      levelIndexRef.current = nextIdx;
+      gamePhaseRef.current = "editing";
+      return newState;
     });
   }, [stopInterval]);
 
   const goToLevel = useCallback(
     (idx: number) => {
       stopInterval();
-      setState(buildInitialState(idx));
+      const newState = buildInitialState(idx);
+      ballPosRef.current = newState.ballPos;
+      ballDirRef.current = newState.ballDir;
+      gridRef.current = newState.grid;
+      levelIndexRef.current = idx;
+      gamePhaseRef.current = "editing";
+      setState(newState);
     },
     [stopInterval],
   );
@@ -256,6 +313,9 @@ export function useGameState(
         newPlacedArrows.set(key, direction);
         newGrid[row][col] = `arrow_${direction}` as TileType;
 
+        // Update grid ref immediately so tickBall sees it right away
+        gridRef.current = newGrid;
+
         return {
           ...prev,
           grid: newGrid,
@@ -287,6 +347,9 @@ export function useGameState(
       const newGrid = cloneGrid(prev.grid);
       // Restore original tile from level definition
       newGrid[row][col] = level.grid[row][col];
+
+      // Update grid ref immediately
+      gridRef.current = newGrid;
 
       return {
         ...prev,
