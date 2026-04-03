@@ -23270,13 +23270,18 @@ function buildLevel(cfg) {
     grid[r2][c2] = `gate_${dir}`;
   }
   const inventory = Object.entries(cfg.allowedArrows).filter(([, cnt]) => (cnt ?? 0) > 0).map(([dir, cnt]) => ({ direction: dir, count: cnt }));
+  const totalArrows = Object.values(cfg.allowedArrows).reduce(
+    (s2, n) => s2 + (n ?? 0),
+    0
+  );
   return {
     id: cfg.id,
     name: cfg.name,
     grid,
     inventory,
     startDir: cfg.startDir,
-    gridSize: cfg.gridSize
+    gridSize: cfg.gridSize,
+    par: cfg.par ?? totalArrows
   };
 }
 const LEVEL_CONFIGS = [
@@ -25199,22 +25204,23 @@ function GridIcon() {
     }
   );
 }
-function StarDots({ stars }) {
+function StarIcons({ stars }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     "div",
     {
       className: "flex items-center justify-center gap-0.5",
-      style: { height: "8px" },
+      style: { lineHeight: 1, marginTop: "2px" },
       children: [1, 2, 3].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
         "span",
         {
           style: {
-            width: "3px",
-            height: "3px",
-            borderRadius: "50%",
-            background: stars && i <= stars ? "oklch(0.85 0.18 80)" : "oklch(0.35 0.02 240)",
-            display: "inline-block"
-          }
+            fontSize: "8px",
+            color: stars && i <= stars ? "oklch(0.85 0.18 80)" : "oklch(0.32 0.02 240)",
+            filter: stars && i <= stars ? "drop-shadow(0 0 3px oklch(0.85 0.18 80 / 0.8))" : "none",
+            display: "inline-block",
+            lineHeight: 1
+          },
+          children: "★"
         },
         i
       ))
@@ -25523,7 +25529,7 @@ function LevelSelector({
                                         children: /* @__PURE__ */ jsxRuntimeExports.jsx(LockIcon, {})
                                       }
                                     ) : idx + 1 }),
-                                    isUnlocked && !isCurrent && /* @__PURE__ */ jsxRuntimeExports.jsx(StarDots, { stars: levelStars }),
+                                    isUnlocked && !isCurrent && /* @__PURE__ */ jsxRuntimeExports.jsx(StarIcons, { stars: levelStars }),
                                     isCurrent && /* @__PURE__ */ jsxRuntimeExports.jsx(
                                       "span",
                                       {
@@ -25748,30 +25754,61 @@ function SplashScreen({ onStart }) {
     }
   );
 }
-function StarDisplay({ stars, accent }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-2 my-5", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-2", children: [1, 2, 3].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+function playDing(frequency) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = frequency;
+    osc.type = "sine";
+    gain.gain.setValueAtTime(0.4, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(1e-3, ctx.currentTime + 0.8);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.8);
+  } catch {
+  }
+}
+function StarDisplay({
+  stars,
+  isVisible
+}) {
+  reactExports.useEffect(() => {
+    if (!isVisible) return;
+    const pitches = [523, 659, 784];
+    const timeouts = [];
+    for (let i = 0; i < stars; i++) {
+      const t = setTimeout(() => playDing(pitches[i]), 400 + i * 250);
+      timeouts.push(t);
+    }
+    return () => {
+      for (const t of timeouts) clearTimeout(t);
+    };
+  }, [isVisible, stars]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-3 my-6", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-3", children: [1, 2, 3].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
       motion.span,
       {
-        initial: { scale: 0, opacity: 0, rotate: -30 },
-        animate: {
-          scale: i <= stars ? [0, 1.35, 1] : 1,
+        initial: { scale: 0, opacity: 0, y: 10 },
+        animate: isVisible ? {
+          scale: i <= stars ? [0, 1.5, 1] : [0, 0.7, 0.85],
           opacity: 1,
-          rotate: 0
-        },
+          y: 0
+        } : { scale: 0, opacity: 0 },
         transition: {
-          delay: 0.3 + i * 0.15,
-          duration: 0.4,
+          delay: 0.35 + (i - 1) * 0.25,
+          duration: 0.45,
           type: "spring",
-          stiffness: 260,
-          damping: 18
+          stiffness: 300,
+          damping: 16
         },
         style: {
-          fontSize: "2rem",
+          fontSize: "2.5rem",
           lineHeight: 1,
-          filter: i <= stars ? `drop-shadow(0 0 6px ${accent.replace(")", " / 0.7)")})` : "none",
-          color: i <= stars ? "oklch(0.85 0.18 80)" : "oklch(0.38 0.02 240)",
-          display: "inline-block"
+          display: "inline-block",
+          color: i <= stars ? "oklch(0.85 0.18 80)" : "oklch(0.30 0.02 240)",
+          filter: i <= stars ? "drop-shadow(0 0 8px oklch(0.85 0.18 80 / 0.85)) drop-shadow(0 0 16px oklch(0.85 0.18 80 / 0.4))" : "none"
         },
         children: "★"
       },
@@ -25782,18 +25819,17 @@ function StarDisplay({ stars, accent }) {
       {
         initial: { opacity: 0, y: 4 },
         animate: { opacity: 1, y: 0 },
-        transition: { delay: 0.85, duration: 0.3 },
+        transition: { delay: 1.1, duration: 0.3 },
         className: "text-xs font-display uppercase tracking-widest",
-        style: { color: "oklch(0.85 0.18 80)" },
+        style: {
+          color: "oklch(0.85 0.18 80)",
+          textShadow: "0 0 8px oklch(0.85 0.18 80 / 0.5)"
+        },
         children: [
-          stars === 3 ? "Perfect!" : stars === 2 ? "Great!" : "Solved!",
-          "  ",
-          "★".repeat(stars),
-          "☆".repeat(3 - stars),
+          stars === 3 ? "Perfect! — Par Score!" : stars === 2 ? "Great!" : "Solved!",
           " ",
           stars,
-          " Star",
-          stars !== 1 ? "s" : ""
+          "/3 ★"
         ]
       }
     )
@@ -25869,7 +25905,7 @@ function WinModal({
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground text-sm mb-1 font-display uppercase tracking-widest", children: level.name }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(StarDisplay, { stars, accent: chapterAccent }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(StarDisplay, { stars, isVisible }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "div",
               {
@@ -26098,16 +26134,12 @@ function useGameState(onLevelComplete) {
       ballPosRef.current = nextPos;
       setState((prev) => {
         const arrowsUsed = prev.placedArrows.size;
-        const totalArrows = prev.inventory.reduce(
-          (sum, item) => sum + item.total,
-          0
-        );
         if (onLevelComplete) {
           onLevelComplete(
             LEVELS[levelIndex].id,
             stepsRef.current,
             arrowsUsed,
-            totalArrows
+            LEVELS[levelIndex].par
           );
         }
         return {
@@ -39107,11 +39139,9 @@ function useMarkLevelCompleted() {
   });
 }
 const STORAGE_KEY = "waymark_stars";
-function calcStars(arrowsUsed, totalArrows) {
-  if (totalArrows === 0) return 1;
-  const ratio = arrowsUsed / totalArrows;
-  if (ratio <= 0.5) return 3;
-  if (ratio <= 0.8) return 2;
+function calcStars(arrowsUsed, par) {
+  if (arrowsUsed <= par) return 3;
+  if (arrowsUsed === par + 1) return 2;
   return 1;
 }
 function loadStars() {
@@ -39143,9 +39173,9 @@ function App() {
   const { mutate: markCompleted } = useMarkLevelCompleted();
   const { data: highestLevel } = useHighestLevelReached();
   const { state, play, reset, nextLevel, goToLevel, placeArrow, removeArrow } = useGameState(
-    (levelId, moveCount, arrowsUsed, totalArrows) => {
+    (levelId, moveCount, arrowsUsed, par) => {
       markCompleted({ levelId, moveCount });
-      const stars = calcStars(arrowsUsed, totalArrows);
+      const stars = calcStars(arrowsUsed, par);
       saveStar(levelId, stars);
       setWinStars(stars);
       setStarsMap(loadStars());

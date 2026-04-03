@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
+import { useEffect } from "react";
 import { LEVELS } from "../../data/levels";
 import type { StarCount } from "../../utils/starRating";
 
@@ -12,36 +13,79 @@ interface WinModalProps {
   onReset: () => void;
 }
 
-function StarDisplay({ stars, accent }: { stars: StarCount; accent: string }) {
+function playDing(frequency: number) {
+  try {
+    const ctx = new (
+      window.AudioContext || (window as any).webkitAudioContext
+    )();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = frequency;
+    osc.type = "sine";
+    gain.gain.setValueAtTime(0.4, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.8);
+  } catch {
+    // Audio not available
+  }
+}
+
+function StarDisplay({
+  stars,
+  isVisible,
+}: {
+  stars: StarCount;
+  isVisible: boolean;
+}) {
+  useEffect(() => {
+    if (!isVisible) return;
+    const pitches = [523, 659, 784]; // C5, E5, G5
+    const timeouts: ReturnType<typeof setTimeout>[] = [];
+    for (let i = 0; i < stars; i++) {
+      const t = setTimeout(() => playDing(pitches[i]), 400 + i * 250);
+      timeouts.push(t);
+    }
+    return () => {
+      for (const t of timeouts) clearTimeout(t);
+    };
+  }, [isVisible, stars]);
+
   return (
-    <div className="flex flex-col items-center gap-2 my-5">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col items-center gap-3 my-6">
+      <div className="flex items-center gap-3">
         {[1, 2, 3].map((i) => (
           <motion.span
             key={i}
-            initial={{ scale: 0, opacity: 0, rotate: -30 }}
-            animate={{
-              scale: i <= stars ? [0, 1.35, 1] : 1,
-              opacity: 1,
-              rotate: 0,
-            }}
+            initial={{ scale: 0, opacity: 0, y: 10 }}
+            animate={
+              isVisible
+                ? {
+                    scale: i <= stars ? [0, 1.5, 1] : [0, 0.7, 0.85],
+                    opacity: 1,
+                    y: 0,
+                  }
+                : { scale: 0, opacity: 0 }
+            }
             transition={{
-              delay: 0.3 + i * 0.15,
-              duration: 0.4,
+              delay: 0.35 + (i - 1) * 0.25,
+              duration: 0.45,
               type: "spring",
-              stiffness: 260,
-              damping: 18,
+              stiffness: 300,
+              damping: 16,
             }}
             style={{
-              fontSize: "2rem",
+              fontSize: "2.5rem",
               lineHeight: 1,
+              display: "inline-block",
+              color:
+                i <= stars ? "oklch(0.85 0.18 80)" : "oklch(0.30 0.02 240)",
               filter:
                 i <= stars
-                  ? `drop-shadow(0 0 6px ${accent.replace(")", " / 0.7)")})`
+                  ? "drop-shadow(0 0 8px oklch(0.85 0.18 80 / 0.85)) drop-shadow(0 0 16px oklch(0.85 0.18 80 / 0.4))"
                   : "none",
-              color:
-                i <= stars ? "oklch(0.85 0.18 80)" : "oklch(0.38 0.02 240)",
-              display: "inline-block",
             }}
           >
             ★
@@ -51,13 +95,19 @@ function StarDisplay({ stars, accent }: { stars: StarCount; accent: string }) {
       <motion.p
         initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.85, duration: 0.3 }}
+        transition={{ delay: 1.1, duration: 0.3 }}
         className="text-xs font-display uppercase tracking-widest"
-        style={{ color: "oklch(0.85 0.18 80)" }}
+        style={{
+          color: "oklch(0.85 0.18 80)",
+          textShadow: "0 0 8px oklch(0.85 0.18 80 / 0.5)",
+        }}
       >
-        {stars === 3 ? "Perfect!" : stars === 2 ? "Great!" : "Solved!"} &nbsp;
-        {"★".repeat(stars)}
-        {"☆".repeat(3 - stars)} {stars} Star{stars !== 1 ? "s" : ""}
+        {stars === 3
+          ? "Perfect! — Par Score!"
+          : stars === 2
+            ? "Great!"
+            : "Solved!"}{" "}
+        {stars}/3 ★
       </motion.p>
     </div>
   );
@@ -136,7 +186,7 @@ export function WinModal({
             </p>
 
             {/* Star rating */}
-            <StarDisplay stars={stars} accent={chapterAccent} />
+            <StarDisplay stars={stars} isVisible={isVisible} />
 
             <div
               className="my-4 p-4 rounded-lg"

@@ -1,49 +1,45 @@
-# Waymark — Professional 50-Level Upgrade
+# Waymark – 3-Star Par Rating System
 
 ## Current State
-- 50 levels all use an 8x8 grid built imperatively via `setTile()` calls in levels.ts
-- `TileType` is a union of 8 string literals; no cracked tile or one-way gate types
-- `Level` interface has `id`, `name`, `grid`, `inventory[]`, `startDir`
-- `useGameState` runs ball on a 380ms interval; on wall/OOB fail it shows a 1-second "Failed" state before resetting — no instant reset
-- `GameGrid` hardcodes `CELL_SIZE_DESKTOP=64` and `GRID_SIZE=8`; generates 64 fixed coordinate pairs
-- `LevelSelector` is a compact dropdown, not a full-screen grid menu
-- No cracked tile or one-way gate hazard logic exists
+- A star system exists (`starRating.ts`) but uses a flawed ratio-based formula (`arrowsUsed / totalArrows`) that doesn't match the user's intent
+- `WinModal.tsx` has a `StarDisplay` component but no sound effects
+- `LevelSelector.tsx` shows small 3-dot indicators for stars, not actual star icons
+- Levels do NOT have a `par` field; all levels currently give exactly the minimum arrows needed
+- The `onLevelComplete` callback passes `arrowsUsed` (placed arrows count) and `totalArrows` (total inventory)
 
 ## Requested Changes (Diff)
 
 ### Add
-- **`levelConfig` architecture**: new `LevelConfig` type with `gridSize`, `startPos`, `goalPos`, `walls[]`, `allowedArrows{}`, optional `crackedTiles[]`, `oneWayGates[]`. Generate `Level` from config at build time.
-- **New TileTypes**: `cracked` (breaks after one pass, fail on second), `cracked_broken` (broken state), `gate_right`, `gate_left`, `gate_up`, `gate_down` (one-way passthrough)
-- **50 redesigned levels**:
-  - Levels 1–10: 6×6 grid, progressive intro, exact minimum arrows
-  - Levels 11–30: 8×8 grid, harder routing, labyrinth goal walls, false paths
-  - Levels 31–50: 10×10 grid, maximum complexity; levels 20+ include cracked tiles and one-way gates
-  - Level 20: special "Hard Boss Level", 10×10 grid, only 3 arrows total
-- **Fast Reset**: remove 1-second delay; on wall/OOB/cracked fail — instantly reset to editing state
-- **Dynamic grid size**: `GameGrid` reads rows/cols from the grid prop; cell size adjusts based on grid dimensions
-- **New hazard rendering**: cracked tiles show fracture pattern; broken tiles show red X; gates show directional indicator
-- **Full-screen Level Selector**: replaces dropdown; shows 5×10 grid of level buttons with lock icons for locked levels
-- **Smooth motion**: ball interval reduced to 220ms for crisper feel with CSS transition matching
+- `par` field to `LevelConfig` interface and all 50 level configs in `levels.ts`
+  - Par = the minimum arrows needed to solve (equals the sum of `allowedArrows` values since levels use exact inventory)
+- `ding` sound effect using Web Audio API (synthesized, no external files) in `WinModal.tsx` — plays once per star as each star animates in
+- Gold neon glow CSS for star elements
 
 ### Modify
-- `types/game.ts`: extend `TileType` union and `Level` interface
-- `data/levels.ts`: completely rewrite using `levelConfig` declarative approach
-- `hooks/useGameState.ts`: instant reset on fail, cracked tile state tracking, one-way gate direction enforcement
-- `components/game/GameGrid.tsx`: dynamic grid size, new tile rendering
-- `components/game/GridCell.tsx`: render cracked, cracked_broken, gate tiles
-- `components/game/LevelSelector.tsx`: full-grid menu instead of compact dropdown
-- `App.tsx`: wire new LevelSelector style (full screen overlay or page)
+- `starRating.ts`: Replace ratio formula with Par-based logic:
+  - 3 stars: `arrowsUsed === par`
+  - 2 stars: `arrowsUsed === par + 1`
+  - 1 star: `arrowsUsed >= par + 2`
+  - Signature: `calcStars(arrowsUsed: number, par: number): StarCount`
+- `types/game.ts`: Add `par: number` to the `Level` interface
+- `data/levels.ts`: Add `par` to `LevelConfig`, pass it through `buildLevel`, set par on each level config = sum of its `allowedArrows`
+- `useGameState.ts`: The `onLevelComplete` callback should pass `arrowsUsed` (number of arrows actually placed/used = `placedArrows.size`) and the level's `par` value instead of `totalArrows`
+- `App.tsx`: Update `calcStars(arrowsUsed, totalArrows)` call → `calcStars(arrowsUsed, par)`, get `par` from `LEVELS[levelIndex].par`
+- `WinModal.tsx`: 
+  - Animate stars appearing one by one with staggered delay
+  - Each star triggers a synthesized "ding" sound via Web Audio API (ascending pitch per star)
+  - Gold/yellow neon glow: `oklch(0.85 0.18 80)` color with `drop-shadow(0 0 8px oklch(0.85 0.18 80 / 0.8))`
+  - Stars scale from 0→1.4→1 with spring animation
+- `LevelSelector.tsx`: Replace `StarDots` (3 tiny dots) with `StarIcons` showing actual ★ characters in gold, with neon glow if earned
 
 ### Remove
-- Old imperative `setTile`/`makeGrid` approach in levels.ts
-- Hardcoded `GRID_SIZE=8` and `CELL_COORDS` in GameGrid
-- 1-second fail delay before reset
+- The old ratio-based `calcStars` logic in `starRating.ts`
 
 ## Implementation Plan
-1. Update `types/game.ts` — add new TileTypes, update Level and GameState interfaces
-2. Rewrite `data/levels.ts` — levelConfig objects for all 50 levels with exact arrows, labyrinth walls, false paths, cracked/gate tiles for 20+
-3. Update `hooks/useGameState.ts` — instant reset, cracked tile broken tracking (per-run Map), gate direction enforcement
-4. Update `components/game/GameGrid.tsx` — dynamic grid, cell size computed from grid dimensions
-5. Update `components/game/GridCell.tsx` — render new tile types
-6. Rebuild `components/game/LevelSelector.tsx` — full grid overlay with lock icon SVG
-7. Wire everything in `App.tsx` if needed
+1. Update `types/game.ts` — add `par: number` to `Level`
+2. Update `data/levels.ts` — add `par` to `LevelConfig`, calculate par per level as sum of allowedArrows, pass through buildLevel
+3. Update `starRating.ts` — new par-based formula, update `calcStars` signature
+4. Update `useGameState.ts` — pass `LEVELS[levelIndex].par` as third arg to `onLevelComplete` instead of `totalArrows`
+5. Update `App.tsx` — update callback to destructure `par`, call `calcStars(arrowsUsed, par)`
+6. Update `WinModal.tsx` — staggered star animation, Web Audio ding sounds, gold neon glow
+7. Update `LevelSelector.tsx` — replace StarDots with gold star icons

@@ -61,7 +61,7 @@ export function useGameState(
     levelId: string,
     moves: number,
     arrowsUsed: number,
-    totalArrows: number,
+    par: number,
   ) => void,
 ) {
   const [state, setState] = useState<GameState>(() => buildInitialState(0));
@@ -216,16 +216,12 @@ export function useGameState(
       ballPosRef.current = nextPos;
       setState((prev) => {
         const arrowsUsed = prev.placedArrows.size;
-        const totalArrows = prev.inventory.reduce(
-          (sum, item) => sum + item.total,
-          0,
-        );
         if (onLevelComplete) {
           onLevelComplete(
             LEVELS[levelIndex].id,
             stepsRef.current,
             arrowsUsed,
-            totalArrows,
+            LEVELS[levelIndex].par,
           );
         }
         return {

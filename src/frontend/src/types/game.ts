@@ -38,6 +38,7 @@ export interface Level {
   inventory: { direction: ArrowDir; count: number }[];
   startDir: Direction;
   gridSize: number;
+  par: number;
 }
 
 export interface GameState {

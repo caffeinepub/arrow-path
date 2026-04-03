@@ -13,6 +13,7 @@ interface LevelConfig {
   crackedTiles?: Pos[];
   oneWayGates?: [number, number, "up" | "down" | "left" | "right"][];
   allowedArrows: Partial<Record<ArrowDir, number>>;
+  par?: number; // defaults to sum of allowedArrows
 }
 
 function buildLevel(cfg: LevelConfig): Level {
@@ -33,6 +34,10 @@ function buildLevel(cfg: LevelConfig): Level {
   const inventory = Object.entries(cfg.allowedArrows)
     .filter(([, cnt]) => (cnt ?? 0) > 0)
     .map(([dir, cnt]) => ({ direction: dir as ArrowDir, count: cnt! }));
+  const totalArrows = Object.values(cfg.allowedArrows).reduce(
+    (s, n) => s + (n ?? 0),
+    0,
+  );
   return {
     id: cfg.id,
     name: cfg.name,
@@ -40,6 +45,7 @@ function buildLevel(cfg: LevelConfig): Level {
     inventory,
     startDir: cfg.startDir,
     gridSize: cfg.gridSize,
+    par: cfg.par ?? totalArrows,
   };
 }
 

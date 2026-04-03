@@ -31,14 +31,9 @@ function App() {
 
   const { state, play, reset, nextLevel, goToLevel, placeArrow, removeArrow } =
     useGameState(
-      (
-        levelId: string,
-        moveCount: number,
-        arrowsUsed: number,
-        totalArrows: number,
-      ) => {
+      (levelId: string, moveCount: number, arrowsUsed: number, par: number) => {
         markCompleted({ levelId, moveCount });
-        const stars = calcStars(arrowsUsed, totalArrows);
+        const stars = calcStars(arrowsUsed, par);
         saveStar(levelId, stars);
         setWinStars(stars);
         setStarsMap(loadStars());

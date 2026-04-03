@@ -2,11 +2,9 @@ const STORAGE_KEY = "waymark_stars";
 
 export type StarCount = 1 | 2 | 3;
 
-export function calcStars(arrowsUsed: number, totalArrows: number): StarCount {
-  if (totalArrows === 0) return 1;
-  const ratio = arrowsUsed / totalArrows;
-  if (ratio <= 0.5) return 3;
-  if (ratio <= 0.8) return 2;
+export function calcStars(arrowsUsed: number, par: number): StarCount {
+  if (arrowsUsed <= par) return 3;
+  if (arrowsUsed === par + 1) return 2;
   return 1;
 }
 

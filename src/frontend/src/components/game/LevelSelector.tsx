@@ -40,26 +40,31 @@ function GridIcon() {
   );
 }
 
-function StarDots({ stars }: { stars: StarCount | undefined }) {
+function StarIcons({ stars }: { stars: StarCount | undefined }) {
   return (
     <div
       className="flex items-center justify-center gap-0.5"
-      style={{ height: "8px" }}
+      style={{ lineHeight: 1, marginTop: "2px" }}
     >
       {[1, 2, 3].map((i) => (
         <span
           key={i}
           style={{
-            width: "3px",
-            height: "3px",
-            borderRadius: "50%",
-            background:
+            fontSize: "8px",
+            color:
               stars && i <= stars
                 ? "oklch(0.85 0.18 80)"
-                : "oklch(0.35 0.02 240)",
+                : "oklch(0.32 0.02 240)",
+            filter:
+              stars && i <= stars
+                ? "drop-shadow(0 0 3px oklch(0.85 0.18 80 / 0.8))"
+                : "none",
             display: "inline-block",
+            lineHeight: 1,
           }}
-        />
+        >
+          ★
+        </span>
       ))}
     </div>
   );
@@ -354,7 +359,7 @@ export function LevelSelector({
                               </span>
 
                               {isUnlocked && !isCurrent && (
-                                <StarDots stars={levelStars} />
+                                <StarIcons stars={levelStars} />
                               )}
 
                               {isCurrent && (
