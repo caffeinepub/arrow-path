@@ -24172,10 +24172,36 @@ const LEVELS = [
     ]
   }
 ];
+function LevelStarDots({ stars }) {
+  if (!stars) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { height: "8px" } });
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "div",
+    {
+      className: "flex items-center justify-center gap-0.5",
+      style: { height: "8px" },
+      children: [1, 2, 3].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "span",
+        {
+          style: {
+            width: "4px",
+            height: "4px",
+            borderRadius: "50%",
+            background: i <= stars ? "oklch(0.85 0.18 80)" : "oklch(0.35 0.02 240)",
+            display: "inline-block",
+            flexShrink: 0
+          }
+        },
+        i
+      ))
+    }
+  );
+}
 function LevelSelector({
   currentLevel,
   onSelect,
-  highestReached = 0
+  highestReached = 0,
+  starsMap = {},
+  chapterAccent = "oklch(0.76 0.07 210)"
 }) {
   var _a3;
   const [open, setOpen] = reactExports.useState(false);
@@ -24201,9 +24227,10 @@ function LevelSelector({
         className: "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-display font-semibold transition-all duration-200 hover:scale-105",
         style: {
           background: "oklch(0.31 0.025 255)",
-          color: "oklch(0.76 0.07 210)",
-          border: "1px solid oklch(0.38 0.03 255 / 0.7)",
-          boxShadow: open ? "0 0 12px oklch(0.76 0.07 210 / 0.25)" : void 0
+          color: chapterAccent,
+          border: `1px solid ${chapterAccent.replace(")", " / 0.4)")}`,
+          boxShadow: open ? `0 0 12px ${chapterAccent.replace(")", " / 0.25)")}` : void 0,
+          transition: "color 0.7s ease, border-color 0.7s ease, box-shadow 0.7s ease"
         },
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "oklch(0.70 0.02 240)" }, className: "text-xs", children: "LVL" }),
@@ -24270,7 +24297,7 @@ function LevelSelector({
                   className: "h-full rounded-full transition-all duration-500",
                   style: {
                     width: `${(highestReached + 1) / LEVELS.length * 100}%`,
-                    background: "linear-gradient(90deg, oklch(0.76 0.07 210), oklch(0.73 0.10 130))"
+                    background: `linear-gradient(90deg, ${chapterAccent}, oklch(0.73 0.10 130))`
                   }
                 }
               )
@@ -24280,7 +24307,7 @@ function LevelSelector({
             "div",
             {
               className: "overflow-y-auto pr-0.5",
-              style: { maxHeight: "192px" },
+              style: { maxHeight: "210px" },
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "div",
                 {
@@ -24290,14 +24317,15 @@ function LevelSelector({
                     const isUnlocked = idx <= highestReached || idx === 0;
                     const isCurrent = idx === currentLevel;
                     const isCompleted = idx < currentLevel || idx <= highestReached && idx !== currentLevel;
+                    const levelStars = starsMap[level.id];
                     let bg = "oklch(0.25 0.02 255)";
                     let color2 = "oklch(0.45 0.02 240)";
                     let shadow;
                     let border = "1px solid oklch(0.32 0.025 255 / 0.5)";
                     if (isCurrent) {
-                      bg = "oklch(0.76 0.07 210)";
-                      color2 = "oklch(0.18 0.02 255)";
-                      shadow = "0 0 8px oklch(0.76 0.07 210 / 0.5)";
+                      bg = chapterAccent;
+                      color2 = "oklch(0.13 0.02 255)";
+                      shadow = `0 0 8px ${chapterAccent.replace(")", " / 0.5)")}`;
                       border = "none";
                     } else if (isCompleted) {
                       bg = "oklch(0.28 0.06 130)";
@@ -24308,7 +24336,7 @@ function LevelSelector({
                       color2 = "oklch(0.35 0.015 240)";
                       border = "1px solid oklch(0.26 0.015 255 / 0.3)";
                     }
-                    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
                       "button",
                       {
                         type: "button",
@@ -24318,7 +24346,7 @@ function LevelSelector({
                           setOpen(false);
                         },
                         title: isUnlocked ? level.name : "🔒 Complete previous level to unlock",
-                        className: "relative flex items-center justify-center rounded-md text-xs font-display font-bold transition-all duration-150",
+                        className: "relative flex flex-col items-center justify-center rounded-md text-xs font-display font-bold transition-all duration-150 pt-1 pb-0.5 px-0.5",
                         style: {
                           width: "100%",
                           aspectRatio: "1",
@@ -24331,7 +24359,11 @@ function LevelSelector({
                           transform: isCurrent ? "scale(1.08)" : void 0
                         },
                         "data-ocid": `level.item.${idx + 1}`,
-                        children: !isUnlocked ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "9px" }, children: "🔒" }) : idx + 1
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "leading-none", children: !isUnlocked ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "9px" }, children: "🔒" }) : idx + 1 }),
+                          isUnlocked && !isCurrent && /* @__PURE__ */ jsxRuntimeExports.jsx(LevelStarDots, { stars: levelStars }),
+                          isCurrent && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { height: "8px" } })
+                        ]
                       },
                       level.id
                     );
@@ -24531,10 +24563,63 @@ function SplashScreen({ onStart }) {
     }
   );
 }
+function StarDisplay({ stars, accent }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-2 my-5", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-2", children: [1, 2, 3].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+      motion.span,
+      {
+        initial: { scale: 0, opacity: 0, rotate: -30 },
+        animate: {
+          scale: i <= stars ? [0, 1.35, 1] : 1,
+          opacity: 1,
+          rotate: 0
+        },
+        transition: {
+          delay: 0.3 + i * 0.15,
+          duration: 0.4,
+          type: "spring",
+          stiffness: 260,
+          damping: 18
+        },
+        style: {
+          fontSize: "2rem",
+          lineHeight: 1,
+          filter: i <= stars ? `drop-shadow(0 0 6px ${accent.replace(")", " / 0.7)")})` : "none",
+          color: i <= stars ? "oklch(0.85 0.18 80)" : "oklch(0.38 0.02 240)",
+          display: "inline-block"
+        },
+        children: "★"
+      },
+      i
+    )) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      motion.p,
+      {
+        initial: { opacity: 0, y: 4 },
+        animate: { opacity: 1, y: 0 },
+        transition: { delay: 0.85, duration: 0.3 },
+        className: "text-xs font-display uppercase tracking-widest",
+        style: { color: "oklch(0.85 0.18 80)" },
+        children: [
+          stars === 3 ? "Perfect!" : stars === 2 ? "Great!" : "Solved!",
+          "  ",
+          "★".repeat(stars),
+          "☆".repeat(3 - stars),
+          " ",
+          stars,
+          " Star",
+          stars !== 1 ? "s" : ""
+        ]
+      }
+    )
+  ] });
+}
 function WinModal({
   isVisible,
   levelIndex,
   moveCount,
+  stars,
+  chapterAccent,
   onNextLevel,
   onReset
 }) {
@@ -24554,9 +24639,9 @@ function WinModal({
         {
           className: "relative mx-4 w-full max-w-md rounded-2xl border p-8 text-center overflow-hidden",
           style: {
-            background: "oklch(0.29 0.025 255)",
-            borderColor: "oklch(0.76 0.07 210 / 0.5)",
-            boxShadow: "0 0 32px oklch(0.76 0.07 210 / 0.2), 0 0 64px oklch(0.76 0.07 210 / 0.08)"
+            background: "oklch(0.22 0.025 255)",
+            borderColor: `${chapterAccent.replace(")", " / 0.5)")}`,
+            boxShadow: `0 0 32px ${chapterAccent.replace(")", " / 0.2)")}, 0 0 64px ${chapterAccent.replace(")", " / 0.08)")}`
           },
           initial: { scale: 0.8, opacity: 0, y: 20 },
           animate: { scale: 1, opacity: 1, y: 0 },
@@ -24568,7 +24653,7 @@ function WinModal({
               {
                 className: "absolute inset-0 pointer-events-none",
                 style: {
-                  background: "radial-gradient(ellipse at 50% 0%, oklch(0.76 0.07 210 / 0.05) 0%, transparent 70%)"
+                  background: `radial-gradient(ellipse at 50% 0%, ${chapterAccent.replace(")", " / 0.06)")} 0%, transparent 70%)`
                 }
               }
             ),
@@ -24590,8 +24675,8 @@ function WinModal({
               {
                 className: "text-2xl font-display font-bold uppercase mb-1",
                 style: {
-                  color: "oklch(0.76 0.07 210)",
-                  textShadow: "0 0 12px oklch(0.76 0.07 210 / 0.4)"
+                  color: chapterAccent,
+                  textShadow: `0 0 12px ${chapterAccent.replace(")", " / 0.4)")}`
                 },
                 animate: { opacity: [1, 0.75, 1] },
                 transition: { repeat: Number.POSITIVE_INFINITY, duration: 2.5 },
@@ -24599,11 +24684,12 @@ function WinModal({
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted-foreground text-sm mb-1 font-display uppercase tracking-widest", children: level.name }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(StarDisplay, { stars, accent: chapterAccent }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "div",
               {
-                className: "my-6 p-4 rounded-lg",
-                style: { background: "oklch(0.31 0.025 255)" },
+                className: "my-4 p-4 rounded-lg",
+                style: { background: "oklch(0.26 0.025 255)" },
                 children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground uppercase tracking-wider font-display mb-1", children: "Steps Taken" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -24625,8 +24711,8 @@ function WinModal({
                   onClick: onReset,
                   className: "flex-1 py-3 px-4 rounded-lg border font-display font-bold text-sm uppercase tracking-wider\n                  transition-all duration-200 hover:scale-105 active:scale-95",
                   style: {
-                    borderColor: "oklch(0.76 0.07 210 / 0.4)",
-                    color: "oklch(0.76 0.07 210)",
+                    borderColor: `${chapterAccent.replace(")", " / 0.4)")}`,
+                    color: chapterAccent,
                     background: "transparent"
                   },
                   "data-ocid": "win.cancel_button",
@@ -24640,12 +24726,12 @@ function WinModal({
                   onClick: onNextLevel,
                   className: "flex-1 py-3 px-4 rounded-lg font-display font-bold text-sm uppercase tracking-wider\n                    transition-all duration-200 hover:scale-105 active:scale-95",
                   style: {
-                    background: "oklch(0.76 0.07 210)",
-                    color: "oklch(0.20 0.02 255)",
-                    boxShadow: "0 0 12px oklch(0.76 0.07 210 / 0.4)"
+                    background: chapterAccent,
+                    color: "oklch(0.15 0.02 255)",
+                    boxShadow: `0 0 12px ${chapterAccent.replace(")", " / 0.4)")}`
                   },
                   "data-ocid": "win.confirm_button",
-                  children: "Next Level \\u2192"
+                  children: "Next Level →"
                 }
               ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "button",
@@ -24654,9 +24740,9 @@ function WinModal({
                   onClick: onReset,
                   className: "flex-1 py-3 px-4 rounded-lg font-display font-bold text-sm uppercase tracking-wider\n                    transition-all duration-200 hover:scale-105 active:scale-95",
                   style: {
-                    background: "oklch(0.76 0.07 210)",
-                    color: "oklch(0.20 0.02 255)",
-                    boxShadow: "0 0 12px oklch(0.76 0.07 210 / 0.4)"
+                    background: chapterAccent,
+                    color: "oklch(0.15 0.02 255)",
+                    boxShadow: `0 0 12px ${chapterAccent.replace(")", " / 0.4)")}`
                   },
                   "data-ocid": "win.confirm_button",
                   children: "Play Again"
@@ -24815,15 +24901,27 @@ function useGameState(onLevelComplete) {
       stopInterval();
       gamePhaseRef.current = "won";
       ballPosRef.current = nextPos;
-      setState((prev) => ({
-        ...prev,
-        ballPos: nextPos,
-        gamePhase: "won",
-        moveCount: prev.moveCount + 1
-      }));
-      if (onLevelComplete) {
-        onLevelComplete(LEVELS[levelIndex].id, stepsRef.current);
-      }
+      setState((prev) => {
+        const arrowsUsed = prev.placedArrows.size;
+        const totalArrows = prev.inventory.reduce(
+          (sum, item) => sum + item.total,
+          0
+        );
+        if (onLevelComplete) {
+          onLevelComplete(
+            LEVELS[levelIndex].id,
+            stepsRef.current,
+            arrowsUsed,
+            totalArrows
+          );
+        }
+        return {
+          ...prev,
+          ballPos: nextPos,
+          gamePhase: "won",
+          moveCount: prev.moveCount + 1
+        };
+      });
       return;
     }
     let newDir = dir;
@@ -37808,22 +37906,121 @@ function useMarkLevelCompleted() {
     }
   });
 }
+const CHAPTER_THEMES = [
+  {
+    id: 1,
+    name: "Arctic",
+    label: "Chapter 1 · Arctic",
+    bg: "oklch(0.18 0.02 255)",
+    accent: "oklch(0.76 0.07 210)",
+    bgVar: "0.18 0.02 255",
+    accentVar: "0.76 0.07 210",
+    levelStart: 1,
+    levelEnd: 10
+  },
+  {
+    id: 2,
+    name: "Ember",
+    label: "Chapter 2 · Ember",
+    bg: "oklch(0.16 0.03 30)",
+    accent: "oklch(0.75 0.14 35)",
+    bgVar: "0.16 0.03 30",
+    accentVar: "0.75 0.14 35",
+    levelStart: 11,
+    levelEnd: 20
+  },
+  {
+    id: 3,
+    name: "Forest",
+    label: "Chapter 3 · Forest",
+    bg: "oklch(0.15 0.04 150)",
+    accent: "oklch(0.72 0.13 145)",
+    bgVar: "0.15 0.04 150",
+    accentVar: "0.72 0.13 145",
+    levelStart: 21,
+    levelEnd: 30
+  },
+  {
+    id: 4,
+    name: "Dusk",
+    label: "Chapter 4 · Dusk",
+    bg: "oklch(0.15 0.04 290)",
+    accent: "oklch(0.72 0.14 285)",
+    bgVar: "0.15 0.04 290",
+    accentVar: "0.72 0.14 285",
+    levelStart: 31,
+    levelEnd: 40
+  },
+  {
+    id: 5,
+    name: "Crimson",
+    label: "Chapter 5 · Crimson",
+    bg: "oklch(0.15 0.04 10)",
+    accent: "oklch(0.72 0.16 8)",
+    bgVar: "0.15 0.04 10",
+    accentVar: "0.72 0.16 8",
+    levelStart: 41,
+    levelEnd: 50
+  }
+];
+function getChapterForLevel(levelIndex) {
+  const levelNumber = levelIndex + 1;
+  return CHAPTER_THEMES.find(
+    (c2) => levelNumber >= c2.levelStart && levelNumber <= c2.levelEnd
+  ) ?? CHAPTER_THEMES[0];
+}
+const STORAGE_KEY = "waymark_stars";
+function calcStars(arrowsUsed, totalArrows) {
+  if (totalArrows === 0) return 1;
+  const ratio = arrowsUsed / totalArrows;
+  if (ratio <= 0.5) return 3;
+  if (ratio <= 0.8) return 2;
+  return 1;
+}
+function loadStars() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+}
+function saveStar(levelId, stars) {
+  const existing = loadStars();
+  const prev = existing[levelId] ?? 0;
+  if (stars > prev) {
+    existing[levelId] = stars;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
+  }
+}
 function App() {
   const [showSplash, setShowSplash] = React$2.useState(true);
   const [selectedArrow, setSelectedArrow] = React$2.useState(
     null
   );
+  const [starsMap, setStarsMap] = React$2.useState(
+    () => loadStars()
+  );
+  const [winStars, setWinStars] = React$2.useState(1);
   const { mutate: markCompleted } = useMarkLevelCompleted();
   const { data: highestLevel } = useHighestLevelReached();
-  const { state, play, reset, nextLevel, goToLevel, placeArrow, removeArrow } = useGameState((levelId, moveCount) => {
-    markCompleted({ levelId, moveCount });
-  });
+  const { state, play, reset, nextLevel, goToLevel, placeArrow, removeArrow } = useGameState(
+    (levelId, moveCount, arrowsUsed, totalArrows) => {
+      markCompleted({ levelId, moveCount });
+      const stars = calcStars(arrowsUsed, totalArrows);
+      saveStar(levelId, stars);
+      setWinStars(stars);
+      setStarsMap(loadStars());
+    }
+  );
   const isEditing = state.gamePhase === "editing";
   const isPlaying = state.gamePhase === "playing";
   const isWon = state.gamePhase === "won";
   const isFailed = state.gamePhase === "failed";
   const currentLevel = LEVELS[state.currentLevelIndex];
   const highestReached = highestLevel !== void 0 ? Number(highestLevel) : 0;
+  const chapter = getChapterForLevel(state.currentLevelIndex);
   React$2.useEffect(() => {
     if (!isEditing) setSelectedArrow(null);
   }, [isEditing]);
@@ -37860,7 +38057,12 @@ function App() {
     "div",
     {
       className: "min-h-screen bg-streak flex flex-col",
-      style: { background: "oklch(0.27 0.025 255)" },
+      style: {
+        background: chapter.bg,
+        transition: "background 0.8s ease",
+        "--chapter-bg": chapter.bg,
+        "--chapter-accent": chapter.accent
+      },
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           motion.header,
@@ -37873,10 +38075,10 @@ function App() {
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "div",
                   {
-                    className: "w-8 h-8 rounded-md flex items-center justify-center",
+                    className: "w-8 h-8 rounded-md flex items-center justify-center transition-all duration-700",
                     style: {
-                      background: "oklch(0.76 0.07 210)",
-                      boxShadow: "0 0 10px oklch(0.76 0.07 210 / 0.35)"
+                      background: chapter.accent,
+                      boxShadow: `0 0 10px ${chapter.accent.replace(")", " / 0.35)")}`
                     },
                     children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                       "svg",
@@ -37893,12 +38095,21 @@ function App() {
                 ),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-lg sm:text-xl font-display font-bold uppercase tracking-widest neon-text-cyan", children: "Waymark" })
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden sm:flex items-center gap-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-muted-foreground font-display uppercase", children: [
-                  "Level ",
-                  state.currentLevelIndex + 1,
-                  ":"
-                ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden sm:flex flex-col items-center gap-0.5", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "span",
+                  {
+                    className: "text-xs font-display uppercase tracking-widest px-2.5 py-0.5 rounded-full",
+                    style: {
+                      color: chapter.accent,
+                      background: `${chapter.accent.replace("oklch(", "oklch(").replace(")", " / 0.12)")}`,
+                      border: `1px solid ${chapter.accent.replace(")", " / 0.3)")}`,
+                      opacity: 0.85
+                    },
+                    "data-ocid": "chapter.badge",
+                    children: chapter.label
+                  }
+                ),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "span",
                   {
@@ -37917,16 +38128,16 @@ function App() {
                     exit: { opacity: 0, scale: 0.8 },
                     className: "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-display uppercase font-bold",
                     style: {
-                      background: "oklch(0.76 0.07 210 / 0.12)",
-                      color: "oklch(0.76 0.07 210)",
-                      border: "1px solid oklch(0.76 0.07 210 / 0.35)"
+                      background: `${chapter.accent.replace(")", " / 0.12)")}`,
+                      color: chapter.accent,
+                      border: `1px solid ${chapter.accent.replace(")", " / 0.35)")}`
                     },
                     children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx(
                         "span",
                         {
                           className: "w-1.5 h-1.5 rounded-full animate-pulse",
-                          style: { background: "oklch(0.76 0.07 210)" }
+                          style: { background: chapter.accent }
                         }
                       ),
                       "Running"
@@ -38040,7 +38251,9 @@ function App() {
                   {
                     currentLevel: state.currentLevelIndex,
                     onSelect: handleGoToLevel,
-                    highestReached
+                    highestReached,
+                    starsMap,
+                    chapterAccent: chapter.accent
                   }
                 ),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-5 w-px bg-border/40 hidden sm:block" }),
@@ -38052,9 +38265,10 @@ function App() {
                     disabled: !isEditing,
                     className: "px-6 py-2.5 rounded-lg font-display font-bold text-sm uppercase tracking-wider\n                transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:scale-100",
                     style: isEditing ? {
-                      background: "oklch(0.76 0.07 210)",
+                      background: chapter.accent,
                       color: "oklch(0.20 0.02 255)",
-                      boxShadow: "0 0 14px oklch(0.76 0.07 210 / 0.4)"
+                      boxShadow: `0 0 14px ${chapter.accent.replace(")", " / 0.4)")}`,
+                      transition: "background 0.7s ease, box-shadow 0.7s ease"
                     } : {
                       background: "oklch(0.31 0.025 255)",
                       color: "oklch(0.45 0.02 240)"
@@ -38089,7 +38303,7 @@ function App() {
                     "span",
                     {
                       className: "font-display font-bold",
-                      style: { color: "oklch(0.76 0.07 210)" },
+                      style: { color: chapter.accent, transition: "color 0.7s ease" },
                       children: state.moveCount
                     }
                   )
@@ -38122,6 +38336,8 @@ function App() {
             isVisible: isWon,
             levelIndex: state.currentLevelIndex,
             moveCount: state.moveCount,
+            stars: winStars,
+            chapterAccent: chapter.accent,
             onNextLevel: handleNextLevel,
             onReset: handleReset
           }

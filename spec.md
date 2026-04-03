@@ -1,32 +1,47 @@
-# Waymark — 50 Levels Expansion
+# Waymark - Star Rating System + Chapter Themes
 
 ## Current State
-- Game has 5 hand-crafted levels on an 8x8 grid
-- LevelSelector renders one button per level in a horizontal row (works fine for 5, not for 50)
-- useGameState hardcodes `8` as the grid dimension in bounds checks and findStart loops
-- `LEVELS` array exported from `src/frontend/src/data/levels.ts`
-- Backend tracks highest level reached per user
+- 50 levels with tap-to-place arrow mechanics
+- Nordic Night palette (#2E3440 base, #88C0D0 arrows, #A3BE8C goal)
+- Compact dropdown level selector with progress bar showing 1/50 unlocked
+- Ball movement with ghost trail, win modal, reset/play buttons
+- No star rating system, no chapter themes
 
 ## Requested Changes (Diff)
 
 ### Add
-- 45 new levels (levels 6–50) in `levels.ts`, bringing total to 50
-- Levels 1–10: 8×8 grid, 2–4 walls, 2–3 arrows in inventory (gentle warm-up)
-- Levels 11–25: 8×8 grid, 5–8 walls, 3–4 arrows, slightly tighter paths
-- Levels 26–40: 8×8 grid, 8–12 walls, 3–4 arrows, maze-like layouts
-- Levels 41–50: 8×8 grid, 12–16 walls, 3–4 arrows, only one valid Waymark path
-- A scrollable level-selection screen / panel that can display all 50 levels in a compact grid
+- **Star Rating System**: Award 1-3 stars per level based on arrows used (fewer arrows = more stars)
+  - 3 stars: solved using ≤ 50% of available arrows
+  - 2 stars: solved using ≤ 80% of available arrows
+  - 1 star: solved using all or more arrows
+  - Stars are shown in the win modal after completion
+  - Stars are stored in localStorage per level and shown in the level selector grid
+  - Already-starred levels show their best star count in the level selector
+- **Chapter Themes**: Every 10 levels, change the background/accent color scheme
+  - Chapter 1 (Levels 1-10): "Arctic" - current Nordic Night blue (#2E3440 / #88C0D0)
+  - Chapter 2 (Levels 11-20): "Ember" - deep charcoal with warm orange accents
+  - Chapter 3 (Levels 21-30): "Forest" - dark green tones with sage accents
+  - Chapter 4 (Levels 31-40): "Dusk" - deep purple/violet background with lavender accents
+  - Chapter 5 (Levels 41-50): "Crimson" - near-black with red/pink accents
+  - Chapter name is shown as a subtle label above the level selector
+  - Background color transitions smoothly when moving between chapters
+  - Grid border glow color matches the current chapter accent
 
 ### Modify
-- `LevelSelector` component: replace single-row button list with a compact scrollable grid (5 columns × 10 rows), fits in the footer area. Show lock icon overlay on locked levels. Keep same color scheme (current = cyan highlight, locked = dimmed).
-- `useGameState` `findStart` and out-of-bounds checks: make grid dimension dynamic (read `grid.length` and `grid[0].length`) instead of hardcoded `8`, so it works for any grid size used in future levels.
-- `App.tsx` WinModal/handleNextLevel: ensure it handles 50 levels correctly (no change needed beyond LEVELS.length being 50).
+- **WinModal**: Add star display (3 animated stars, filled based on performance)
+- **LevelSelector**: Show star count in each level button (1-3 gold stars or empty)
+- **App.tsx / GameGrid**: Apply chapter theme CSS variables based on current level index
+- **useGameState**: Expose arrow-usage count for star calculation on win
 
 ### Remove
 - Nothing removed
 
 ## Implementation Plan
-1. Expand `src/frontend/src/data/levels.ts` with 45 new levels (6–50). Each level must have: unique `id`, descriptive `name`, valid 8×8 `grid` with `start` + `goal` reachable with provided `inventory`, and a `startDir`.
-2. Update `LevelSelector` to render a compact 5-column grid with scroll, lock icons, and proper accessibility.
-3. Update `useGameState` findStart and bounds check to use `grid.length`/`grid[0].length` instead of magic number `8`.
-4. Validate (typecheck + build).
+1. Define chapter theme data (5 chapters, color tokens per chapter)
+2. Add `chapterTheme` CSS variable injection based on `currentLevelIndex` in App.tsx
+3. Compute star rating on win: compare arrows placed vs total inventory available
+4. Persist star ratings per level in localStorage
+5. Update WinModal to animate and display earned stars
+6. Update LevelSelector to show best star count per completed level
+7. Show chapter name label near level selector
+8. Smooth CSS transition on background color change between chapters

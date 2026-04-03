@@ -56,7 +56,12 @@ function buildInitialState(levelIndex: number): GameState {
 }
 
 export function useGameState(
-  onLevelComplete?: (levelId: string, moves: number) => void,
+  onLevelComplete?: (
+    levelId: string,
+    moves: number,
+    arrowsUsed: number,
+    totalArrows: number,
+  ) => void,
 ) {
   const [state, setState] = useState<GameState>(() => buildInitialState(0));
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -188,15 +193,27 @@ export function useGameState(
       stopInterval();
       gamePhaseRef.current = "won";
       ballPosRef.current = nextPos;
-      setState((prev) => ({
-        ...prev,
-        ballPos: nextPos,
-        gamePhase: "won",
-        moveCount: prev.moveCount + 1,
-      }));
-      if (onLevelComplete) {
-        onLevelComplete(LEVELS[levelIndex].id, stepsRef.current);
-      }
+      setState((prev) => {
+        const arrowsUsed = prev.placedArrows.size;
+        const totalArrows = prev.inventory.reduce(
+          (sum, item) => sum + item.total,
+          0,
+        );
+        if (onLevelComplete) {
+          onLevelComplete(
+            LEVELS[levelIndex].id,
+            stepsRef.current,
+            arrowsUsed,
+            totalArrows,
+          );
+        }
+        return {
+          ...prev,
+          ballPos: nextPos,
+          gamePhase: "won",
+          moveCount: prev.moveCount + 1,
+        };
+      });
       return;
     }
 

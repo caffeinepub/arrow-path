@@ -1,16 +1,46 @@
 import { useEffect, useRef, useState } from "react";
 import { LEVELS } from "../../data/levels";
+import type { StarCount } from "../../utils/starRating";
 
 interface LevelSelectorProps {
   currentLevel: number;
   onSelect: (idx: number) => void;
   highestReached?: number;
+  starsMap?: Record<string, StarCount>;
+  chapterAccent?: string;
+}
+
+function LevelStarDots({ stars }: { stars: StarCount | undefined }) {
+  if (!stars) return <div style={{ height: "8px" }} />;
+  return (
+    <div
+      className="flex items-center justify-center gap-0.5"
+      style={{ height: "8px" }}
+    >
+      {[1, 2, 3].map((i) => (
+        <span
+          key={i}
+          style={{
+            width: "4px",
+            height: "4px",
+            borderRadius: "50%",
+            background:
+              i <= stars ? "oklch(0.85 0.18 80)" : "oklch(0.35 0.02 240)",
+            display: "inline-block",
+            flexShrink: 0,
+          }}
+        />
+      ))}
+    </div>
+  );
 }
 
 export function LevelSelector({
   currentLevel,
   onSelect,
   highestReached = 0,
+  starsMap = {},
+  chapterAccent = "oklch(0.76 0.07 210)",
 }: LevelSelectorProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -42,9 +72,13 @@ export function LevelSelector({
         className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-display font-semibold transition-all duration-200 hover:scale-105"
         style={{
           background: "oklch(0.31 0.025 255)",
-          color: "oklch(0.76 0.07 210)",
-          border: "1px solid oklch(0.38 0.03 255 / 0.7)",
-          boxShadow: open ? "0 0 12px oklch(0.76 0.07 210 / 0.25)" : undefined,
+          color: chapterAccent,
+          border: `1px solid ${chapterAccent.replace(")", " / 0.4)")}`,
+          boxShadow: open
+            ? `0 0 12px ${chapterAccent.replace(")", " / 0.25)")}`
+            : undefined,
+          transition:
+            "color 0.7s ease, border-color 0.7s ease, box-shadow 0.7s ease",
         }}
       >
         <span style={{ color: "oklch(0.70 0.02 240)" }} className="text-xs">
@@ -109,8 +143,7 @@ export function LevelSelector({
               className="h-full rounded-full transition-all duration-500"
               style={{
                 width: `${((highestReached + 1) / LEVELS.length) * 100}%`,
-                background:
-                  "linear-gradient(90deg, oklch(0.76 0.07 210), oklch(0.73 0.10 130))",
+                background: `linear-gradient(90deg, ${chapterAccent}, oklch(0.73 0.10 130))`,
               }}
             />
           </div>
@@ -118,7 +151,7 @@ export function LevelSelector({
           {/* Scrollable grid */}
           <div
             className="overflow-y-auto pr-0.5"
-            style={{ maxHeight: "192px" }}
+            style={{ maxHeight: "210px" }}
           >
             <div
               className="grid gap-1"
@@ -130,6 +163,7 @@ export function LevelSelector({
                 const isCompleted =
                   idx < currentLevel ||
                   (idx <= highestReached && idx !== currentLevel);
+                const levelStars = starsMap[level.id];
 
                 let bg = "oklch(0.25 0.02 255)";
                 let color = "oklch(0.45 0.02 240)";
@@ -137,9 +171,9 @@ export function LevelSelector({
                 let border = "1px solid oklch(0.32 0.025 255 / 0.5)";
 
                 if (isCurrent) {
-                  bg = "oklch(0.76 0.07 210)";
-                  color = "oklch(0.18 0.02 255)";
-                  shadow = "0 0 8px oklch(0.76 0.07 210 / 0.5)";
+                  bg = chapterAccent;
+                  color = "oklch(0.13 0.02 255)";
+                  shadow = `0 0 8px ${chapterAccent.replace(")", " / 0.5)")}`;
                   border = "none";
                 } else if (isCompleted) {
                   bg = "oklch(0.28 0.06 130)";
@@ -165,7 +199,7 @@ export function LevelSelector({
                         ? level.name
                         : "🔒 Complete previous level to unlock"
                     }
-                    className="relative flex items-center justify-center rounded-md text-xs font-display font-bold transition-all duration-150"
+                    className="relative flex flex-col items-center justify-center rounded-md text-xs font-display font-bold transition-all duration-150 pt-1 pb-0.5 px-0.5"
                     style={{
                       width: "100%",
                       aspectRatio: "1",
@@ -179,11 +213,17 @@ export function LevelSelector({
                     }}
                     data-ocid={`level.item.${idx + 1}`}
                   >
-                    {!isUnlocked ? (
-                      <span style={{ fontSize: "9px" }}>🔒</span>
-                    ) : (
-                      idx + 1
+                    <span className="leading-none">
+                      {!isUnlocked ? (
+                        <span style={{ fontSize: "9px" }}>🔒</span>
+                      ) : (
+                        idx + 1
+                      )}
+                    </span>
+                    {isUnlocked && !isCurrent && (
+                      <LevelStarDots stars={levelStars} />
                     )}
+                    {isCurrent && <div style={{ height: "8px" }} />}
                   </button>
                 );
               })}

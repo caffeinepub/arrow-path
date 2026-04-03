@@ -12,20 +12,38 @@ import {
   useMarkLevelCompleted,
 } from "./hooks/useQueries";
 import type { ArrowDir } from "./types/game";
+import { getChapterForLevel } from "./utils/chapterThemes";
+import { calcStars, loadStars, saveStar } from "./utils/starRating";
+import type { StarCount } from "./utils/starRating";
 
 function App() {
   const [showSplash, setShowSplash] = React.useState(true);
   const [selectedArrow, setSelectedArrow] = React.useState<ArrowDir | null>(
     null,
   );
+  const [starsMap, setStarsMap] = React.useState<Record<string, StarCount>>(
+    () => loadStars(),
+  );
+  const [winStars, setWinStars] = React.useState<StarCount>(1);
 
   const { mutate: markCompleted } = useMarkLevelCompleted();
   const { data: highestLevel } = useHighestLevelReached();
 
   const { state, play, reset, nextLevel, goToLevel, placeArrow, removeArrow } =
-    useGameState((levelId: string, moveCount: number) => {
-      markCompleted({ levelId, moveCount });
-    });
+    useGameState(
+      (
+        levelId: string,
+        moveCount: number,
+        arrowsUsed: number,
+        totalArrows: number,
+      ) => {
+        markCompleted({ levelId, moveCount });
+        const stars = calcStars(arrowsUsed, totalArrows);
+        saveStar(levelId, stars);
+        setWinStars(stars);
+        setStarsMap(loadStars());
+      },
+    );
 
   const isEditing = state.gamePhase === "editing";
   const isPlaying = state.gamePhase === "playing";
@@ -33,6 +51,8 @@ function App() {
   const isFailed = state.gamePhase === "failed";
   const currentLevel = LEVELS[state.currentLevelIndex];
   const highestReached = highestLevel !== undefined ? Number(highestLevel) : 0;
+
+  const chapter = getChapterForLevel(state.currentLevelIndex);
 
   // Clear selected arrow when leaving editing phase
   React.useEffect(() => {
@@ -46,13 +66,10 @@ function App() {
   const handlePlaceOnGrid = (row: number, col: number) => {
     if (!selectedArrow) return;
     placeArrow(row, col, selectedArrow);
-    // Check if inventory still has this arrow after placing
     const item = state.inventory.find((i) => i.direction === selectedArrow);
     if (!item || item.count <= 1) {
-      // Used the last one — deselect
       setSelectedArrow(null);
     }
-    // Otherwise keep selected so user can keep placing same arrow type
   };
 
   const handleNextLevel = () => {
@@ -80,7 +97,14 @@ function App() {
   return (
     <div
       className="min-h-screen bg-streak flex flex-col"
-      style={{ background: "oklch(0.27 0.025 255)" }}
+      style={
+        {
+          background: chapter.bg,
+          transition: "background 0.8s ease",
+          "--chapter-bg": chapter.bg,
+          "--chapter-accent": chapter.accent,
+        } as React.CSSProperties
+      }
     >
       {/* Header */}
       <motion.header
@@ -92,10 +116,10 @@ function App() {
           <div className="flex items-center gap-3">
             {/* Logo mark */}
             <div
-              className="w-8 h-8 rounded-md flex items-center justify-center"
+              className="w-8 h-8 rounded-md flex items-center justify-center transition-all duration-700"
               style={{
-                background: "oklch(0.76 0.07 210)",
-                boxShadow: "0 0 10px oklch(0.76 0.07 210 / 0.35)",
+                background: chapter.accent,
+                boxShadow: `0 0 10px ${chapter.accent.replace(")", " / 0.35)")}`,
               }}
             >
               <svg
@@ -113,10 +137,20 @@ function App() {
             </h1>
           </div>
 
-          {/* Level name badge */}
-          <div className="hidden sm:flex items-center gap-2">
-            <span className="text-xs text-muted-foreground font-display uppercase">
-              Level {state.currentLevelIndex + 1}:
+          {/* Center: chapter label + level name */}
+          <div className="hidden sm:flex flex-col items-center gap-0.5">
+            {/* Chapter badge */}
+            <span
+              className="text-xs font-display uppercase tracking-widest px-2.5 py-0.5 rounded-full"
+              style={{
+                color: chapter.accent,
+                background: `${chapter.accent.replace("oklch(", "oklch(").replace(")", " / 0.12)")}`,
+                border: `1px solid ${chapter.accent.replace(")", " / 0.3)")}`,
+                opacity: 0.85,
+              }}
+              data-ocid="chapter.badge"
+            >
+              {chapter.label}
             </span>
             <span
               className="text-xs font-display font-bold"
@@ -137,14 +171,14 @@ function App() {
                   exit={{ opacity: 0, scale: 0.8 }}
                   className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-display uppercase font-bold"
                   style={{
-                    background: "oklch(0.76 0.07 210 / 0.12)",
-                    color: "oklch(0.76 0.07 210)",
-                    border: "1px solid oklch(0.76 0.07 210 / 0.35)",
+                    background: `${chapter.accent.replace(")", " / 0.12)")}`,
+                    color: chapter.accent,
+                    border: `1px solid ${chapter.accent.replace(")", " / 0.35)")}`,
                   }}
                 >
                   <span
                     className="w-1.5 h-1.5 rounded-full animate-pulse"
-                    style={{ background: "oklch(0.76 0.07 210)" }}
+                    style={{ background: chapter.accent }}
                   />
                   Running
                 </motion.div>
@@ -258,6 +292,8 @@ function App() {
               currentLevel={state.currentLevelIndex}
               onSelect={handleGoToLevel}
               highestReached={highestReached}
+              starsMap={starsMap}
+              chapterAccent={chapter.accent}
             />
 
             <div className="h-5 w-px bg-border/40 hidden sm:block" />
@@ -272,9 +308,10 @@ function App() {
               style={
                 isEditing
                   ? {
-                      background: "oklch(0.76 0.07 210)",
+                      background: chapter.accent,
                       color: "oklch(0.20 0.02 255)",
-                      boxShadow: "0 0 14px oklch(0.76 0.07 210 / 0.4)",
+                      boxShadow: `0 0 14px ${chapter.accent.replace(")", " / 0.4)")}`,
+                      transition: "background 0.7s ease, box-shadow 0.7s ease",
                     }
                   : {
                       background: "oklch(0.31 0.025 255)",
@@ -311,7 +348,7 @@ function App() {
               </span>
               <span
                 className="font-display font-bold"
-                style={{ color: "oklch(0.76 0.07 210)" }}
+                style={{ color: chapter.accent, transition: "color 0.7s ease" }}
               >
                 {state.moveCount}
               </span>
@@ -336,6 +373,8 @@ function App() {
         isVisible={isWon}
         levelIndex={state.currentLevelIndex}
         moveCount={state.moveCount}
+        stars={winStars}
+        chapterAccent={chapter.accent}
         onNextLevel={handleNextLevel}
         onReset={handleReset}
       />

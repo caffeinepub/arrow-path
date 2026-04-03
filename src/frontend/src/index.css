@@ -50,6 +50,10 @@
     --grid-wall: 0.2 0.02 255;
     --panel-bg: 0.31 0.025 255;
 
+    /* Chapter theme defaults (Arctic) */
+    --chapter-bg: oklch(0.18 0.02 255);
+    --chapter-accent: oklch(0.76 0.07 210);
+
     /* Chart colors */
     --chart-1: 0.76 0.07 210;
     --chart-2: 0.73 0.1 130;
@@ -79,8 +83,9 @@
   body {
     @apply bg-background text-foreground;
     font-family: "Inter", sans-serif;
-    background-color: oklch(0.27 0.025 255);
+    background-color: var(--chapter-bg, oklch(0.27 0.025 255));
     min-height: 100vh;
+    transition: background-color 0.8s ease;
   }
 }
 
