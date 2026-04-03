@@ -670,10 +670,6 @@ body{
   bottom: 0.25rem;
 }
 
-.bottom-3{
-  bottom: 0.75rem;
-}
-
 .bottom-4{
   bottom: 1rem;
 }
@@ -688,10 +684,6 @@ body{
 
 .left-2{
   left: 0.5rem;
-}
-
-.left-3{
-  left: 0.75rem;
 }
 
 .left-\[50\%\]{
@@ -1677,32 +1669,16 @@ body{
   border-bottom-width: 1px;
 }
 
-.border-b-2{
-  border-bottom-width: 2px;
-}
-
 .border-l{
   border-left-width: 1px;
-}
-
-.border-l-2{
-  border-left-width: 2px;
 }
 
 .border-r{
   border-right-width: 1px;
 }
 
-.border-r-2{
-  border-right-width: 2px;
-}
-
 .border-t{
   border-top-width: 1px;
-}
-
-.border-t-2{
-  border-top-width: 2px;
 }
 
 .border-dashed{
@@ -1819,6 +1795,11 @@ body{
   fill: oklch(var(--primary) / 1);
 }
 
+.object-cover{
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+
 .p-0{
   padding: 0px;
 }
@@ -1920,11 +1901,6 @@ body{
   padding-bottom: 0.375rem;
 }
 
-.py-14{
-  padding-top: 3.5rem;
-  padding-bottom: 3.5rem;
-}
-
 .py-2{
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
@@ -1948,6 +1924,11 @@ body{
 .py-4{
   padding-top: 1rem;
   padding-bottom: 1rem;
+}
+
+.py-5{
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
 }
 
 .py-6{
@@ -2189,6 +2170,11 @@ body{
 
 .text-sidebar-foreground{
   color: oklch(var(--sidebar-foreground));
+}
+
+.text-white{
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity, 1));
 }
 
 .underline{

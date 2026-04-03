@@ -22622,7 +22622,7 @@ function AdScreen({
     }, 1e3);
     return () => clearInterval(timer);
   }, [countdown]);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
     motion.div,
     {
       className: "fixed inset-0 z-[60] flex items-center justify-center",
@@ -22632,243 +22632,140 @@ function AdScreen({
       exit: { opacity: 0 },
       transition: { duration: 0.25 },
       "data-ocid": "ad.modal",
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-6 w-full max-w-md px-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "p",
-            {
-              className: "text-xs font-display uppercase tracking-widest",
-              style: { color: "oklch(0.42 0.03 240)" },
-              children: "Advertisement"
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            motion.div,
-            {
-              className: "relative w-full rounded-xl overflow-hidden border flex flex-col items-center justify-center gap-4 py-14 px-8",
-              style: {
-                background: "oklch(0.14 0.02 255)",
-                borderColor: `${accentColor.replace(")", " / 0.3)")}`,
-                boxShadow: `0 0 32px ${accentColor.replace(")", " / 0.08)")}, inset 0 0 60px oklch(0.10 0.01 255 / 0.5)`
-              },
-              initial: { scale: 0.92, opacity: 0 },
-              animate: { scale: 1, opacity: 1 },
-              transition: { delay: 0.1, duration: 0.35, ease: "easeOut" },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "div",
-                  {
-                    className: "absolute inset-0 pointer-events-none",
-                    style: {
-                      background: "linear-gradient(105deg, transparent 40%, oklch(0.76 0.07 210 / 0.04) 50%, transparent 60%)",
-                      backgroundSize: "200% 100%",
-                      animation: "adShimmer 2.5s infinite linear"
-                    }
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "div",
-                  {
-                    style: {
-                      color: `${accentColor.replace(")", " / 0.35)")}`,
-                      filter: `drop-shadow(0 0 12px ${accentColor.replace(")", " / 0.2)")})`
-                    },
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                      "svg",
-                      {
-                        width: "64",
-                        height: "64",
-                        viewBox: "0 0 64 64",
-                        fill: "none",
-                        xmlns: "http://www.w3.org/2000/svg",
-                        "aria-hidden": "true",
-                        children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            "rect",
-                            {
-                              x: "4",
-                              y: "14",
-                              width: "56",
-                              height: "36",
-                              rx: "5",
-                              stroke: "currentColor",
-                              strokeWidth: "2",
-                              fill: "none"
-                            }
-                          ),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            "line",
-                            {
-                              x1: "20",
-                              y1: "50",
-                              x2: "12",
-                              y2: "58",
-                              stroke: "currentColor",
-                              strokeWidth: "2",
-                              strokeLinecap: "round"
-                            }
-                          ),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            "line",
-                            {
-                              x1: "44",
-                              y1: "50",
-                              x2: "52",
-                              y2: "58",
-                              stroke: "currentColor",
-                              strokeWidth: "2",
-                              strokeLinecap: "round"
-                            }
-                          ),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            "circle",
-                            {
-                              cx: "32",
-                              cy: "32",
-                              r: "9",
-                              stroke: "currentColor",
-                              strokeWidth: "2",
-                              fill: "none"
-                            }
-                          ),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            "polygon",
-                            {
-                              points: "28,27 28,37 40,32",
-                              fill: "currentColor",
-                              opacity: "0.6"
-                            }
-                          ),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            "line",
-                            {
-                              x1: "28",
-                              y1: "14",
-                              x2: "20",
-                              y2: "6",
-                              stroke: "currentColor",
-                              strokeWidth: "2",
-                              strokeLinecap: "round"
-                            }
-                          ),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            "line",
-                            {
-                              x1: "36",
-                              y1: "14",
-                              x2: "44",
-                              y2: "6",
-                              stroke: "currentColor",
-                              strokeWidth: "2",
-                              strokeLinecap: "round"
-                            }
-                          )
-                        ]
-                      }
-                    )
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "p",
-                    {
-                      className: "text-lg font-display font-bold uppercase tracking-widest",
-                      style: { color: "oklch(0.38 0.03 240)" },
-                      children: "Ad Placeholder"
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "p",
-                    {
-                      className: "text-xs font-sans mt-1",
-                      style: { color: "oklch(0.30 0.02 240)" },
-                      children: "Your ad could be here"
-                    }
-                  )
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "div",
-                  {
-                    className: "absolute top-3 left-3 w-5 h-5 border-t-2 border-l-2",
-                    style: { borderColor: `${accentColor.replace(")", " / 0.25)")}` }
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "div",
-                  {
-                    className: "absolute top-3 right-3 w-5 h-5 border-t-2 border-r-2",
-                    style: { borderColor: `${accentColor.replace(")", " / 0.25)")}` }
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "div",
-                  {
-                    className: "absolute bottom-3 left-3 w-5 h-5 border-b-2 border-l-2",
-                    style: { borderColor: `${accentColor.replace(")", " / 0.25)")}` }
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "div",
-                  {
-                    className: "absolute bottom-3 right-3 w-5 h-5 border-b-2 border-r-2",
-                    style: { borderColor: `${accentColor.replace(")", " / 0.25)")}` }
-                  }
-                )
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col items-center gap-3 w-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(AnimatePresence, { mode: "wait", children: !canClose ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            motion.p,
-            {
-              initial: { opacity: 0 },
-              animate: { opacity: 1 },
-              exit: { opacity: 0 },
-              className: "text-xs font-display uppercase tracking-widest",
-              style: { color: "oklch(0.38 0.03 240)" },
-              "data-ocid": "ad.loading_state",
-              children: [
-                "Skip in ",
-                countdown,
-                "..."
-              ]
+      children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-4 w-full max-w-sm px-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "p",
+          {
+            className: "text-xs font-display uppercase tracking-widest",
+            style: { color: "oklch(0.42 0.03 240)" },
+            children: "Advertisement"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          motion.div,
+          {
+            className: "relative w-full rounded-xl overflow-hidden border flex flex-col",
+            style: {
+              background: "oklch(0.10 0.02 240)",
+              borderColor: `${accentColor.replace(")", " / 0.3)")}`,
+              boxShadow: `0 0 32px ${accentColor.replace(")", " / 0.10)")}, inset 0 0 60px oklch(0.08 0.01 255 / 0.5)`
             },
-            "countdown"
-          ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-            motion.div,
-            {
-              initial: { opacity: 0 },
-              animate: { opacity: 1 },
-              exit: { opacity: 0 },
-              className: "w-full flex justify-center",
-              "data-ocid": "ad.success_state",
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            initial: { scale: 0.92, opacity: 0 },
+            animate: { scale: 1, opacity: 1 },
+            transition: { delay: 0.1, duration: 0.35, ease: "easeOut" },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-3 right-3 z-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(AnimatePresence, { mode: "wait", children: !canClose ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                motion.div,
+                {
+                  initial: { opacity: 0 },
+                  animate: { opacity: 1 },
+                  exit: { opacity: 0 },
+                  className: "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold font-display",
+                  style: {
+                    background: "oklch(0.08 0.01 255 / 0.80)",
+                    color: "oklch(0.65 0.03 240)",
+                    border: "1px solid oklch(0.25 0.02 240 / 0.5)"
+                  },
+                  "data-ocid": "ad.loading_state",
+                  children: countdown
+                },
+                "countdown"
+              ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
                 motion.button,
                 {
                   type: "button",
                   onClick: onClose,
-                  whileHover: { scale: 1.04 },
-                  whileTap: { scale: 0.97 },
-                  className: "px-8 py-2.5 rounded-full font-display font-bold text-sm uppercase tracking-wider border transition-colors duration-200",
+                  initial: { opacity: 0, scale: 0.8 },
+                  animate: { opacity: 1, scale: 1 },
+                  exit: { opacity: 0 },
+                  whileHover: { scale: 1.1 },
+                  whileTap: { scale: 0.95 },
+                  className: "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold",
                   style: {
-                    borderColor: accentColor,
-                    color: accentColor,
-                    background: `${accentColor.replace(")", " / 0.08)")}`
+                    background: "oklch(0.20 0.02 240 / 0.90)",
+                    color: "oklch(0.75 0.03 240)",
+                    border: "1px solid oklch(0.35 0.03 240 / 0.6)"
                   },
                   "data-ocid": "ad.close_button",
-                  children: "✕ Close"
+                  children: "✕"
+                },
+                "close"
+              ) }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "px-4 pt-4 pb-2",
+                  style: { background: "oklch(0.10 0.02 240)" },
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "p",
+                    {
+                      className: "text-xs font-display font-bold uppercase tracking-widest",
+                      style: { color: "oklch(0.60 0.10 240)" },
+                      children: "SPONSORED: Bright Smile Daily"
+                    }
+                  )
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-full", style: { aspectRatio: "4/3" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "img",
+                  {
+                    src: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&q=80&w=800",
+                    alt: "Bright Smile Daily product",
+                    className: "absolute inset-0 w-full h-full object-cover"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "div",
+                  {
+                    className: "absolute bottom-0 left-0 right-0 h-12 pointer-events-none",
+                    style: {
+                      background: "linear-gradient(to bottom, transparent, oklch(0.10 0.02 240))"
+                    }
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "flex flex-col items-center gap-3 px-6 py-5",
+                  style: { background: "oklch(0.10 0.02 240)" },
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    motion.button,
+                    {
+                      type: "button",
+                      whileHover: { scale: 1.04 },
+                      whileTap: { scale: 0.97 },
+                      className: "w-full py-3 rounded-lg font-display font-bold text-sm uppercase tracking-wider text-white",
+                      style: {
+                        background: "linear-gradient(135deg, oklch(0.55 0.20 250), oklch(0.45 0.22 265))",
+                        boxShadow: "0 4px 20px oklch(0.50 0.20 255 / 0.40), 0 1px 4px oklch(0.30 0.15 255 / 0.30)"
+                      },
+                      children: "SHOP NOW"
+                    }
+                  )
                 }
               )
-            },
-            "closeable"
-          ) }) })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("style", { children: `
-        @keyframes adShimmer {
-          0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
-        }
-      ` })
-      ]
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(AnimatePresence, { children: !canClose && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          motion.p,
+          {
+            initial: { opacity: 0 },
+            animate: { opacity: 1 },
+            exit: { opacity: 0 },
+            className: "text-xs font-display uppercase tracking-widest",
+            style: { color: "oklch(0.28 0.02 240)" },
+            children: [
+              "Ad closes in ",
+              countdown,
+              "s"
+            ]
+          },
+          "skip-note"
+        ) })
+      ] })
     }
   );
 }
