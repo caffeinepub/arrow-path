@@ -2505,6 +2505,13 @@ body{
       oklch(var(--neon-cyan) / 0.2);
   }
 
+.neon-text-strong {
+    color: oklch(var(--neon-cyan));
+    text-shadow: 0 0 6px oklch(var(--neon-cyan) / 0.9), 0 0 18px
+      oklch(var(--neon-cyan) / 0.6), 0 0 40px oklch(var(--neon-cyan) / 0.3);
+    letter-spacing: 0.2em;
+  }
+
 .neon-text-lime {
     color: oklch(var(--neon-lime));
     text-shadow: 0 0 8px oklch(var(--neon-lime) / 0.4), 0 0 16px
@@ -4162,9 +4169,9 @@ body{
     text-align: left;
   }
 
-  .sm\:text-xl{
-    font-size: 1.25rem;
-    line-height: 1.75rem;
+  .sm\:text-2xl{
+    font-size: 1.5rem;
+    line-height: 2rem;
   }
 
   .data-\[vaul-drawer-direction\=left\]\:sm\:max-w-sm[data-vaul-drawer-direction="left"]{

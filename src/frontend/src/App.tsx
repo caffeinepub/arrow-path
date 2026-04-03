@@ -201,8 +201,8 @@ function App() {
                 <path d="M20 12l-8 8v-5H4V9h8V4z" />
               </svg>
             </div>
-            <h1 className="text-lg sm:text-xl font-display font-bold uppercase tracking-widest neon-text-cyan">
-              Waymark
+            <h1 className="text-xl sm:text-2xl font-display font-black uppercase tracking-widest neon-text-strong">
+              WAYMARK
             </h1>
           </div>
 

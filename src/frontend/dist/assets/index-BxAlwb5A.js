@@ -40099,7 +40099,7 @@ function App() {
                     )
                   }
                 ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-lg sm:text-xl font-display font-bold uppercase tracking-widest neon-text-cyan", children: "Waymark" })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-xl sm:text-2xl font-display font-black uppercase tracking-widest neon-text-strong", children: "WAYMARK" })
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden sm:flex flex-col items-center gap-0.5", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
