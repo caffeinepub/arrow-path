@@ -1,6 +1,8 @@
 import { AnimatePresence, motion } from "motion/react";
 import React from "react";
+import { AdScreen } from "./components/game/AdScreen";
 import { GameGrid } from "./components/game/GameGrid";
+import { HintModal } from "./components/game/HintModal";
 import { InventoryPanel } from "./components/game/InventoryPanel";
 import { LevelSelector } from "./components/game/LevelSelector";
 import { SplashScreen } from "./components/game/SplashScreen";
@@ -25,6 +27,18 @@ function App() {
     () => loadStars(),
   );
   const [winStars, setWinStars] = React.useState<StarCount>(1);
+
+  // Ad / monetisation state
+  const [showBetweenLevelAd, setShowBetweenLevelAd] = React.useState(false);
+  const [adsRemoved] = React.useState(
+    () => localStorage.getItem("waymark_ads_removed") === "true",
+  );
+  const [showHintModal, setShowHintModal] = React.useState(false);
+  const [hintTile, setHintTile] = React.useState<{
+    row: number;
+    col: number;
+    dir: ArrowDir;
+  } | null>(null);
 
   const { mutate: markCompleted } = useMarkLevelCompleted();
   const { data: highestLevel } = useHighestLevelReached();
@@ -68,20 +82,43 @@ function App() {
 
   const handleNextLevel = () => {
     if (state.currentLevelIndex < LEVELS.length - 1) {
-      nextLevel();
+      // Show ad every 3 levels (when next level number is divisible by 3)
+      const nextLevelNum = state.currentLevelIndex + 1; // 0-indexed, so next level number = currentIndex + 1
+      if (!adsRemoved && nextLevelNum % 3 === 0) {
+        setShowBetweenLevelAd(true);
+      } else {
+        nextLevel();
+      }
     } else {
       reset();
     }
   };
 
+  const handleAdClose = () => {
+    setShowBetweenLevelAd(false);
+    nextLevel();
+  };
+
+  const handlePlay = () => {
+    setHintTile(null);
+    play();
+  };
+
   const handleReset = () => {
     setSelectedArrow(null);
+    setHintTile(null);
     reset();
   };
 
   const handleGoToLevel = (idx: number) => {
     setSelectedArrow(null);
+    setHintTile(null);
     goToLevel(idx);
+  };
+
+  const handleRevealHint = (row: number, col: number, dir: ArrowDir) => {
+    setHintTile({ row, col, dir });
+    setShowHintModal(false);
   };
 
   if (showSplash) {
@@ -152,8 +189,35 @@ function App() {
             </span>
           </div>
 
-          {/* Phase indicator */}
+          {/* Phase indicator + Hint button */}
           <div className="flex items-center gap-2">
+            {/* Hint button — only visible during editing phase */}
+            <AnimatePresence>
+              {isEditing && (
+                <motion.button
+                  key="hint-btn"
+                  type="button"
+                  onClick={() => setShowHintModal(true)}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  whileHover={{ scale: 1.06 }}
+                  whileTap={{ scale: 0.95 }}
+                  title="Get a hint (watch ad)"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-display text-xs uppercase tracking-wider border transition-colors duration-200"
+                  style={{
+                    borderColor: `${chapter.accent.replace(")", " / 0.45)")}`,
+                    color: chapter.accent,
+                    background: `${chapter.accent.replace(")", " / 0.07)")}`,
+                  }}
+                  data-ocid="hint.open_modal_button"
+                >
+                  <span style={{ fontSize: "1rem", lineHeight: 1 }}>💡</span>
+                  <span className="hidden sm:inline">Hint</span>
+                </motion.button>
+              )}
+            </AnimatePresence>
+
             <AnimatePresence mode="wait">
               {isPlaying && (
                 <motion.div
@@ -207,6 +271,7 @@ function App() {
                       onPlace={handlePlaceOnGrid}
                       onRemoveArrow={removeArrow}
                       brokenTiles={state.brokenTiles}
+                      hintTile={hintTile}
                     />
                   </div>
                 </div>
@@ -272,7 +337,7 @@ function App() {
             {/* Play button */}
             <button
               type="button"
-              onClick={play}
+              onClick={handlePlay}
               disabled={!isEditing}
               className="px-6 py-2.5 rounded-lg font-display font-bold text-sm uppercase tracking-wider
                 transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:scale-100"
@@ -349,6 +414,26 @@ function App() {
         onNextLevel={handleNextLevel}
         onReset={handleReset}
       />
+
+      {/* Between-level ad overlay */}
+      <AnimatePresence>
+        {showBetweenLevelAd && (
+          <AdScreen onClose={handleAdClose} accentColor={chapter.accent} />
+        )}
+      </AnimatePresence>
+
+      {/* Hint modal */}
+      <AnimatePresence>
+        {showHintModal && (
+          <HintModal
+            chapterAccent={chapter.accent}
+            currentLevelIndex={state.currentLevelIndex}
+            placedArrows={state.placedArrows}
+            onRevealHint={handleRevealHint}
+            onClose={() => setShowHintModal(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

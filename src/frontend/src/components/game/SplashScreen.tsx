@@ -1,10 +1,13 @@
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
+import React from "react";
 
 interface SplashScreenProps {
   onStart: () => void;
 }
 
 export function SplashScreen({ onStart }: SplashScreenProps) {
+  const [showPremiumModal, setShowPremiumModal] = React.useState(false);
+
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
@@ -141,6 +144,26 @@ export function SplashScreen({ onStart }: SplashScreenProps) {
         >
           Play Game
         </motion.button>
+
+        {/* Remove Ads button */}
+        <motion.button
+          type="button"
+          onClick={() => setShowPremiumModal(true)}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.75, ease: "easeOut" }}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          className="px-8 py-2.5 rounded-lg font-display text-xs uppercase tracking-wider border transition-all duration-200"
+          style={{
+            borderColor: "oklch(0.76 0.07 210 / 0.5)",
+            color: "oklch(0.76 0.07 210)",
+            background: "oklch(0.76 0.07 210 / 0.05)",
+          }}
+          data-ocid="splash.secondary_button"
+        >
+          ✨ Remove Ads
+        </motion.button>
       </div>
 
       {/* Footer */}
@@ -157,6 +180,79 @@ export function SplashScreen({ onStart }: SplashScreenProps) {
           </a>
         </p>
       </footer>
+
+      {/* Premium / Remove Ads modal */}
+      <AnimatePresence>
+        {showPremiumModal && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center px-4"
+            style={{ background: "oklch(0 0 0 / 0.72)" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            data-ocid="removeads.modal"
+          >
+            <motion.div
+              className="relative w-full max-w-sm rounded-2xl border p-8 flex flex-col items-center gap-5 text-center overflow-hidden"
+              style={{
+                background: "oklch(0.14 0.02 255)",
+                borderColor: "oklch(0.76 0.07 210 / 0.35)",
+                boxShadow:
+                  "0 0 40px oklch(0.76 0.07 210 / 0.10), 0 0 80px oklch(0 0 0 / 0.4)",
+              }}
+              initial={{ scale: 0.88, opacity: 0, y: 12 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.88, opacity: 0, y: 12 }}
+              transition={{ type: "spring", stiffness: 280, damping: 24 }}
+            >
+              {/* Gradient wash */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background:
+                    "radial-gradient(ellipse at 50% 0%, oklch(0.76 0.07 210 / 0.06) 0%, transparent 65%)",
+                }}
+              />
+
+              <div style={{ fontSize: "2.5rem", lineHeight: 1 }}>✨</div>
+
+              <div className="flex flex-col gap-2">
+                <h2
+                  className="text-xl font-display font-bold uppercase tracking-widest"
+                  style={{
+                    color: "oklch(0.76 0.07 210)",
+                    textShadow: "0 0 12px oklch(0.76 0.07 210 / 0.35)",
+                  }}
+                >
+                  Premium
+                </h2>
+                <p
+                  className="text-sm font-sans leading-relaxed"
+                  style={{ color: "oklch(0.58 0.03 240)" }}
+                >
+                  Remove Ads is coming soon. Stay tuned for the premium upgrade.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowPremiumModal(false)}
+                className="w-full py-3 px-6 rounded-lg font-display font-bold text-sm uppercase tracking-wider
+                  transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                style={{
+                  background: "oklch(0.76 0.07 210)",
+                  color: "oklch(0.15 0.02 255)",
+                  boxShadow: "0 0 12px oklch(0.76 0.07 210 / 0.35)",
+                }}
+                data-ocid="removeads.confirm_button"
+              >
+                Got it
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

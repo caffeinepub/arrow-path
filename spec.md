@@ -1,45 +1,72 @@
-# Waymark – 3-Star Par Rating System
+# Waymark — Ad Simulation & Monetization UI
 
 ## Current State
-- A star system exists (`starRating.ts`) but uses a flawed ratio-based formula (`arrowsUsed / totalArrows`) that doesn't match the user's intent
-- `WinModal.tsx` has a `StarDisplay` component but no sound effects
-- `LevelSelector.tsx` shows small 3-dot indicators for stars, not actual star icons
-- Levels do NOT have a `par` field; all levels currently give exactly the minimum arrows needed
-- The `onLevelComplete` callback passes `arrowsUsed` (placed arrows count) and `totalArrows` (total inventory)
+Waymark is a 50-level puzzle game with chapter themes, 3-star rating system, animated win screen, and level selector. The game flow is: Splash Screen → Game (edit/play/won). The WinModal has a "Next Level" button that calls `handleNextLevel()` in App.tsx. The SplashScreen has a single "Play Game" button. There are no monetization or ad UI elements.
 
 ## Requested Changes (Diff)
 
 ### Add
-- `par` field to `LevelConfig` interface and all 50 level configs in `levels.ts`
-  - Par = the minimum arrows needed to solve (equals the sum of `allowedArrows` values since levels use exact inventory)
-- `ding` sound effect using Web Audio API (synthesized, no external files) in `WinModal.tsx` — plays once per star as each star animates in
-- Gold neon glow CSS for star elements
+1. **`AdScreen` component** (`src/frontend/src/components/game/AdScreen.tsx`)
+   - Full-screen overlay, dark background (`oklch(0.08 0.01 255)`), matching Waymark aesthetic
+   - Centered content: "Advertisement" label (dim), a large placeholder box styled like a mock ad (e.g. "🎮 This Space for Rent — Ad Placeholder", grayish bordered box with subtle shimmer)
+   - A 5-second countdown timer shown as text (e.g. "Skip in 5..."). The timer counts down to 0.
+   - A "✕ Close" button that is HIDDEN until the countdown hits 0, then fades in
+   - Animated entry/exit via Framer Motion
+   - Accepts props: `onClose: () => void`, `onReady?: () => void` (called when close becomes available)
+   - Should feel premium, NOT cheap — use the dark Waymark palette, subtle border glow, and Montserrat/Inter fonts
+
+2. **`HintModal` component** (`src/frontend/src/components/game/HintModal.tsx`)
+   - Triggered by a Lightbulb icon button on the game screen
+   - Step 1: Shows dialog "Watch a short video for a hint?" with "Watch" and "Cancel" buttons
+   - Step 2 (after "Watch"): Shows the same AdScreen for 5 seconds
+   - Step 3 (after ad closes): Reveals one valid arrow placement on the grid as a glowing ghost tile
+   - The hint highlight lasts until the player presses Play or Resets
+   - Accepts props: `chapterAccent`, `currentLevelIndex`, `placedArrows: Map<string, ArrowDir>`, `onRevealHint: (row: number, col: number, dir: ArrowDir) => void`, `onClose: () => void`
+   - Hint logic: pick one arrow from the level's solution that hasn't been placed yet. Since levels don't store explicit solutions, use a simpler approach: find the first valid empty/start cell in the level's `allowedArrows` configuration and return it, OR randomly pick one of the level's inventory arrows and suggest a non-occupied grid cell near start. Keep it simple — just reveal a random unplaced arrow at a grid cell that is empty.
+
+3. **`RemoveAdsButton`** on the SplashScreen
+   - A sleek secondary button below "Play Game" on the SplashScreen
+   - Text: "Remove Ads" with a small ✕ or 🚫 icon
+   - On click: shows a modal/toast saying "Coming Soon — Premium upgrade available soon!"
+   - Style: ghost/outline style, matching the dark theme but distinct from the Play button
+
+4. **Lightbulb hint button** on game screen (in App.tsx header or near the grid)
+   - Small icon button in the header right area (or near footer controls)
+   - Shows a 💡 icon or SVG lightbulb
+   - Only visible during `editing` phase (not while ball is running)
+   - Clicking opens the HintModal
+
+5. **Between-level ad trigger** in App.tsx
+   - State: `showBetweenLevelAd: boolean`, `pendingNextLevel: boolean`
+   - When `handleNextLevel()` is called AND `(currentLevelIndex + 1) % 3 === 0` AND `!adsRemoved`, set `showBetweenLevelAd = true` instead of calling `nextLevel()` directly
+   - When the AdScreen closes, call `nextLevel()` and set `showBetweenLevelAd = false`
+   - `adsRemoved` state defaults to false (no actual purchase needed — it's UI only, could persist in localStorage)
+
+6. **Hint state** in App.tsx or GameGrid
+   - `hintTile: { row: number; col: number; dir: ArrowDir } | null`
+   - When a hint is revealed, render a glowing ghost arrow overlay on the specified cell
+   - Clear hint when the player presses Play or Reset
 
 ### Modify
-- `starRating.ts`: Replace ratio formula with Par-based logic:
-  - 3 stars: `arrowsUsed === par`
-  - 2 stars: `arrowsUsed === par + 1`
-  - 1 star: `arrowsUsed >= par + 2`
-  - Signature: `calcStars(arrowsUsed: number, par: number): StarCount`
-- `types/game.ts`: Add `par: number` to the `Level` interface
-- `data/levels.ts`: Add `par` to `LevelConfig`, pass it through `buildLevel`, set par on each level config = sum of its `allowedArrows`
-- `useGameState.ts`: The `onLevelComplete` callback should pass `arrowsUsed` (number of arrows actually placed/used = `placedArrows.size`) and the level's `par` value instead of `totalArrows`
-- `App.tsx`: Update `calcStars(arrowsUsed, totalArrows)` call → `calcStars(arrowsUsed, par)`, get `par` from `LEVELS[levelIndex].par`
-- `WinModal.tsx`: 
-  - Animate stars appearing one by one with staggered delay
-  - Each star triggers a synthesized "ding" sound via Web Audio API (ascending pitch per star)
-  - Gold/yellow neon glow: `oklch(0.85 0.18 80)` color with `drop-shadow(0 0 8px oklch(0.85 0.18 80 / 0.8))`
-  - Stars scale from 0→1.4→1 with spring animation
-- `LevelSelector.tsx`: Replace `StarDots` (3 tiny dots) with `StarIcons` showing actual ★ characters in gold, with neon glow if earned
+- **`WinModal.tsx`**: No changes needed to component itself. Ad logic handled in App.tsx by intercepting the `onNextLevel` callback.
+- **`SplashScreen.tsx`**: Add "Remove Ads" button below the Play button. Add a small modal/alert for "Coming Soon."
+- **`App.tsx`**: 
+  - Add `showBetweenLevelAd` state
+  - Add `hintTile` state  
+  - Add `adsRemoved` state (localStorage-backed)
+  - Modify `handleNextLevel` to check if ad should show
+  - Render `AdScreen` overlay when `showBetweenLevelAd` is true
+  - Render lightbulb button in header
+  - Render `HintModal` when hint button is clicked
+  - Pass hint reveal callback to HintModal
+- **`GameGrid.tsx`**: Accept an optional `hintTile` prop and render a glowing ghost arrow overlay on that cell (semi-transparent, pulsing glow)
 
 ### Remove
-- The old ratio-based `calcStars` logic in `starRating.ts`
+- Nothing removed
 
 ## Implementation Plan
-1. Update `types/game.ts` — add `par: number` to `Level`
-2. Update `data/levels.ts` — add `par` to `LevelConfig`, calculate par per level as sum of allowedArrows, pass through buildLevel
-3. Update `starRating.ts` — new par-based formula, update `calcStars` signature
-4. Update `useGameState.ts` — pass `LEVELS[levelIndex].par` as third arg to `onLevelComplete` instead of `totalArrows`
-5. Update `App.tsx` — update callback to destructure `par`, call `calcStars(arrowsUsed, par)`
-6. Update `WinModal.tsx` — staggered star animation, Web Audio ding sounds, gold neon glow
-7. Update `LevelSelector.tsx` — replace StarDots with gold star icons
+1. Create `AdScreen.tsx` — full-screen dark overlay with 5s countdown, hidden close button
+2. Create `HintModal.tsx` — 2-step flow (confirm → ad → hint reveal)
+3. Modify `SplashScreen.tsx` — add Remove Ads button + coming-soon dialog
+4. Modify `GameGrid.tsx` — add optional `hintTile` prop for ghost arrow overlay
+5. Modify `App.tsx` — wire up all ad/hint state, lightbulb button, between-level ad gate

@@ -3,6 +3,13 @@ import React from "react";
 import type { ArrowDir, BallPos, GamePhase, TileType } from "../../types/game";
 import { GridCell } from "./GridCell";
 
+const ARROW_SYMBOLS: Record<ArrowDir, string> = {
+  up: "↑",
+  down: "↓",
+  left: "←",
+  right: "→",
+};
+
 interface GameGridProps {
   grid: TileType[][];
   ballPos: BallPos | null;
@@ -13,6 +20,7 @@ interface GameGridProps {
   onPlace: (row: number, col: number) => void;
   onRemoveArrow: (row: number, col: number) => void;
   brokenTiles?: Set<string>;
+  hintTile?: { row: number; col: number; dir: ArrowDir } | null;
 }
 
 const containerVariants: Variants = {
@@ -43,6 +51,7 @@ export function GameGrid({
   selectedArrow,
   onPlace,
   onRemoveArrow,
+  hintTile,
 }: GameGridProps) {
   const isEditing = gamePhase === "editing";
 
@@ -158,6 +167,50 @@ export function GameGrid({
                 : "radial-gradient(circle at 35% 35%, #ffffff, #e0e0e0)",
             }}
           />
+        )}
+
+        {/* Hint tile overlay */}
+        {hintTile && (
+          <div
+            className="absolute z-30 pointer-events-none flex items-center justify-center"
+            style={{
+              top: `calc(${hintTile.row} * var(--cell-size))`,
+              left: `calc(${hintTile.col} * var(--cell-size))`,
+              width: "var(--cell-size)",
+              height: "var(--cell-size)",
+            }}
+          >
+            <motion.div
+              className="flex items-center justify-center rounded-md"
+              style={{
+                width: "calc(var(--cell-size) - 8px)",
+                height: "calc(var(--cell-size) - 8px)",
+                background: "oklch(0.85 0.18 80 / 0.12)",
+                border: "2px solid oklch(0.85 0.18 80 / 0.6)",
+                color: "oklch(0.85 0.18 80 / 0.85)",
+                fontSize: "calc(var(--cell-size) * 0.45)",
+                fontWeight: "bold",
+                boxShadow:
+                  "0 0 12px oklch(0.85 0.18 80 / 0.5), inset 0 0 8px oklch(0.85 0.18 80 / 0.1)",
+              }}
+              animate={{
+                opacity: [0.6, 1, 0.6],
+                scale: [0.94, 1.02, 0.94],
+                boxShadow: [
+                  "0 0 8px oklch(0.85 0.18 80 / 0.35), inset 0 0 6px oklch(0.85 0.18 80 / 0.08)",
+                  "0 0 20px oklch(0.85 0.18 80 / 0.7), inset 0 0 12px oklch(0.85 0.18 80 / 0.15)",
+                  "0 0 8px oklch(0.85 0.18 80 / 0.35), inset 0 0 6px oklch(0.85 0.18 80 / 0.08)",
+                ],
+              }}
+              transition={{
+                repeat: Number.POSITIVE_INFINITY,
+                duration: 1.8,
+                ease: "easeInOut",
+              }}
+            >
+              {ARROW_SYMBOLS[hintTile.dir]}
+            </motion.div>
+          </div>
         )}
       </motion.div>
     </div>
