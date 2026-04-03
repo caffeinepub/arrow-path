@@ -4,6 +4,7 @@ import { AdScreen } from "./components/game/AdScreen";
 import { GameGrid } from "./components/game/GameGrid";
 import { HintModal } from "./components/game/HintModal";
 import { InventoryPanel } from "./components/game/InventoryPanel";
+import { LevelEditorPanel } from "./components/game/LevelEditorPanel";
 import { LevelSelector } from "./components/game/LevelSelector";
 import { SplashScreen } from "./components/game/SplashScreen";
 import { WinModal } from "./components/game/WinModal";
@@ -13,7 +14,7 @@ import {
   useHighestLevelReached,
   useMarkLevelCompleted,
 } from "./hooks/useQueries";
-import type { ArrowDir } from "./types/game";
+import type { ArrowDir, TileType } from "./types/game";
 import { getChapterForLevel } from "./utils/chapterThemes";
 import { calcStars, loadStars, saveStar } from "./utils/starRating";
 import type { StarCount } from "./utils/starRating";
@@ -40,6 +41,14 @@ function App() {
     dir: ArrowDir;
   } | null>(null);
 
+  // Admin mode — activated via ?admin=1 URL param
+  const [adminMode] = React.useState(
+    () => new URLSearchParams(window.location.search).get("admin") === "1",
+  );
+  const [showEditorPanel, setShowEditorPanel] = React.useState(false);
+  // Admin grid override — separate from real game state so edits don't corrupt it
+  const [adminGrid, setAdminGrid] = React.useState<TileType[][] | null>(null);
+
   const { mutate: markCompleted } = useMarkLevelCompleted();
   const { data: highestLevel } = useHighestLevelReached();
 
@@ -62,6 +71,9 @@ function App() {
 
   const chapter = getChapterForLevel(state.currentLevelIndex);
 
+  // The grid shown to the user: admin override takes precedence
+  const displayGrid = adminGrid ?? state.grid;
+
   // Clear selected arrow when leaving editing phase
   React.useEffect(() => {
     if (!isEditing) setSelectedArrow(null);
@@ -80,6 +92,28 @@ function App() {
     }
   };
 
+  // Admin cell toggle: flip empty ↔ wall on the admin grid overlay
+  const handleAdminToggle = (row: number, col: number) => {
+    const sourceGrid = adminGrid ?? state.grid;
+    const newGrid = sourceGrid.map((r) => [...r]);
+    const tile = newGrid[row][col];
+    if (tile === "wall") {
+      newGrid[row][col] = "empty";
+    } else if (
+      tile === "empty" ||
+      tile === "arrow_up" ||
+      tile === "arrow_down" ||
+      tile === "arrow_left" ||
+      tile === "arrow_right" ||
+      tile === "cracked" ||
+      tile === "cracked_broken"
+    ) {
+      newGrid[row][col] = "wall";
+    }
+    // Don't toggle start/goal/gates
+    setAdminGrid(newGrid);
+  };
+
   const handleNextLevel = () => {
     if (state.currentLevelIndex < LEVELS.length - 1) {
       // Show ad every 3 levels (when next level number is divisible by 3)
@@ -88,15 +122,18 @@ function App() {
         setShowBetweenLevelAd(true);
       } else {
         nextLevel();
+        setAdminGrid(null);
       }
     } else {
       reset();
+      setAdminGrid(null);
     }
   };
 
   const handleAdClose = () => {
     setShowBetweenLevelAd(false);
     nextLevel();
+    setAdminGrid(null);
   };
 
   const handlePlay = () => {
@@ -107,12 +144,14 @@ function App() {
   const handleReset = () => {
     setSelectedArrow(null);
     setHintTile(null);
+    setAdminGrid(null);
     reset();
   };
 
   const handleGoToLevel = (idx: number) => {
     setSelectedArrow(null);
     setHintTile(null);
+    setAdminGrid(null);
     goToLevel(idx);
   };
 
@@ -189,7 +228,7 @@ function App() {
             </span>
           </div>
 
-          {/* Phase indicator + Hint button */}
+          {/* Phase indicator + Hint button + Admin button */}
           <div className="flex items-center gap-2">
             {/* Hint button — only visible during editing phase */}
             <AnimatePresence>
@@ -214,6 +253,37 @@ function App() {
                 >
                   <span style={{ fontSize: "1rem", lineHeight: 1 }}>💡</span>
                   <span className="hidden sm:inline">Hint</span>
+                </motion.button>
+              )}
+            </AnimatePresence>
+
+            {/* Admin mode gear button */}
+            <AnimatePresence>
+              {adminMode && isEditing && (
+                <motion.button
+                  key="admin-btn"
+                  type="button"
+                  onClick={() => setShowEditorPanel((v) => !v)}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  whileHover={{ scale: 1.06 }}
+                  whileTap={{ scale: 0.95 }}
+                  title="Toggle Level Editor"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-display text-xs uppercase tracking-wider border transition-colors duration-200"
+                  style={{
+                    borderColor: showEditorPanel
+                      ? "oklch(0.65 0.18 25 / 0.6)"
+                      : "oklch(0.65 0.18 25 / 0.35)",
+                    color: "oklch(0.65 0.18 25)",
+                    background: showEditorPanel
+                      ? "oklch(0.65 0.18 25 / 0.15)"
+                      : "oklch(0.65 0.18 25 / 0.07)",
+                  }}
+                  data-ocid="editor.open_modal_button"
+                >
+                  <span style={{ fontSize: "1rem", lineHeight: 1 }}>⚙</span>
+                  <span className="hidden sm:inline">Editor</span>
                 </motion.button>
               )}
             </AnimatePresence>
@@ -262,16 +332,20 @@ function App() {
                     style={{ minWidth: "min-content" }}
                   >
                     <GameGrid
-                      grid={state.grid}
+                      grid={displayGrid}
                       ballPos={state.ballPos}
                       gamePhase={state.gamePhase}
                       ballFail={state.ballFail}
                       levelIndex={state.currentLevelIndex}
-                      selectedArrow={isEditing ? selectedArrow : null}
+                      selectedArrow={
+                        isEditing && !adminMode ? selectedArrow : null
+                      }
                       onPlace={handlePlaceOnGrid}
                       onRemoveArrow={removeArrow}
                       brokenTiles={state.brokenTiles}
                       hintTile={hintTile}
+                      adminMode={adminMode}
+                      onAdminToggle={handleAdminToggle}
                     />
                   </div>
                 </div>
@@ -286,9 +360,11 @@ function App() {
                     exit={{ opacity: 0 }}
                     className="text-xs text-muted-foreground text-center font-display hidden sm:block"
                   >
-                    {selectedArrow
-                      ? `${selectedArrow.charAt(0).toUpperCase() + selectedArrow.slice(1)} selected — tap any grid cell to place`
-                      : "Tap an arrow in the inventory, then tap a grid cell to place it"}
+                    {adminMode
+                      ? "Admin mode active — click cells to toggle walls · Use ⚙ to export"
+                      : selectedArrow
+                        ? `${selectedArrow.charAt(0).toUpperCase() + selectedArrow.slice(1)} selected — tap any grid cell to place`
+                        : "Tap an arrow in the inventory, then tap a grid cell to place it"}
                   </motion.p>
                 )}
               </AnimatePresence>
@@ -378,6 +454,18 @@ function App() {
 
           {/* Right: Stats */}
           <div className="flex items-center gap-4">
+            {adminMode && (
+              <span
+                className="text-xs font-display font-bold uppercase tracking-wider px-2 py-1 rounded"
+                style={{
+                  color: "oklch(0.65 0.18 25)",
+                  background: "oklch(0.55 0.18 25 / 0.1)",
+                  border: "1px solid oklch(0.65 0.18 25 / 0.3)",
+                }}
+              >
+                ⚙ Admin
+              </span>
+            )}
             <div className="text-xs">
               <span className="text-muted-foreground font-display uppercase tracking-wider">
                 Steps{" "}
@@ -431,6 +519,18 @@ function App() {
             placedArrows={state.placedArrows}
             onRevealHint={handleRevealHint}
             onClose={() => setShowHintModal(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Level Editor Panel (admin mode) */}
+      <AnimatePresence>
+        {adminMode && showEditorPanel && (
+          <LevelEditorPanel
+            grid={displayGrid}
+            onClose={() => setShowEditorPanel(false)}
+            onReset={handleReset}
+            accentColor={chapter.accent}
           />
         )}
       </AnimatePresence>

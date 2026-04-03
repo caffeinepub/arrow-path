@@ -10,6 +10,8 @@ interface GridCellProps {
   selectedArrow: ArrowDir | null;
   onPlace: (row: number, col: number) => void;
   onRemove: (row: number, col: number) => void;
+  adminMode?: boolean;
+  onAdminToggle?: (row: number, col: number) => void;
 }
 
 const GATE_ARROWS: Record<string, ArrowDir> = {
@@ -27,6 +29,8 @@ export function GridCell({
   selectedArrow,
   onPlace,
   onRemove,
+  adminMode,
+  onAdminToggle,
 }: GridCellProps) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -43,10 +47,19 @@ export function GridCell({
 
   const isPlaceable =
     isEditing &&
+    !adminMode &&
     selectedArrow !== null &&
     (tile === "empty" || tile === "start" || isArrow);
 
   const handleClick = () => {
+    // Admin mode: toggle wall/empty on any non-fixed tile
+    if (adminMode && onAdminToggle) {
+      if (tile !== "start" && tile !== "goal" && !isGate) {
+        onAdminToggle(row, col);
+      }
+      return;
+    }
+
     if (!isEditing) return;
     if (
       selectedArrow !== null &&
@@ -61,6 +74,13 @@ export function GridCell({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (adminMode) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handleClick();
+      }
+      return;
+    }
     if (!isEditing) return;
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
@@ -76,7 +96,10 @@ export function GridCell({
   let content: React.ReactNode = null;
 
   if (tile === "wall") {
-    cellClass = "tile-wall cursor-not-allowed";
+    // In admin mode: walls show red tint
+    cellClass = adminMode
+      ? "tile-wall cursor-pointer"
+      : "tile-wall cursor-not-allowed";
   } else if (tile === "goal") {
     cellClass = "tile-goal animate-pulse-goal cursor-default";
     content = (
@@ -100,7 +123,7 @@ export function GridCell({
       </span>
     );
   } else if (tile === "cracked") {
-    cellClass = "tile-cracked cursor-not-allowed";
+    cellClass = `tile-cracked ${adminMode ? "cursor-pointer" : "cursor-not-allowed"}`;
     content = (
       <svg
         role="img"
@@ -158,7 +181,7 @@ export function GridCell({
       </svg>
     );
   } else if (tile === "cracked_broken") {
-    cellClass = "tile-cracked-broken cursor-not-allowed";
+    cellClass = `tile-cracked-broken ${adminMode ? "cursor-pointer" : "cursor-not-allowed"}`;
     content = (
       <svg
         role="img"
@@ -245,8 +268,8 @@ export function GridCell({
     );
   } else if (isArrow && arrowDir) {
     cellClass = `tile-arrow-placed select-none ${
-      isEditing ? "cursor-pointer hover:opacity-80" : ""
-    }`;
+      isEditing && !adminMode ? "cursor-pointer hover:opacity-80" : ""
+    } ${adminMode ? "cursor-pointer" : ""}`;
     content = (
       <ArrowIcon
         direction={arrowDir}
@@ -262,11 +285,59 @@ export function GridCell({
     );
   } else {
     cellClass = `tile-empty ${
-      isPlaceable ? "cursor-pointer" : "cursor-default"
+      isPlaceable
+        ? "cursor-pointer"
+        : adminMode
+          ? "cursor-pointer"
+          : "cursor-default"
     }`;
   }
 
   const showPlaceHover = isPlaceable && isHovered;
+
+  // Admin mode wall tint overlay
+  const adminWallTint =
+    adminMode && tile === "wall" ? (
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: "oklch(0.55 0.18 25 / 0.18)",
+          borderRadius: "inherit",
+        }}
+      />
+    ) : null;
+
+  // Admin mode hover indicator for toggleable cells
+  const adminHoverIndicator =
+    adminMode && isHovered && tile !== "start" && tile !== "goal" && !isGate ? (
+      <div
+        className="absolute inset-0 pointer-events-none flex items-center justify-center"
+        style={{
+          background:
+            tile === "wall"
+              ? "oklch(0.55 0.18 25 / 0.22)"
+              : "oklch(0.55 0.18 25 / 0.1)",
+          border: `1px solid oklch(0.65 0.18 25 / ${
+            tile === "wall" ? "0.6" : "0.35"
+          })`,
+          borderRadius: "inherit",
+        }}
+      >
+        <span
+          style={{
+            fontSize: "10px",
+            color: "oklch(0.65 0.18 25 / 0.8)",
+            fontWeight: 700,
+          }}
+        >
+          {tile === "wall" ? "-" : "+"}
+        </span>
+      </div>
+    ) : null;
+
+  const isInteractive = adminMode
+    ? tile !== "start" && tile !== "goal" && !isGate
+    : isEditing && !isSpecialTile;
 
   return (
     <div
@@ -277,8 +348,8 @@ export function GridCell({
         ${showPlaceHover ? "drop-target-hover" : ""}
       `}
       style={{ width: "100%", height: "100%" }}
-      role={isEditing && !isSpecialTile ? "button" : undefined}
-      tabIndex={isEditing && !isSpecialTile ? 0 : undefined}
+      role={isInteractive ? "button" : undefined}
+      tabIndex={isInteractive ? 0 : undefined}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       onMouseEnter={() => setIsHovered(true)}
@@ -291,8 +362,10 @@ export function GridCell({
       data-row={row}
       data-col={col}
     >
+      {adminWallTint}
       {content}
-      {isPlaceable && isHovered && selectedArrow && !isArrow && (
+      {adminHoverIndicator}
+      {showPlaceHover && selectedArrow && !isArrow && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
           <ArrowIcon
             direction={selectedArrow}

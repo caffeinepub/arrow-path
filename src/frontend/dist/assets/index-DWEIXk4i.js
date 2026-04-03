@@ -22911,7 +22911,9 @@ function GridCell({
   isEditing,
   selectedArrow,
   onPlace,
-  onRemove
+  onRemove,
+  adminMode,
+  onAdminToggle
 }) {
   const [isHovered, setIsHovered] = reactExports.useState(false);
   const isArrow = tile.startsWith("arrow_");
@@ -22919,8 +22921,14 @@ function GridCell({
   const arrowDir = isArrow ? tile.replace("arrow_", "") : null;
   const gateDir = isGate ? GATE_ARROWS[tile] : null;
   const isSpecialTile = tile === "wall" || tile === "cracked" || tile === "cracked_broken" || isGate;
-  const isPlaceable = isEditing && selectedArrow !== null && (tile === "empty" || tile === "start" || isArrow);
+  const isPlaceable = isEditing && !adminMode && selectedArrow !== null && (tile === "empty" || tile === "start" || isArrow);
   const handleClick = () => {
+    if (adminMode && onAdminToggle) {
+      if (tile !== "start" && tile !== "goal" && !isGate) {
+        onAdminToggle(row, col);
+      }
+      return;
+    }
     if (!isEditing) return;
     if (selectedArrow !== null && (tile === "empty" || tile === "start" || isArrow)) {
       onPlace(row, col);
@@ -22931,6 +22939,13 @@ function GridCell({
     }
   };
   const handleKeyDown = (e) => {
+    if (adminMode) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handleClick();
+      }
+      return;
+    }
     if (!isEditing) return;
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
@@ -22944,7 +22959,7 @@ function GridCell({
   let cellClass = "";
   let content = null;
   if (tile === "wall") {
-    cellClass = "tile-wall cursor-not-allowed";
+    cellClass = adminMode ? "tile-wall cursor-pointer" : "tile-wall cursor-not-allowed";
   } else if (tile === "goal") {
     cellClass = "tile-goal animate-pulse-goal cursor-default";
     content = /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -22966,7 +22981,7 @@ function GridCell({
       }
     );
   } else if (tile === "cracked") {
-    cellClass = "tile-cracked cursor-not-allowed";
+    cellClass = `tile-cracked ${adminMode ? "cursor-pointer" : "cursor-not-allowed"}`;
     content = /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "svg",
       {
@@ -23041,7 +23056,7 @@ function GridCell({
       }
     );
   } else if (tile === "cracked_broken") {
-    cellClass = "tile-cracked-broken cursor-not-allowed";
+    cellClass = `tile-cracked-broken ${adminMode ? "cursor-pointer" : "cursor-not-allowed"}`;
     content = /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "svg",
       {
@@ -23145,7 +23160,7 @@ function GridCell({
       )
     ] });
   } else if (isArrow && arrowDir) {
-    cellClass = `tile-arrow-placed select-none ${isEditing ? "cursor-pointer hover:opacity-80" : ""}`;
+    cellClass = `tile-arrow-placed select-none ${isEditing && !adminMode ? "cursor-pointer hover:opacity-80" : ""} ${adminMode ? "cursor-pointer" : ""}`;
     content = /* @__PURE__ */ jsxRuntimeExports.jsx(
       ArrowIcon,
       {
@@ -23159,9 +23174,42 @@ function GridCell({
       }
     );
   } else {
-    cellClass = `tile-empty ${isPlaceable ? "cursor-pointer" : "cursor-default"}`;
+    cellClass = `tile-empty ${isPlaceable ? "cursor-pointer" : adminMode ? "cursor-pointer" : "cursor-default"}`;
   }
   const showPlaceHover = isPlaceable && isHovered;
+  const adminWallTint = adminMode && tile === "wall" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "div",
+    {
+      className: "absolute inset-0 pointer-events-none",
+      style: {
+        background: "oklch(0.55 0.18 25 / 0.18)",
+        borderRadius: "inherit"
+      }
+    }
+  ) : null;
+  const adminHoverIndicator = adminMode && isHovered && tile !== "start" && tile !== "goal" && !isGate ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "div",
+    {
+      className: "absolute inset-0 pointer-events-none flex items-center justify-center",
+      style: {
+        background: tile === "wall" ? "oklch(0.55 0.18 25 / 0.22)" : "oklch(0.55 0.18 25 / 0.1)",
+        border: `1px solid oklch(0.65 0.18 25 / ${tile === "wall" ? "0.6" : "0.35"})`,
+        borderRadius: "inherit"
+      },
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "span",
+        {
+          style: {
+            fontSize: "10px",
+            color: "oklch(0.65 0.18 25 / 0.8)",
+            fontWeight: 700
+          },
+          children: tile === "wall" ? "-" : "+"
+        }
+      )
+    }
+  ) : null;
+  const isInteractive = adminMode ? tile !== "start" && tile !== "goal" && !isGate : isEditing && !isSpecialTile;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
@@ -23172,8 +23220,8 @@ function GridCell({
         ${showPlaceHover ? "drop-target-hover" : ""}
       `,
       style: { width: "100%", height: "100%" },
-      role: isEditing && !isSpecialTile ? "button" : void 0,
-      tabIndex: isEditing && !isSpecialTile ? 0 : void 0,
+      role: isInteractive ? "button" : void 0,
+      tabIndex: isInteractive ? 0 : void 0,
       onClick: handleClick,
       onKeyDown: handleKeyDown,
       onMouseEnter: () => setIsHovered(true),
@@ -23182,8 +23230,10 @@ function GridCell({
       "data-row": row,
       "data-col": col,
       children: [
+        adminWallTint,
         content,
-        isPlaceable && isHovered && selectedArrow && !isArrow && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 flex items-center justify-center pointer-events-none opacity-40", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        adminHoverIndicator,
+        showPlaceHover && selectedArrow && !isArrow && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 flex items-center justify-center pointer-events-none opacity-40", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           ArrowIcon,
           {
             direction: selectedArrow,
@@ -23224,7 +23274,9 @@ function GameGrid({
   selectedArrow,
   onPlace,
   onRemoveArrow,
-  hintTile
+  hintTile,
+  adminMode,
+  onAdminToggle
 }) {
   var _a3;
   const isEditing = gamePhase === "editing";
@@ -23257,122 +23309,144 @@ function GameGrid({
     transition: `top ${transitionDuration} cubic-bezier(0.4, 0, 0.2, 1), left ${transitionDuration} cubic-bezier(0.4, 0, 0.2, 1)`
   } : { display: "none" };
   const trailGhosts = trail.slice(1);
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+  const adminBorderStyle = adminMode ? {
+    boxShadow: "0 0 0 2px oklch(0.65 0.18 25 / 0.7), 0 0 20px oklch(0.65 0.18 25 / 0.25), 0 8px 40px oklch(0 0 0 / 0.5)",
+    borderColor: "oklch(0.65 0.18 25 / 0.6)"
+  } : {
+    boxShadow: "0 0 0 1px oklch(0.38 0.03 255 / 0.4), 0 8px 40px oklch(0 0 0 / 0.5)"
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
       className: "relative w-full flex flex-col items-center",
       "data-ocid": "game.canvas_target",
-      children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        motion.div,
-        {
-          variants: containerVariants,
-          initial: "hidden",
-          animate: "visible",
-          className: "relative rounded-lg overflow-hidden border border-border/60",
-          style: {
-            "--cell-size": `${CELL_SIZE}px`,
-            display: "grid",
-            gridTemplateColumns: `repeat(${GRID_COLS}, var(--cell-size))`,
-            gridTemplateRows: `repeat(${GRID_ROWS}, var(--cell-size))`,
-            boxShadow: "0 0 0 1px oklch(0.38 0.03 255 / 0.4), 0 8px 40px oklch(0 0 0 / 0.5)"
-          },
-          children: [
-            cellCoords.map(({ row, col, key }) => {
-              var _a4;
-              return /* @__PURE__ */ jsxRuntimeExports.jsx(motion.div, { variants: tileVariants, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                GridCell,
-                {
-                  row,
-                  col,
-                  tile: ((_a4 = grid[row]) == null ? void 0 : _a4[col]) ?? "empty",
-                  isEditing,
-                  selectedArrow,
-                  onPlace,
-                  onRemove: onRemoveArrow
-                }
-              ) }, key);
-            }),
-            TRAIL_KEYS.map((trailKey, i) => {
-              const pos = trailGhosts[i];
-              if (!pos) return null;
-              return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      children: [
+        adminMode && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "mb-2 px-3 py-1 rounded-full text-xs font-display font-bold uppercase tracking-wider",
+            style: {
+              background: "oklch(0.55 0.18 25 / 0.12)",
+              color: "oklch(0.65 0.18 25)",
+              border: "1px solid oklch(0.65 0.18 25 / 0.4)"
+            },
+            children: "✏ Edit Mode — click cells to toggle walls"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          motion.div,
+          {
+            variants: containerVariants,
+            initial: "hidden",
+            animate: "visible",
+            className: "relative rounded-lg overflow-hidden border border-border/60",
+            style: {
+              "--cell-size": `${CELL_SIZE}px`,
+              display: "grid",
+              gridTemplateColumns: `repeat(${GRID_COLS}, var(--cell-size))`,
+              gridTemplateRows: `repeat(${GRID_ROWS}, var(--cell-size))`,
+              ...adminBorderStyle
+            },
+            children: [
+              cellCoords.map(({ row, col, key }) => {
+                var _a4;
+                return /* @__PURE__ */ jsxRuntimeExports.jsx(motion.div, { variants: tileVariants, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  GridCell,
+                  {
+                    row,
+                    col,
+                    tile: ((_a4 = grid[row]) == null ? void 0 : _a4[col]) ?? "empty",
+                    isEditing,
+                    selectedArrow,
+                    onPlace,
+                    onRemove: onRemoveArrow,
+                    adminMode,
+                    onAdminToggle
+                  }
+                ) }, key);
+              }),
+              TRAIL_KEYS.map((trailKey, i) => {
+                const pos = trailGhosts[i];
+                if (!pos) return null;
+                return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "div",
+                  {
+                    className: "absolute rounded-full pointer-events-none z-10",
+                    style: {
+                      top: `calc(${pos.row} * var(--cell-size) + var(--cell-size) / 2 - ${10 - i * 2}px)`,
+                      left: `calc(${pos.col} * var(--cell-size) + var(--cell-size) / 2 - ${10 - i * 2}px)`,
+                      width: `${20 - i * 4}px`,
+                      height: `${20 - i * 4}px`,
+                      opacity: 0.4 - i * 0.15,
+                      filter: `blur(${(i + 1) * 3}px)`,
+                      background: "radial-gradient(circle, rgba(255,255,255,0.9), rgba(255,255,255,0.3))",
+                      transition: `top ${transitionDuration} cubic-bezier(0.4,0,0.2,1), left ${transitionDuration} cubic-bezier(0.4,0,0.2,1)`
+                    }
+                  },
+                  trailKey
+                );
+              }),
+              ballPos && /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "div",
                 {
-                  className: "absolute rounded-full pointer-events-none z-10",
-                  style: {
-                    top: `calc(${pos.row} * var(--cell-size) + var(--cell-size) / 2 - ${10 - i * 2}px)`,
-                    left: `calc(${pos.col} * var(--cell-size) + var(--cell-size) / 2 - ${10 - i * 2}px)`,
-                    width: `${20 - i * 4}px`,
-                    height: `${20 - i * 4}px`,
-                    opacity: 0.4 - i * 0.15,
-                    filter: `blur(${(i + 1) * 3}px)`,
-                    background: "radial-gradient(circle, rgba(255,255,255,0.9), rgba(255,255,255,0.3))",
-                    transition: `top ${transitionDuration} cubic-bezier(0.4,0,0.2,1), left ${transitionDuration} cubic-bezier(0.4,0,0.2,1)`
-                  }
-                },
-                trailKey
-              );
-            }),
-            ballPos && /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                className: `
+                  className: `
               absolute z-20 w-8 h-8 rounded-full pointer-events-none
               ${ballFail ? "animate-ball-fail" : "neon-glow-ball"}
             `,
-                style: {
-                  ...ballStyle,
-                  background: ballFail ? "radial-gradient(circle at 35% 35%, #ff6b6b, #cc0000)" : "radial-gradient(circle at 35% 35%, #ffffff, #e0e0e0)"
-                }
-              }
-            ),
-            hintTile && /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                className: "absolute z-30 pointer-events-none flex items-center justify-center",
-                style: {
-                  top: `calc(${hintTile.row} * var(--cell-size))`,
-                  left: `calc(${hintTile.col} * var(--cell-size))`,
-                  width: "var(--cell-size)",
-                  height: "var(--cell-size)"
-                },
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  motion.div,
-                  {
-                    className: "flex items-center justify-center rounded-md",
-                    style: {
-                      width: "calc(var(--cell-size) - 8px)",
-                      height: "calc(var(--cell-size) - 8px)",
-                      background: "oklch(0.85 0.18 80 / 0.12)",
-                      border: "2px solid oklch(0.85 0.18 80 / 0.6)",
-                      color: "oklch(0.85 0.18 80 / 0.85)",
-                      fontSize: "calc(var(--cell-size) * 0.45)",
-                      fontWeight: "bold",
-                      boxShadow: "0 0 12px oklch(0.85 0.18 80 / 0.5), inset 0 0 8px oklch(0.85 0.18 80 / 0.1)"
-                    },
-                    animate: {
-                      opacity: [0.6, 1, 0.6],
-                      scale: [0.94, 1.02, 0.94],
-                      boxShadow: [
-                        "0 0 8px oklch(0.85 0.18 80 / 0.35), inset 0 0 6px oklch(0.85 0.18 80 / 0.08)",
-                        "0 0 20px oklch(0.85 0.18 80 / 0.7), inset 0 0 12px oklch(0.85 0.18 80 / 0.15)",
-                        "0 0 8px oklch(0.85 0.18 80 / 0.35), inset 0 0 6px oklch(0.85 0.18 80 / 0.08)"
-                      ]
-                    },
-                    transition: {
-                      repeat: Number.POSITIVE_INFINITY,
-                      duration: 1.8,
-                      ease: "easeInOut"
-                    },
-                    children: ARROW_SYMBOLS[hintTile.dir]
+                  style: {
+                    ...ballStyle,
+                    background: ballFail ? "radial-gradient(circle at 35% 35%, #ff6b6b, #cc0000)" : "radial-gradient(circle at 35% 35%, #ffffff, #e0e0e0)"
                   }
-                )
-              }
-            )
-          ]
-        },
-        `grid-${levelIndex}-${GRID_ROWS}x${GRID_COLS}-${gamePhase === "editing" ? "edit" : "play"}`
-      )
+                }
+              ),
+              hintTile && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "absolute z-30 pointer-events-none flex items-center justify-center",
+                  style: {
+                    top: `calc(${hintTile.row} * var(--cell-size))`,
+                    left: `calc(${hintTile.col} * var(--cell-size))`,
+                    width: "var(--cell-size)",
+                    height: "var(--cell-size)"
+                  },
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    motion.div,
+                    {
+                      className: "flex items-center justify-center rounded-md",
+                      style: {
+                        width: "calc(var(--cell-size) - 8px)",
+                        height: "calc(var(--cell-size) - 8px)",
+                        background: "oklch(0.85 0.18 80 / 0.12)",
+                        border: "2px solid oklch(0.85 0.18 80 / 0.6)",
+                        color: "oklch(0.85 0.18 80 / 0.85)",
+                        fontSize: "calc(var(--cell-size) * 0.45)",
+                        fontWeight: "bold",
+                        boxShadow: "0 0 12px oklch(0.85 0.18 80 / 0.5), inset 0 0 8px oklch(0.85 0.18 80 / 0.1)"
+                      },
+                      animate: {
+                        opacity: [0.6, 1, 0.6],
+                        scale: [0.94, 1.02, 0.94],
+                        boxShadow: [
+                          "0 0 8px oklch(0.85 0.18 80 / 0.35), inset 0 0 6px oklch(0.85 0.18 80 / 0.08)",
+                          "0 0 20px oklch(0.85 0.18 80 / 0.7), inset 0 0 12px oklch(0.85 0.18 80 / 0.15)",
+                          "0 0 8px oklch(0.85 0.18 80 / 0.35), inset 0 0 6px oklch(0.85 0.18 80 / 0.08)"
+                        ]
+                      },
+                      transition: {
+                        repeat: Number.POSITIVE_INFINITY,
+                        duration: 1.8,
+                        ease: "easeInOut"
+                      },
+                      children: ARROW_SYMBOLS[hintTile.dir]
+                    }
+                  )
+                }
+              )
+            ]
+          },
+          `grid-${levelIndex}-${GRID_ROWS}x${GRID_COLS}-${gamePhase === "editing" ? "edit" : "play"}`
+        )
+      ]
     }
   );
 }
@@ -23420,9 +23494,7 @@ const LEVEL_CONFIGS = [
     goalPos: [3, 5],
     startDir: "right",
     walls: [
-      [1, 2],
       [2, 0],
-      [2, 1],
       [0, 3],
       [0, 4],
       [0, 5]
@@ -25570,6 +25642,171 @@ function InventoryPanel({
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground", children: "Gate (one-way)" })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-2 mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-muted-foreground italic", children: "Tap placed arrow to remove" }) })
+        ] })
+      ]
+    }
+  );
+}
+function LevelEditorPanel({
+  grid,
+  onClose,
+  onReset,
+  accentColor
+}) {
+  const [copied, setCopied] = React$2.useState(false);
+  const handleExport = () => {
+    var _a3;
+    const walls = [];
+    for (let r2 = 0; r2 < grid.length; r2++) {
+      for (let c2 = 0; c2 < (((_a3 = grid[r2]) == null ? void 0 : _a3.length) ?? 0); c2++) {
+        if (grid[r2][c2] === "wall") walls.push([r2, c2]);
+      }
+    }
+    const snippet = `walls: [
+${walls.map(([r2, c2]) => `  [${r2}, ${c2}]`).join(",\n")}
+]`;
+    navigator.clipboard.writeText(snippet).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2e3);
+    }).catch(() => {
+      const el = document.createElement("textarea");
+      el.value = snippet;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2e3);
+    });
+  };
+  const wallCount = grid.flat().filter((t) => t === "wall").length;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    motion.div,
+    {
+      initial: { opacity: 0, x: 20, scale: 0.96 },
+      animate: { opacity: 1, x: 0, scale: 1 },
+      exit: { opacity: 0, x: 20, scale: 0.96 },
+      transition: { duration: 0.22, ease: "easeOut" },
+      className: "fixed top-16 right-4 z-50 w-64 rounded-xl border p-4 shadow-2xl",
+      style: {
+        background: "oklch(0.14 0.025 255)",
+        borderColor: `${accentColor.replace(")", " / 0.5)")}`,
+        boxShadow: `0 0 24px ${accentColor.replace(")", " / 0.15)")}, 0 8px 32px oklch(0 0 0 / 0.6)`
+      },
+      "data-ocid": "editor.panel",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "1rem" }, children: "⚙️" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "span",
+              {
+                className: "font-display font-bold text-sm uppercase tracking-wider",
+                style: { color: accentColor },
+                children: "Level Editor"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: onClose,
+              className: "w-6 h-6 rounded-md flex items-center justify-center text-xs transition-colors hover:opacity-80",
+              style: {
+                background: "oklch(0.25 0.025 255)",
+                color: "oklch(0.60 0.03 240)"
+              },
+              "data-ocid": "editor.close_button",
+              children: "✕"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            className: "flex items-center gap-2 px-2.5 py-1.5 rounded-lg mb-3",
+            style: {
+              background: "oklch(0.55 0.18 25 / 0.12)",
+              border: "1px solid oklch(0.55 0.18 25 / 0.4)"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "span",
+                {
+                  className: "w-2 h-2 rounded-full animate-pulse",
+                  style: { background: "oklch(0.65 0.18 25)" }
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "span",
+                {
+                  className: "font-display text-xs font-bold uppercase tracking-wider",
+                  style: { color: "oklch(0.65 0.18 25)" },
+                  children: "Wall Toggle Active"
+                }
+              )
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            className: "rounded-lg px-3 py-2 mb-3 text-xs leading-relaxed",
+            style: {
+              background: "oklch(0.19 0.02 255)",
+              color: "oklch(0.58 0.04 240)"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mb-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "oklch(0.70 0.06 240)" }, children: "Click empty cell" }),
+                " ",
+                "→ Wall"
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mb-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "oklch(0.65 0.18 25)" }, children: "Click wall" }),
+                " → Empty"
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Click export to copy walls array." })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs mb-3", style: { color: "oklch(0.52 0.04 240)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: accentColor }, className: "font-display font-bold", children: wallCount }),
+          " ",
+          "walls currently placed"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: handleExport,
+              className: "w-full px-3 py-2 rounded-lg font-display font-bold text-xs uppercase tracking-wider transition-all duration-200 hover:opacity-90 active:scale-95",
+              style: {
+                background: copied ? "oklch(0.55 0.14 145 / 0.25)" : `${accentColor.replace(")", " / 0.15)")}`,
+                color: copied ? "oklch(0.72 0.13 145)" : accentColor,
+                border: `1px solid ${copied ? "oklch(0.55 0.14 145 / 0.45)" : accentColor.replace(")", " / 0.4)")}`
+              },
+              "data-ocid": "editor.secondary_button",
+              children: copied ? "✓ Copied!" : "📋 Export Walls"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: onReset,
+              className: "w-full px-3 py-2 rounded-lg font-display font-bold text-xs uppercase tracking-wider transition-all duration-200 hover:opacity-90 active:scale-95",
+              style: {
+                background: "oklch(0.25 0.025 255)",
+                color: "oklch(0.62 0.05 240)",
+                border: "1px solid oklch(0.32 0.03 255 / 0.6)"
+              },
+              "data-ocid": "editor.delete_button",
+              children: "↺ Reset Level"
+            }
+          )
         ] })
       ]
     }
@@ -39732,6 +39969,11 @@ function App() {
   );
   const [showHintModal, setShowHintModal] = React$2.useState(false);
   const [hintTile, setHintTile] = React$2.useState(null);
+  const [adminMode] = React$2.useState(
+    () => new URLSearchParams(window.location.search).get("admin") === "1"
+  );
+  const [showEditorPanel, setShowEditorPanel] = React$2.useState(false);
+  const [adminGrid, setAdminGrid] = React$2.useState(null);
   const { mutate: markCompleted } = useMarkLevelCompleted();
   const { data: highestLevel } = useHighestLevelReached();
   const { state, play, reset, nextLevel, goToLevel, placeArrow, removeArrow } = useGameState(
@@ -39749,6 +39991,7 @@ function App() {
   const currentLevel = LEVELS[state.currentLevelIndex];
   const highestReached = highestLevel !== void 0 ? Number(highestLevel) : 0;
   const chapter = getChapterForLevel(state.currentLevelIndex);
+  const displayGrid = adminGrid ?? state.grid;
   React$2.useEffect(() => {
     if (!isEditing) setSelectedArrow(null);
   }, [isEditing]);
@@ -39763,6 +40006,17 @@ function App() {
       setSelectedArrow(null);
     }
   };
+  const handleAdminToggle = (row, col) => {
+    const sourceGrid = adminGrid ?? state.grid;
+    const newGrid = sourceGrid.map((r2) => [...r2]);
+    const tile = newGrid[row][col];
+    if (tile === "wall") {
+      newGrid[row][col] = "empty";
+    } else if (tile === "empty" || tile === "arrow_up" || tile === "arrow_down" || tile === "arrow_left" || tile === "arrow_right" || tile === "cracked" || tile === "cracked_broken") {
+      newGrid[row][col] = "wall";
+    }
+    setAdminGrid(newGrid);
+  };
   const handleNextLevel = () => {
     if (state.currentLevelIndex < LEVELS.length - 1) {
       const nextLevelNum = state.currentLevelIndex + 1;
@@ -39770,14 +40024,17 @@ function App() {
         setShowBetweenLevelAd(true);
       } else {
         nextLevel();
+        setAdminGrid(null);
       }
     } else {
       reset();
+      setAdminGrid(null);
     }
   };
   const handleAdClose = () => {
     setShowBetweenLevelAd(false);
     nextLevel();
+    setAdminGrid(null);
   };
   const handlePlay = () => {
     setHintTile(null);
@@ -39786,11 +40043,13 @@ function App() {
   const handleReset = () => {
     setSelectedArrow(null);
     setHintTile(null);
+    setAdminGrid(null);
     reset();
   };
   const handleGoToLevel = (idx) => {
     setSelectedArrow(null);
     setHintTile(null);
+    setAdminGrid(null);
     goToLevel(idx);
   };
   const handleRevealHint = (row, col, dir) => {
@@ -39892,6 +40151,31 @@ function App() {
                   },
                   "hint-btn"
                 ) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(AnimatePresence, { children: adminMode && isEditing && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  motion.button,
+                  {
+                    type: "button",
+                    onClick: () => setShowEditorPanel((v2) => !v2),
+                    initial: { opacity: 0, scale: 0.8 },
+                    animate: { opacity: 1, scale: 1 },
+                    exit: { opacity: 0, scale: 0.8 },
+                    whileHover: { scale: 1.06 },
+                    whileTap: { scale: 0.95 },
+                    title: "Toggle Level Editor",
+                    className: "flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-display text-xs uppercase tracking-wider border transition-colors duration-200",
+                    style: {
+                      borderColor: showEditorPanel ? "oklch(0.65 0.18 25 / 0.6)" : "oklch(0.65 0.18 25 / 0.35)",
+                      color: "oklch(0.65 0.18 25)",
+                      background: showEditorPanel ? "oklch(0.65 0.18 25 / 0.15)" : "oklch(0.65 0.18 25 / 0.07)"
+                    },
+                    "data-ocid": "editor.open_modal_button",
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "1rem", lineHeight: 1 }, children: "⚙" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:inline", children: "Editor" })
+                    ]
+                  },
+                  "admin-btn"
+                ) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(AnimatePresence, { mode: "wait", children: isPlaying && /* @__PURE__ */ jsxRuntimeExports.jsxs(
                   motion.div,
                   {
@@ -39938,16 +40222,18 @@ function App() {
                     children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                       GameGrid,
                       {
-                        grid: state.grid,
+                        grid: displayGrid,
                         ballPos: state.ballPos,
                         gamePhase: state.gamePhase,
                         ballFail: state.ballFail,
                         levelIndex: state.currentLevelIndex,
-                        selectedArrow: isEditing ? selectedArrow : null,
+                        selectedArrow: isEditing && !adminMode ? selectedArrow : null,
                         onPlace: handlePlaceOnGrid,
                         onRemoveArrow: removeArrow,
                         brokenTiles: state.brokenTiles,
-                        hintTile
+                        hintTile,
+                        adminMode,
+                        onAdminToggle: handleAdminToggle
                       }
                     )
                   }
@@ -39961,7 +40247,7 @@ function App() {
                 animate: { opacity: 1 },
                 exit: { opacity: 0 },
                 className: "text-xs text-muted-foreground text-center font-display hidden sm:block",
-                children: selectedArrow ? `${selectedArrow.charAt(0).toUpperCase() + selectedArrow.slice(1)} selected — tap any grid cell to place` : "Tap an arrow in the inventory, then tap a grid cell to place it"
+                children: adminMode ? "Admin mode active — click cells to toggle walls · Use ⚙ to export" : selectedArrow ? `${selectedArrow.charAt(0).toUpperCase() + selectedArrow.slice(1)} selected — tap any grid cell to place` : "Tap an arrow in the inventory, then tap a grid cell to place it"
               }
             ) })
           ] }),
@@ -40043,6 +40329,18 @@ function App() {
                 )
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
+                adminMode && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "span",
+                  {
+                    className: "text-xs font-display font-bold uppercase tracking-wider px-2 py-1 rounded",
+                    style: {
+                      color: "oklch(0.65 0.18 25)",
+                      background: "oklch(0.55 0.18 25 / 0.1)",
+                      border: "1px solid oklch(0.65 0.18 25 / 0.3)"
+                    },
+                    children: "⚙ Admin"
+                  }
+                ),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-muted-foreground font-display uppercase tracking-wider", children: [
                     "Steps",
@@ -40100,6 +40398,15 @@ function App() {
             placedArrows: state.placedArrows,
             onRevealHint: handleRevealHint,
             onClose: () => setShowHintModal(false)
+          }
+        ) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(AnimatePresence, { children: adminMode && showEditorPanel && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          LevelEditorPanel,
+          {
+            grid: displayGrid,
+            onClose: () => setShowEditorPanel(false),
+            onReset: handleReset,
+            accentColor: chapter.accent
           }
         ) })
       ]

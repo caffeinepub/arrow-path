@@ -1,4 +1,5 @@
 import type { ArrowDir, Level, TileType } from "../types/game";
+import { checkClearBuffer, validateLevel } from "../utils/levelValidator";
 
 type Pos = [number, number];
 
@@ -64,9 +65,7 @@ const LEVEL_CONFIGS: LevelConfig[] = [
     goalPos: [3, 5],
     startDir: "right",
     walls: [
-      [1, 2],
       [2, 0],
-      [2, 1],
       [0, 3],
       [0, 4],
       [0, 5],
@@ -1935,3 +1934,21 @@ const LEVEL_CONFIGS: LevelConfig[] = [
 ];
 
 export const LEVELS: Level[] = LEVEL_CONFIGS.map(buildLevel);
+
+// Dev-time validation
+if (process.env.NODE_ENV !== "production") {
+  for (const cfg of LEVEL_CONFIGS) {
+    const result = validateLevel(cfg as Parameters<typeof validateLevel>[0]);
+    if (!result.valid) {
+      console.warn(
+        `[Waymark] Level ${cfg.id} may be unsolvable: ${result.reason}`,
+      );
+    }
+    const bufferWarnings = checkClearBuffer(
+      cfg as Parameters<typeof checkClearBuffer>[0],
+    );
+    for (const w of bufferWarnings) {
+      console.warn(`[Waymark] Level ${cfg.id} buffer issue: ${w}`);
+    }
+  }
+}

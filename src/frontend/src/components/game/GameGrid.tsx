@@ -21,6 +21,8 @@ interface GameGridProps {
   onRemoveArrow: (row: number, col: number) => void;
   brokenTiles?: Set<string>;
   hintTile?: { row: number; col: number; dir: ArrowDir } | null;
+  adminMode?: boolean;
+  onAdminToggle?: (row: number, col: number) => void;
 }
 
 const containerVariants: Variants = {
@@ -52,6 +54,8 @@ export function GameGrid({
   onPlace,
   onRemoveArrow,
   hintTile,
+  adminMode,
+  onAdminToggle,
 }: GameGridProps) {
   const isEditing = gamePhase === "editing";
 
@@ -96,11 +100,35 @@ export function GameGrid({
 
   const trailGhosts = trail.slice(1);
 
+  // Admin mode grid border glow style
+  const adminBorderStyle: React.CSSProperties = adminMode
+    ? {
+        boxShadow:
+          "0 0 0 2px oklch(0.65 0.18 25 / 0.7), 0 0 20px oklch(0.65 0.18 25 / 0.25), 0 8px 40px oklch(0 0 0 / 0.5)",
+        borderColor: "oklch(0.65 0.18 25 / 0.6)",
+      }
+    : {
+        boxShadow:
+          "0 0 0 1px oklch(0.38 0.03 255 / 0.4), 0 8px 40px oklch(0 0 0 / 0.5)",
+      };
+
   return (
     <div
       className="relative w-full flex flex-col items-center"
       data-ocid="game.canvas_target"
     >
+      {adminMode && (
+        <div
+          className="mb-2 px-3 py-1 rounded-full text-xs font-display font-bold uppercase tracking-wider"
+          style={{
+            background: "oklch(0.55 0.18 25 / 0.12)",
+            color: "oklch(0.65 0.18 25)",
+            border: "1px solid oklch(0.65 0.18 25 / 0.4)",
+          }}
+        >
+          ✏ Edit Mode — click cells to toggle walls
+        </div>
+      )}
       <motion.div
         key={`grid-${levelIndex}-${GRID_ROWS}x${GRID_COLS}-${gamePhase === "editing" ? "edit" : "play"}`}
         variants={containerVariants}
@@ -113,8 +141,7 @@ export function GameGrid({
             display: "grid",
             gridTemplateColumns: `repeat(${GRID_COLS}, var(--cell-size))`,
             gridTemplateRows: `repeat(${GRID_ROWS}, var(--cell-size))`,
-            boxShadow:
-              "0 0 0 1px oklch(0.38 0.03 255 / 0.4), 0 8px 40px oklch(0 0 0 / 0.5)",
+            ...adminBorderStyle,
           } as React.CSSProperties
         }
       >
@@ -128,6 +155,8 @@ export function GameGrid({
               selectedArrow={selectedArrow}
               onPlace={onPlace}
               onRemove={onRemoveArrow}
+              adminMode={adminMode}
+              onAdminToggle={onAdminToggle}
             />
           </motion.div>
         ))}
