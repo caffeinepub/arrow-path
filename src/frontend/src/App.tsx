@@ -48,7 +48,6 @@ function App() {
   const isEditing = state.gamePhase === "editing";
   const isPlaying = state.gamePhase === "playing";
   const isWon = state.gamePhase === "won";
-  const isFailed = state.gamePhase === "failed";
   const currentLevel = LEVELS[state.currentLevelIndex];
   const highestReached = highestLevel !== undefined ? Number(highestLevel) : 0;
 
@@ -114,7 +113,6 @@ function App() {
       >
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* Logo mark */}
             <div
               className="w-8 h-8 rounded-md flex items-center justify-center transition-all duration-700"
               style={{
@@ -139,7 +137,6 @@ function App() {
 
           {/* Center: chapter label + level name */}
           <div className="hidden sm:flex flex-col items-center gap-0.5">
-            {/* Chapter badge */}
             <span
               className="text-xs font-display uppercase tracking-widest px-2.5 py-0.5 rounded-full"
               style={{
@@ -183,26 +180,6 @@ function App() {
                   Running
                 </motion.div>
               )}
-              {isFailed && (
-                <motion.div
-                  key="failed"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-display uppercase font-bold"
-                  style={{
-                    background: "oklch(0.65 0.18 25 / 0.12)",
-                    color: "oklch(0.65 0.18 25)",
-                    border: "1px solid oklch(0.65 0.18 25 / 0.35)",
-                  }}
-                >
-                  <span
-                    className="w-1.5 h-1.5 rounded-full"
-                    style={{ background: "oklch(0.65 0.18 25)" }}
-                  />
-                  Failed
-                </motion.div>
-              )}
             </AnimatePresence>
           </div>
         </div>
@@ -211,7 +188,6 @@ function App() {
       {/* Main content */}
       <main className="relative z-10 flex-1 px-3 py-4 sm:py-6">
         <div className="max-w-5xl mx-auto">
-          {/* Game area */}
           <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-start justify-center">
             {/* Grid section */}
             <div className="flex-1 flex flex-col items-center gap-4 min-w-0">
@@ -221,7 +197,6 @@ function App() {
                 transition={{ duration: 0.4 }}
                 className="w-full"
               >
-                {/* Grid wrapper - overflow-x scroll on mobile */}
                 <div className="overflow-x-auto pb-2">
                   <div
                     className="relative rounded-lg"
@@ -236,6 +211,7 @@ function App() {
                       selectedArrow={isEditing ? selectedArrow : null}
                       onPlace={handlePlaceOnGrid}
                       onRemoveArrow={removeArrow}
+                      brokenTiles={state.brokenTiles}
                     />
                   </div>
                 </div>

@@ -12,6 +12,13 @@ interface GridCellProps {
   onRemove: (row: number, col: number) => void;
 }
 
+const GATE_ARROWS: Record<string, ArrowDir> = {
+  gate_up: "up",
+  gate_down: "down",
+  gate_left: "left",
+  gate_right: "right",
+};
+
 export function GridCell({
   row,
   col,
@@ -24,7 +31,16 @@ export function GridCell({
   const [isHovered, setIsHovered] = useState(false);
 
   const isArrow = tile.startsWith("arrow_");
+  const isGate = tile.startsWith("gate_");
   const arrowDir = isArrow ? (tile.replace("arrow_", "") as ArrowDir) : null;
+  const gateDir = isGate ? GATE_ARROWS[tile] : null;
+
+  const isSpecialTile =
+    tile === "wall" ||
+    tile === "cracked" ||
+    tile === "cracked_broken" ||
+    isGate;
+
   const isPlaceable =
     isEditing &&
     selectedArrow !== null &&
@@ -32,7 +48,6 @@ export function GridCell({
 
   const handleClick = () => {
     if (!isEditing) return;
-    // If there's a selected arrow, place it here
     if (
       selectedArrow !== null &&
       (tile === "empty" || tile === "start" || isArrow)
@@ -40,7 +55,6 @@ export function GridCell({
       onPlace(row, col);
       return;
     }
-    // If no arrow selected and this cell has a placed arrow, remove it
     if (isArrow) {
       onRemove(row, col);
     }
@@ -85,6 +99,150 @@ export function GridCell({
         S
       </span>
     );
+  } else if (tile === "cracked") {
+    cellClass = "tile-cracked cursor-not-allowed";
+    content = (
+      <svg
+        role="img"
+        aria-label="Cracked tile"
+        viewBox="0 0 24 24"
+        width="20"
+        height="20"
+        className="pointer-events-none select-none"
+      >
+        <line
+          x1="12"
+          y1="2"
+          x2="8"
+          y2="10"
+          stroke="oklch(0.65 0.08 50)"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+        <line
+          x1="8"
+          y1="10"
+          x2="14"
+          y2="14"
+          stroke="oklch(0.65 0.08 50)"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+        <line
+          x1="14"
+          y1="14"
+          x2="10"
+          y2="22"
+          stroke="oklch(0.65 0.08 50)"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+        <line
+          x1="12"
+          y1="2"
+          x2="16"
+          y2="7"
+          stroke="oklch(0.65 0.08 50)"
+          strokeWidth="1"
+          strokeLinecap="round"
+        />
+        <line
+          x1="14"
+          y1="14"
+          x2="18"
+          y2="17"
+          stroke="oklch(0.65 0.08 50)"
+          strokeWidth="1"
+          strokeLinecap="round"
+        />
+      </svg>
+    );
+  } else if (tile === "cracked_broken") {
+    cellClass = "tile-cracked-broken cursor-not-allowed";
+    content = (
+      <svg
+        role="img"
+        aria-label="Broken tile"
+        viewBox="0 0 24 24"
+        width="20"
+        height="20"
+        className="pointer-events-none select-none"
+      >
+        <line
+          x1="4"
+          y1="4"
+          x2="20"
+          y2="20"
+          stroke="oklch(0.65 0.18 25)"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <line
+          x1="20"
+          y1="4"
+          x2="4"
+          y2="20"
+          stroke="oklch(0.65 0.18 25)"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <line
+          x1="12"
+          y1="2"
+          x2="8"
+          y2="10"
+          stroke="oklch(0.65 0.18 25 / 0.6)"
+          strokeWidth="1"
+          strokeLinecap="round"
+        />
+        <line
+          x1="12"
+          y1="2"
+          x2="16"
+          y2="7"
+          stroke="oklch(0.65 0.18 25 / 0.6)"
+          strokeWidth="1"
+          strokeLinecap="round"
+        />
+        <line
+          x1="12"
+          y1="22"
+          x2="15"
+          y2="16"
+          stroke="oklch(0.65 0.18 25 / 0.6)"
+          strokeWidth="1"
+          strokeLinecap="round"
+        />
+      </svg>
+    );
+  } else if (isGate && gateDir) {
+    cellClass = "tile-gate cursor-not-allowed";
+    content = (
+      <div className="flex flex-col items-center gap-0.5">
+        <ArrowIcon
+          direction={gateDir}
+          size={22}
+          style={
+            {
+              color: "oklch(0.82 0.15 80)",
+              filter: "drop-shadow(0 0 4px oklch(0.82 0.15 80 / 0.7))",
+            } as React.CSSProperties
+          }
+        />
+        <span
+          className="text-center select-none"
+          style={{
+            fontSize: "7px",
+            color: "oklch(0.82 0.15 80 / 0.7)",
+            fontFamily: "Montserrat, sans-serif",
+            fontWeight: 700,
+            letterSpacing: "0.05em",
+          }}
+        >
+          ONLY
+        </span>
+      </div>
+    );
   } else if (isArrow && arrowDir) {
     cellClass = `tile-arrow-placed select-none ${
       isEditing ? "cursor-pointer hover:opacity-80" : ""
@@ -103,13 +261,11 @@ export function GridCell({
       />
     );
   } else {
-    // empty
     cellClass = `tile-empty ${
       isPlaceable ? "cursor-pointer" : "cursor-default"
     }`;
   }
 
-  // Highlight placeable cells when an arrow is selected
   const showPlaceHover = isPlaceable && isHovered;
 
   return (
@@ -121,23 +277,12 @@ export function GridCell({
         ${showPlaceHover ? "drop-target-hover" : ""}
       `}
       style={{ width: "100%", height: "100%" }}
-      role={isEditing ? "button" : undefined}
-      tabIndex={isEditing ? 0 : undefined}
+      role={isEditing && !isSpecialTile ? "button" : undefined}
+      tabIndex={isEditing && !isSpecialTile ? 0 : undefined}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      title={
-        isEditing
-          ? isArrow
-            ? selectedArrow
-              ? `Replace arrow at (${row + 1}, ${col + 1})`
-              : "Tap to remove arrow"
-            : isPlaceable
-              ? `Place ${selectedArrow} arrow here`
-              : undefined
-          : undefined
-      }
       aria-label={
         isArrow && arrowDir
           ? `${arrowDir} arrow at row ${row + 1}, col ${col + 1}`
@@ -147,7 +292,6 @@ export function GridCell({
       data-col={col}
     >
       {content}
-      {/* Ghost preview when hovering a placeable cell with arrow selected */}
       {isPlaceable && isHovered && selectedArrow && !isArrow && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
           <ArrowIcon

@@ -25,11 +25,6 @@ function InventoryItemCard({
   const isEmpty = item.count === 0;
   const canSelect = isEditing && !isEmpty;
 
-  const handleClick = () => {
-    if (!canSelect) return;
-    onSelect(item.direction);
-  };
-
   return (
     <motion.div
       whileHover={canSelect ? { y: -4, transition: { duration: 0.15 } } : {}}
@@ -37,7 +32,10 @@ function InventoryItemCard({
     >
       <button
         type="button"
-        onClick={handleClick}
+        onClick={() => {
+          if (!canSelect) return;
+          onSelect(item.direction);
+        }}
         disabled={!canSelect}
         aria-pressed={isSelected}
         aria-label={`Select ${DIRECTION_LABELS[item.direction]} arrow`}
@@ -116,7 +114,6 @@ function InventoryItemCard({
           {item.count}
         </span>
 
-        {/* Selected indicator ring pulse */}
         {isSelected && !isEmpty && (
           <span
             className="absolute inset-0 rounded-md animate-pulse pointer-events-none"
@@ -146,7 +143,6 @@ export function InventoryPanel({
   const totalRemaining = inventory.reduce((sum, item) => sum + item.count, 0);
 
   const handleSelect = (dir: ArrowDir) => {
-    // Toggle off if same arrow tapped again
     onSelectArrow(selectedArrow === dir ? null : dir);
   };
 
@@ -209,7 +205,7 @@ export function InventoryPanel({
       {/* Legend */}
       <div className="space-y-1.5 border-t border-border/40 pt-3">
         <p className="text-xs font-display uppercase tracking-wider text-muted-foreground mb-2">
-          Legend
+          Tile Guide
         </p>
         <div className="flex items-center gap-2">
           <div
@@ -220,7 +216,7 @@ export function InventoryPanel({
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded-sm tile-wall" />
-          <span className="text-xs text-muted-foreground">Wall</span>
+          <span className="text-xs text-muted-foreground">Wall (fail)</span>
         </div>
         <div className="flex items-center gap-2">
           <div
@@ -232,6 +228,18 @@ export function InventoryPanel({
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded-sm tile-goal" />
           <span className="text-xs text-muted-foreground">Goal</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded-sm tile-cracked" />
+          <span className="text-xs text-muted-foreground">Cracked (1 use)</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded-sm tile-cracked-broken" />
+          <span className="text-xs text-muted-foreground">Broken (fail)</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded-sm tile-gate" />
+          <span className="text-xs text-muted-foreground">Gate (one-way)</span>
         </div>
         <div className="flex items-center gap-2 mt-1">
           <span className="text-xs text-muted-foreground italic">

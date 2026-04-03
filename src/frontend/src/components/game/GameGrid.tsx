@@ -12,22 +12,12 @@ interface GameGridProps {
   selectedArrow: ArrowDir | null;
   onPlace: (row: number, col: number) => void;
   onRemoveArrow: (row: number, col: number) => void;
-}
-
-const CELL_SIZE_DESKTOP = 64;
-const GRID_SIZE = 8;
-
-// Pre-generate stable coordinate pairs for the fixed 8x8 grid
-const CELL_COORDS: Array<{ row: number; col: number; key: string }> = [];
-for (let r = 0; r < GRID_SIZE; r++) {
-  for (let c = 0; c < GRID_SIZE; c++) {
-    CELL_COORDS.push({ row: r, col: c, key: `grid-cell-${r * GRID_SIZE + c}` });
-  }
+  brokenTiles?: Set<string>;
 }
 
 const containerVariants: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.015 } },
+  visible: { transition: { staggerChildren: 0.012 } },
 };
 
 const tileVariants: Variants = {
@@ -35,12 +25,14 @@ const tileVariants: Variants = {
   visible: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.2, ease: "easeOut" as const },
+    transition: { duration: 0.18, ease: "easeOut" as const },
   },
 };
 
-// Stable trail keys — always 2 ghost slots
 const TRAIL_KEYS = ["trail-ghost-1", "trail-ghost-2"];
+
+// CSS transition duration (sync with MOVE_INTERVAL_MS in useGameState)
+const MOVE_INTERVAL_MS_CSS = 0.2;
 
 export function GameGrid({
   grid,
@@ -53,6 +45,22 @@ export function GameGrid({
   onRemoveArrow,
 }: GameGridProps) {
   const isEditing = gamePhase === "editing";
+
+  const GRID_ROWS = grid.length;
+  const GRID_COLS = grid[0]?.length ?? 8;
+
+  // Dynamic cell size based on grid dimensions
+  const CELL_SIZE = GRID_ROWS <= 6 ? 72 : GRID_ROWS <= 8 ? 60 : 52;
+
+  const cellCoords = React.useMemo(() => {
+    const coords: { row: number; col: number; key: string }[] = [];
+    for (let r = 0; r < GRID_ROWS; r++) {
+      for (let c = 0; c < GRID_COLS; c++) {
+        coords.push({ row: r, col: c, key: `r${r}c${c}` });
+      }
+    }
+    return coords;
+  }, [GRID_ROWS, GRID_COLS]);
 
   // Track last 2 ball positions for blur trail
   const [trail, setTrail] = React.useState<Array<{ row: number; col: number }>>(
@@ -67,12 +75,13 @@ export function GameGrid({
     }
   }, [ballPos]);
 
+  const transitionDuration = `${MOVE_INTERVAL_MS_CSS}s`;
+
   const ballStyle: React.CSSProperties = ballPos
     ? {
         top: `calc(${ballPos.row} * var(--cell-size) + var(--cell-size) / 2 - 16px)`,
         left: `calc(${ballPos.col} * var(--cell-size) + var(--cell-size) / 2 - 16px)`,
-        transition:
-          "top 0.32s cubic-bezier(0.4, 0, 0.2, 1), left 0.32s cubic-bezier(0.4, 0, 0.2, 1)",
+        transition: `top ${transitionDuration} cubic-bezier(0.4, 0, 0.2, 1), left ${transitionDuration} cubic-bezier(0.4, 0, 0.2, 1)`,
       }
     : { display: "none" };
 
@@ -83,30 +92,29 @@ export function GameGrid({
       className="relative w-full flex flex-col items-center"
       data-ocid="game.canvas_target"
     >
-      {/* Grid container */}
       <motion.div
-        key={`grid-${levelIndex}-${gamePhase === "editing" ? "edit" : "play"}`}
+        key={`grid-${levelIndex}-${GRID_ROWS}x${GRID_COLS}-${gamePhase === "editing" ? "edit" : "play"}`}
         variants={containerVariants}
         initial="hidden"
         animate="visible"
         className="relative rounded-lg overflow-hidden border border-border/60"
         style={
           {
-            "--cell-size": `${CELL_SIZE_DESKTOP}px`,
+            "--cell-size": `${CELL_SIZE}px`,
             display: "grid",
-            gridTemplateColumns: "repeat(8, var(--cell-size))",
-            gridTemplateRows: "repeat(8, var(--cell-size))",
+            gridTemplateColumns: `repeat(${GRID_COLS}, var(--cell-size))`,
+            gridTemplateRows: `repeat(${GRID_ROWS}, var(--cell-size))`,
             boxShadow:
               "0 0 0 1px oklch(0.38 0.03 255 / 0.4), 0 8px 40px oklch(0 0 0 / 0.5)",
           } as React.CSSProperties
         }
       >
-        {CELL_COORDS.map(({ row, col, key }) => (
+        {cellCoords.map(({ row, col, key }) => (
           <motion.div key={key} variants={tileVariants}>
             <GridCell
               row={row}
               col={col}
-              tile={grid[row][col]}
+              tile={grid[row]?.[col] ?? "empty"}
               isEditing={isEditing}
               selectedArrow={selectedArrow}
               onPlace={onPlace}
@@ -115,7 +123,6 @@ export function GameGrid({
           </motion.div>
         ))}
 
-        {/* Ball trail ghosts — 2 fixed slots with stable keys */}
         {TRAIL_KEYS.map((trailKey, i) => {
           const pos = trailGhosts[i];
           if (!pos) return null;
@@ -132,14 +139,12 @@ export function GameGrid({
                 filter: `blur(${(i + 1) * 3}px)`,
                 background:
                   "radial-gradient(circle, rgba(255,255,255,0.9), rgba(255,255,255,0.3))",
-                transition:
-                  "top 0.32s cubic-bezier(0.4,0,0.2,1), left 0.32s cubic-bezier(0.4,0,0.2,1)",
+                transition: `top ${transitionDuration} cubic-bezier(0.4,0,0.2,1), left ${transitionDuration} cubic-bezier(0.4,0,0.2,1)`,
               }}
             />
           );
         })}
 
-        {/* Ball overlay */}
         {ballPos && (
           <div
             className={`

@@ -513,7 +513,6 @@ video {
     --radius: 0.5rem;
 
     /* WAYMARK — Nordic Night Theme */
-    /* #2E3440 background */
     --background: 0.27 0.025 255;
     --foreground: 0.92 0.01 240;
     --card: 0.31 0.025 255;
@@ -593,21 +592,6 @@ body{
     transition: background-color 0.8s ease;
 }
 
-.container{
-  width: 100%;
-  margin-right: auto;
-  margin-left: auto;
-  padding-right: 2rem;
-  padding-left: 2rem;
-}
-
-@media (min-width: 1400px){
-
-  .container{
-    max-width: 1400px;
-  }
-}
-
 .sr-only{
   position: absolute;
   width: 1px;
@@ -682,12 +666,12 @@ body{
   bottom: 0px;
 }
 
-.bottom-4{
-  bottom: 1rem;
+.bottom-1{
+  bottom: 0.25rem;
 }
 
-.bottom-full{
-  bottom: 100%;
+.bottom-4{
+  bottom: 1rem;
 }
 
 .left-0{
@@ -818,6 +802,16 @@ body{
   margin-right: 1rem;
 }
 
+.mx-5{
+  margin-left: 1.25rem;
+  margin-right: 1.25rem;
+}
+
+.mx-6{
+  margin-left: 1.5rem;
+  margin-right: 1.5rem;
+}
+
 .mx-auto{
   margin-left: auto;
   margin-right: auto;
@@ -859,14 +853,6 @@ body{
   margin-bottom: 0.5rem;
 }
 
-.mb-2\.5{
-  margin-bottom: 0.625rem;
-}
-
-.mb-3{
-  margin-bottom: 0.75rem;
-}
-
 .mb-4{
   margin-bottom: 1rem;
 }
@@ -893,10 +879,6 @@ body{
 
 .mt-2{
   margin-top: 0.5rem;
-}
-
-.mt-2\.5{
-  margin-top: 0.625rem;
 }
 
 .mt-4{
@@ -1809,11 +1791,6 @@ body{
   padding: 1px;
 }
 
-.px-0\.5{
-  padding-left: 0.125rem;
-  padding-right: 0.125rem;
-}
-
 .px-1{
   padding-left: 0.25rem;
   padding-right: 0.25rem;
@@ -1904,10 +1881,6 @@ body{
   padding-bottom: 1.5rem;
 }
 
-.pb-0\.5{
-  padding-bottom: 0.125rem;
-}
-
 .pb-2{
   padding-bottom: 0.5rem;
 }
@@ -1932,10 +1905,6 @@ body{
   padding-left: 2rem;
 }
 
-.pr-0\.5{
-  padding-right: 0.125rem;
-}
-
 .pr-1{
   padding-right: 0.25rem;
 }
@@ -1956,10 +1925,6 @@ body{
   padding-top: 0px;
 }
 
-.pt-1{
-  padding-top: 0.25rem;
-}
-
 .pt-3{
   padding-top: 0.75rem;
 }
@@ -1974,6 +1939,10 @@ body{
 
 .text-center{
   text-align: center;
+}
+
+.text-right{
+  text-align: right;
 }
 
 .align-middle{
@@ -2228,12 +2197,6 @@ body{
   outline-style: solid;
 }
 
-.ring{
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
-}
-
 .ring-0{
   --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
   --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
@@ -2352,10 +2315,6 @@ body{
   transition-duration: 300ms;
 }
 
-.duration-500{
-  transition-duration: 500ms;
-}
-
 .duration-700{
   transition-duration: 700ms;
 }
@@ -2366,6 +2325,10 @@ body{
 
 .ease-linear{
   transition-timing-function: linear;
+}
+
+.ease-out{
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
 }
 
 .\@container\/card-header{
@@ -2423,10 +2386,6 @@ body{
   animation-duration: 300ms;
 }
 
-.duration-500{
-  animation-duration: 500ms;
-}
-
 .duration-700{
   animation-duration: 700ms;
 }
@@ -2437,6 +2396,10 @@ body{
 
 .ease-linear{
   animation-timing-function: linear;
+}
+
+.ease-out{
+  animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
 }
 
 .running{
@@ -2485,6 +2448,10 @@ body{
       oklch(var(--destructive) / 0.35);
   }
 
+/* =====================================
+     CORE TILE STYLES
+     ===================================== */
+
 .tile-empty {
     background-color: oklch(var(--grid-empty));
     border-color: oklch(0.38 0.03 255 / 0.5);
@@ -2526,6 +2493,40 @@ body{
       oklch(var(--neon-cyan) / 0.08);
   }
 
+/* =====================================
+     NEW PREMIUM TILE STYLES
+     ===================================== */
+
+/* Cracked tile: warm dark with visible fracture */
+
+.tile-cracked {
+    background-color: oklch(0.26 0.04 40);
+    border-color: oklch(0.45 0.06 50 / 0.5);
+    box-shadow: inset 0 0 8px oklch(0.65 0.08 50 / 0.1);
+  }
+
+/* Cracked broken: red tinted shattered */
+
+.tile-cracked-broken {
+    background-color: oklch(0.2 0.05 15);
+    border-color: oklch(0.55 0.12 20 / 0.6);
+    box-shadow: 0 0 8px oklch(0.65 0.18 25 / 0.3), inset 0 0 6px
+      oklch(0.65 0.18 25 / 0.15);
+  }
+
+/* One-way gate: amber/gold with directional glow */
+
+.tile-gate {
+    background-color: oklch(0.22 0.05 75);
+    border-color: oklch(0.82 0.15 80 / 0.6);
+    box-shadow: 0 0 8px oklch(0.82 0.15 80 / 0.25), inset 0 0 6px
+      oklch(0.82 0.15 80 / 0.08);
+  }
+
+/* =====================================
+     UTILITY STYLES
+     ===================================== */
+
 .bg-streak {
     background-image: linear-gradient(
         135deg,
@@ -2541,6 +2542,10 @@ body{
     box-shadow: 0 0 8px oklch(var(--neon-cyan) / 0.35);
   }
 
+/* =====================================
+     ANIMATIONS
+     ===================================== */
+
 @keyframes pulse-goal {
     0%,
     100% {
@@ -2555,6 +2560,55 @@ body{
 
 .animate-pulse-goal {
     animation: pulse-goal 2s ease-in-out infinite;
+  }
+
+/* Ball fail flash — brief red pulse, auto-clears */
+
+@keyframes ball-fail-flash {
+    0% {
+      box-shadow: 0 0 20px oklch(0.65 0.18 25 / 0.9), 0 0 40px
+        oklch(0.65 0.18 25 / 0.6);
+    }
+    60% {
+      box-shadow: 0 0 12px oklch(0.65 0.18 25 / 0.5);
+    }
+    100% {
+      box-shadow: none;
+    }
+  }
+
+.animate-ball-fail {
+    animation: ball-fail-flash 0.4s ease-out forwards;
+  }
+
+/* Cracked tile break animation */
+
+@keyframes tile-crack {
+    0% {
+      box-shadow: inset 0 0 0 oklch(0.65 0.18 25 / 0);
+    }
+    30% {
+      box-shadow: 0 0 12px oklch(0.65 0.18 25 / 0.5), inset 0 0 8px
+        oklch(0.65 0.18 25 / 0.3);
+    }
+    100% {
+      box-shadow: 0 0 4px oklch(0.65 0.18 25 / 0.2);
+    }
+  }
+
+.tile-cracked-broken {
+    animation: tile-crack 0.3s ease-out;
+  }
+
+/* Gate pass glow */
+
+@keyframes gate-pass {
+    0% {
+      box-shadow: 0 0 16px oklch(0.82 0.15 80 / 0.7);
+    }
+    100% {
+      box-shadow: 0 0 4px oklch(0.82 0.15 80 / 0.15);
+    }
   }
 
 .\[--cell-size\:--spacing\(8\)\]{

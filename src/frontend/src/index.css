@@ -9,7 +9,6 @@
     --radius: 0.5rem;
 
     /* WAYMARK — Nordic Night Theme */
-    /* #2E3440 background */
     --background: 0.27 0.025 255;
     --foreground: 0.92 0.01 240;
     --card: 0.31 0.025 255;
@@ -132,6 +131,10 @@
       oklch(var(--destructive) / 0.35);
   }
 
+  /* =====================================
+     CORE TILE STYLES
+     ===================================== */
+
   .tile-empty {
     background-color: oklch(var(--grid-empty));
     border-color: oklch(0.38 0.03 255 / 0.5);
@@ -173,6 +176,37 @@
       oklch(var(--neon-cyan) / 0.08);
   }
 
+  /* =====================================
+     NEW PREMIUM TILE STYLES
+     ===================================== */
+
+  /* Cracked tile: warm dark with visible fracture */
+  .tile-cracked {
+    background-color: oklch(0.26 0.04 40);
+    border-color: oklch(0.45 0.06 50 / 0.5);
+    box-shadow: inset 0 0 8px oklch(0.65 0.08 50 / 0.1);
+  }
+
+  /* Cracked broken: red tinted shattered */
+  .tile-cracked-broken {
+    background-color: oklch(0.2 0.05 15);
+    border-color: oklch(0.55 0.12 20 / 0.6);
+    box-shadow: 0 0 8px oklch(0.65 0.18 25 / 0.3), inset 0 0 6px
+      oklch(0.65 0.18 25 / 0.15);
+  }
+
+  /* One-way gate: amber/gold with directional glow */
+  .tile-gate {
+    background-color: oklch(0.22 0.05 75);
+    border-color: oklch(0.82 0.15 80 / 0.6);
+    box-shadow: 0 0 8px oklch(0.82 0.15 80 / 0.25), inset 0 0 6px
+      oklch(0.82 0.15 80 / 0.08);
+  }
+
+  /* =====================================
+     UTILITY STYLES
+     ===================================== */
+
   .bg-streak {
     background-image: linear-gradient(
         135deg,
@@ -188,6 +222,10 @@
     box-shadow: 0 0 8px oklch(var(--neon-cyan) / 0.35);
   }
 
+  /* =====================================
+     ANIMATIONS
+     ===================================== */
+
   @keyframes pulse-goal {
     0%,
     100% {
@@ -202,5 +240,51 @@
 
   .animate-pulse-goal {
     animation: pulse-goal 2s ease-in-out infinite;
+  }
+
+  /* Ball fail flash — brief red pulse, auto-clears */
+  @keyframes ball-fail-flash {
+    0% {
+      box-shadow: 0 0 20px oklch(0.65 0.18 25 / 0.9), 0 0 40px
+        oklch(0.65 0.18 25 / 0.6);
+    }
+    60% {
+      box-shadow: 0 0 12px oklch(0.65 0.18 25 / 0.5);
+    }
+    100% {
+      box-shadow: none;
+    }
+  }
+
+  .animate-ball-fail {
+    animation: ball-fail-flash 0.4s ease-out forwards;
+  }
+
+  /* Cracked tile break animation */
+  @keyframes tile-crack {
+    0% {
+      box-shadow: inset 0 0 0 oklch(0.65 0.18 25 / 0);
+    }
+    30% {
+      box-shadow: 0 0 12px oklch(0.65 0.18 25 / 0.5), inset 0 0 8px
+        oklch(0.65 0.18 25 / 0.3);
+    }
+    100% {
+      box-shadow: 0 0 4px oklch(0.65 0.18 25 / 0.2);
+    }
+  }
+
+  .tile-cracked-broken {
+    animation: tile-crack 0.3s ease-out;
+  }
+
+  /* Gate pass glow */
+  @keyframes gate-pass {
+    0% {
+      box-shadow: 0 0 16px oklch(0.82 0.15 80 / 0.7);
+    }
+    100% {
+      box-shadow: 0 0 4px oklch(0.82 0.15 80 / 0.15);
+    }
   }
 }
